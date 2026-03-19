@@ -1,27 +1,21 @@
 """
 Power Electronics AI Agent - main agent logic with tool calling and RAG.
+
+Uses LangChain structured tools for reliable tool calling with OpenAI.
 """
 from __future__ import annotations
 
-import json
 import os
-import re
 from typing import Any
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
 from pea.knowledge.retriever import KnowledgeRetriever
-from pea.tools.calculator import (
-    buck_boost_design,
-    buck_converter_design,
-    boost_converter_design,
-    flyback_design,
-    topology_recommendation,
-)
+from pea.tools.langchain_tools import get_pea_tools
 
 
-# Tool registry for the agent (import from tools for consistency)
-from pea.tools.calculator import execute_tool
+# Map LLM tool names to LangChain tool invokables
+_TOOL_MAP: dict[str, Any] = {t.name: t for t in get_pea_tools()}
 
 
 class PEAAgent:
@@ -45,7 +39,7 @@ class PEAAgent:
         self._llm = None
 
     def _get_llm(self):
-        """Lazy load LLM to avoid import errors when API key is missing."""
+        """Lazy load LLM with structured tools bound."""
         if self._llm is not None:
             return self._llm
 
@@ -56,38 +50,27 @@ class PEAAgent:
 
         from langchain_openai import ChatOpenAI
 
-        self._llm = ChatOpenAI(
+        llm = ChatOpenAI(
             model=self.model,
             api_key=self.api_key,
             temperature=0.2,
         )
+        self._llm = llm.bind_tools(get_pea_tools())
         return self._llm
 
     def _build_system_prompt(self, context: str | None) -> str:
-        """Build system prompt with RAG context and tool descriptions."""
+        """Build system prompt with RAG context."""
         base = """You are PEA (Power Electronics AI), an expert assistant for power electronics design.
 
 Your capabilities:
 1. Recommend converter topologies (Buck, Boost, Buck-Boost, Flyback, etc.) based on specs
-2. Calculate design parameters (inductance, capacitance, duty cycle) using built-in tools
+2. Calculate design parameters (inductance, capacitance, duty cycle) using your tools
 3. Answer questions about power electronics theory and design best practices
 
 When the user provides specifications (V_in, V_out, I_out, etc.):
-- First use topology_recommendation to suggest a suitable topology
-- Then use the appropriate design tool (buck_converter_design, boost_converter_design, etc.) to calculate parameters
+- First use recommend_topology to suggest a suitable topology
+- Then use the appropriate design tool (design_buck, design_boost, etc.) to calculate parameters
 - Present results clearly with units and brief design notes
-
-Available tools (call with exact parameter names):
-- topology_recommendation(v_in, v_out, i_out, isolated=False): Recommend topology
-- buck_converter_design(v_in, v_out, i_out, f_sw_khz=100, ripple_current_pct=0.3, ripple_voltage_pct=0.01)
-- boost_converter_design(v_in, v_out, i_out, f_sw_khz=100, ripple_current_pct=0.3, ripple_voltage_pct=0.01)
-- buck_boost_design(v_in, v_out, i_out, f_sw_khz=100, ripple_current_pct=0.3, ripple_voltage_pct=0.01)
-- flyback_design(v_in_min, v_in_max, v_out, i_out, f_sw_khz=100, n_ratio=None)
-
-To call a tool, respond with a JSON block on its own line:
-```json
-{"tool": "tool_name", "params": {"param1": value1, "param2": value2}}
-```
 
 Use SI units: V for voltage, A for current, kHz for frequency.
 """
@@ -97,23 +80,11 @@ Use SI units: V for voltage, A for current, kHz for frequency.
 
         return base
 
-    def _parse_tool_call(self, response: str) -> tuple[str | None, dict | None]:
-        """Extract tool call from LLM response if present."""
-        match = re.search(r"```json\s*([\s\S]*?)\s*```", response)
-        if match:
-            try:
-                data = json.loads(match.group(1).strip())
-                if "tool" in data and "params" in data:
-                    return data["tool"], data["params"]
-            except json.JSONDecodeError:
-                pass
-        return None, None
-
-    def chat(self, user_message: str, max_tool_calls: int = 3) -> str:
+    def chat(self, user_message: str, max_tool_calls: int = 5) -> str:
         """
         Process user message and return agent response.
 
-        Supports tool calling: agent may request design calculations,
+        Uses LangChain structured tool calling: agent invokes design tools
         which are executed and fed back for final answer.
         """
         # RAG: retrieve relevant context
@@ -129,28 +100,39 @@ Use SI units: V for voltage, A for current, kHz for frequency.
         ]
 
         llm = self._get_llm()
-        tool_calls_made = 0
+        tool_rounds = 0
 
-        while tool_calls_made < max_tool_calls:
+        while tool_rounds < max_tool_calls:
             response_msg = llm.invoke(messages)
-            response = response_msg.content if hasattr(response_msg, "content") else str(response_msg)
-            tool_name, params = self._parse_tool_call(response)
+            tool_calls = getattr(response_msg, "tool_calls", None) or []
 
-            if tool_name is None or params is None:
-                return response
+            if not tool_calls:
+                return response_msg.content or str(response_msg)
 
-            # Execute tool
-            tool_result = execute_tool(tool_name, **params)
-            tool_calls_made += 1
+            # Append assistant message with tool calls
+            messages.append(response_msg)
 
-            # Append assistant response and tool result, get follow-up
-            messages.append(AIMessage(content=response))
-            messages.append(
-                HumanMessage(
-                    content=f"Tool result:\n{tool_result}\n\nPlease summarize the design for the user in a clear, actionable format."
+            # Execute each tool call and append ToolMessage
+            for tc in tool_calls:
+                name = tc.get("name") if isinstance(tc, dict) else getattr(tc, "name", None)
+                args = tc.get("args") if isinstance(tc, dict) else getattr(tc, "args", {})
+                tc_id = tc.get("id") if isinstance(tc, dict) else getattr(tc, "id", "")
+
+                tool_fn = _TOOL_MAP.get(name) if name else None
+                if tool_fn:
+                    try:
+                        result = tool_fn.invoke(args)
+                    except Exception as e:
+                        result = f"Error: {e}"
+                else:
+                    result = f"Unknown tool: {name}"
+
+                messages.append(
+                    ToolMessage(content=str(result), tool_call_id=tc_id or "")
                 )
-            )
 
-        # Fallback if we hit max tool calls
+            tool_rounds += 1
+
+        # Max tool rounds reached; get final response
         final_msg = llm.invoke(messages)
-        return final_msg.content if hasattr(final_msg, "content") else str(final_msg)
+        return final_msg.content or str(final_msg)

@@ -63,9 +63,11 @@ Open http://localhost:8501. Use the sidebar for direct calculations, or enter yo
 ```
 PEA/
 ├── pea/
-│   ├── agent/          # AI agent with tool calling
+│   ├── agent/          # AI agent with LangChain structured tool calling
 │   ├── knowledge/      # RAG documents and retriever
-│   ├── tools/          # Design calculators (Buck, Boost, etc.)
+│   ├── tools/          # Design calculators + LangChain tools
+│   │   ├── calculator.py    # Raw design functions
+│   │   └── langchain_tools.py  # @tool decorated for LLM
 │   └── cli.py          # Command-line interface
 ├── app.py              # Streamlit web app
 ├── requirements.txt
