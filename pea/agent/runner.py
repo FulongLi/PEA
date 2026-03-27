@@ -8,14 +8,36 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+)
 
 from pea.knowledge.retriever import KnowledgeRetriever
 from pea.tools.langchain_tools import get_pea_tools
 
 
-# Map LLM tool names to LangChain tool invokables
 _TOOL_MAP: dict[str, Any] = {t.name: t for t in get_pea_tools()}
+
+SYSTEM_PROMPT = """You are PEA (Power Electronics AI), an expert assistant for power electronics design.
+
+Your capabilities:
+1. Recommend converter topologies (Buck, Boost, Buck-Boost, SEPIC, Cuk, Forward, Flyback, LLC) based on specs
+2. Calculate design parameters (inductance, capacitance, duty cycle) using your tools
+3. Estimate converter efficiency and power losses
+4. Answer questions about power electronics theory and design best practices
+
+When the user provides specifications (V_in, V_out, I_out, etc.):
+- First use recommend_topology to suggest a suitable topology
+- Then use the appropriate design tool to calculate parameters
+- Optionally use estimate_efficiency to estimate losses
+- Present results clearly with units and brief design notes
+
+Use SI units: V for voltage, A for current, kHz for frequency.
+"""
 
 
 class PEAAgent:
@@ -23,6 +45,7 @@ class PEAAgent:
     Power Electronics AI Agent.
 
     Combines LLM with RAG (knowledge retrieval) and design calculation tools.
+    Maintains conversation history across calls for multi-turn dialogue.
     """
 
     def __init__(
@@ -37,6 +60,16 @@ class PEAAgent:
         self.use_rag = use_rag
         self.retriever = KnowledgeRetriever(use_vector_store=use_vector_store) if use_rag else None
         self._llm = None
+        self._history: list[BaseMessage] = []
+
+    @property
+    def history(self) -> list[BaseMessage]:
+        """Return the conversation history (excluding system prompt)."""
+        return list(self._history)
+
+    def clear_history(self) -> None:
+        """Reset conversation history."""
+        self._history.clear()
 
     def _get_llm(self):
         """Lazy load LLM with structured tools bound."""
@@ -59,60 +92,48 @@ class PEAAgent:
         return self._llm
 
     def _build_system_prompt(self, context: str | None) -> str:
-        """Build system prompt with RAG context."""
-        base = """You are PEA (Power Electronics AI), an expert assistant for power electronics design.
-
-Your capabilities:
-1. Recommend converter topologies (Buck, Boost, Buck-Boost, Flyback, etc.) based on specs
-2. Calculate design parameters (inductance, capacitance, duty cycle) using your tools
-3. Answer questions about power electronics theory and design best practices
-
-When the user provides specifications (V_in, V_out, I_out, etc.):
-- First use recommend_topology to suggest a suitable topology
-- Then use the appropriate design tool (design_buck, design_boost, etc.) to calculate parameters
-- Present results clearly with units and brief design notes
-
-Use SI units: V for voltage, A for current, kHz for frequency.
-"""
-
+        """Build system prompt with optional RAG context."""
+        prompt = SYSTEM_PROMPT
         if context:
-            base += f"\n\nRelevant knowledge from database:\n{context}\n"
+            prompt += f"\n\nRelevant knowledge from database:\n{context}\n"
+        return prompt
 
-        return base
-
-    def chat(self, user_message: str, max_tool_calls: int = 5) -> str:
+    def chat(self, user_message: str, max_tool_rounds: int = 5) -> str:
         """
         Process user message and return agent response.
 
-        Uses LangChain structured tool calling: agent invokes design tools
-        which are executed and fed back for final answer.
+        Maintains conversation history so follow-up questions work naturally.
+        RAG context is retrieved fresh for each message and injected into
+        the system prompt so the LLM always has relevant knowledge.
         """
-        # RAG: retrieve relevant context
         context = None
         if self.use_rag and self.retriever:
             docs = self.retriever.search(user_message, top_k=4)
             if docs:
                 context = "\n---\n".join(docs)
 
-        messages: list = [
+        self._history.append(HumanMessage(content=user_message))
+
+        messages: list[BaseMessage] = [
             SystemMessage(content=self._build_system_prompt(context)),
-            HumanMessage(content=user_message),
+            *self._history,
         ]
 
         llm = self._get_llm()
         tool_rounds = 0
 
-        while tool_rounds < max_tool_calls:
+        while tool_rounds < max_tool_rounds:
             response_msg = llm.invoke(messages)
             tool_calls = getattr(response_msg, "tool_calls", None) or []
 
             if not tool_calls:
+                self._history.append(
+                    AIMessage(content=response_msg.content or "")
+                )
                 return response_msg.content or str(response_msg)
 
-            # Append assistant message with tool calls
             messages.append(response_msg)
 
-            # Execute each tool call and append ToolMessage
             for tc in tool_calls:
                 name = tc.get("name") if isinstance(tc, dict) else getattr(tc, "name", None)
                 args = tc.get("args") if isinstance(tc, dict) else getattr(tc, "args", {})
@@ -133,6 +154,6 @@ Use SI units: V for voltage, A for current, kHz for frequency.
 
             tool_rounds += 1
 
-        # Max tool rounds reached; get final response
         final_msg = llm.invoke(messages)
+        self._history.append(AIMessage(content=final_msg.content or ""))
         return final_msg.content or str(final_msg)

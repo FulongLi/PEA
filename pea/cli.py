@@ -7,6 +7,28 @@ import sys
 
 from pea.tools.calculator import get_available_tools
 
+_TOOL_CHOICES = [
+    "buck", "boost", "buck_boost",
+    "sepic", "cuk",
+    "forward", "flyback", "llc",
+    "recommend", "efficiency",
+]
+
+_CLI_TO_CALC = {
+    "buck": "buck_converter_design",
+    "boost": "boost_converter_design",
+    "buck_boost": "buck_boost_design",
+    "sepic": "sepic_design",
+    "cuk": "cuk_design",
+    "forward": "forward_design",
+    "flyback": "flyback_design",
+    "llc": "llc_design",
+    "recommend": "topology_recommendation",
+    "efficiency": "efficiency_estimate",
+}
+
+_ISOLATED_TOOLS = {"flyback", "forward"}
+
 
 def run_cli():
     """Run the PEA CLI."""
@@ -15,34 +37,28 @@ def run_cli():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Chat command (interactive with AI)
+    # Chat
     chat_parser = subparsers.add_parser("chat", help="Chat with PEA AI agent (requires OPENAI_API_KEY)")
     chat_parser.add_argument(
-        "message",
-        nargs="?",
-        default=None,
-        help="Your question or design specs (e.g., 'Design a 12V to 5V 2A converter')",
+        "message", nargs="?", default=None,
+        help="Your question or design specs",
     )
-    chat_parser.add_argument(
-        "-m", "--model",
-        default="gpt-4o-mini",
-        help="OpenAI model (default: gpt-4o-mini)",
-    )
+    chat_parser.add_argument("-m", "--model", default="gpt-4o-mini", help="OpenAI model")
 
-    # Tool command (direct calculation without AI)
+    # Tool
     tool_parser = subparsers.add_parser("tool", help="Run design tool directly (no API key needed)")
-    tool_parser.add_argument(
-        "tool_name",
-        choices=["buck", "boost", "buck_boost", "flyback", "recommend"],
-        help="Design tool to run",
-    )
+    tool_parser.add_argument("tool_name", choices=_TOOL_CHOICES, help="Design tool to run")
     tool_parser.add_argument("--v-in", type=float, help="Input voltage (V)")
     tool_parser.add_argument("--v-out", type=float, help="Output voltage (V)")
     tool_parser.add_argument("--i-out", type=float, help="Output current (A)")
-    tool_parser.add_argument("--v-in-min", type=float, help="Min input voltage (Flyback)")
-    tool_parser.add_argument("--v-in-max", type=float, help="Max input voltage (Flyback)")
+    tool_parser.add_argument("--v-in-min", type=float, help="Min input voltage (isolated converters)")
+    tool_parser.add_argument("--v-in-max", type=float, help="Max input voltage (isolated converters)")
     tool_parser.add_argument("--f-sw", type=float, default=100, help="Switching freq (kHz)")
     tool_parser.add_argument("--isolated", action="store_true", help="Require isolation (recommend)")
+    tool_parser.add_argument("--q-factor", type=float, default=0.5, help="Q factor (LLC)")
+    tool_parser.add_argument("--rds-on", type=float, default=50, help="MOSFET Rds(on) mΩ (efficiency)")
+    tool_parser.add_argument("--dcr", type=float, default=30, help="Inductor DCR mΩ (efficiency)")
+    tool_parser.add_argument("--vf-diode", type=float, default=0.5, help="Diode Vf V (efficiency)")
 
     # List tools
     subparsers.add_parser("tools", help="List available design tools")
@@ -61,33 +77,39 @@ def run_cli():
     if args.command == "tool":
         from pea.tools.calculator import execute_tool
 
-        tool_map = {
-            "buck": "buck_converter_design",
-            "boost": "boost_converter_design",
-            "buck_boost": "buck_boost_design",
-            "flyback": "flyback_design",
-            "recommend": "topology_recommendation",
-        }
-        name = tool_map[args.tool_name]
+        calc_name = _CLI_TO_CALC[args.tool_name]
 
-        if name == "flyback":
-            if args.v_in_min is None or args.v_in_max is None or args.v_out is None or args.i_out is None:
-                print("Error: flyback requires --v-in-min, --v-in-max, --v-out, --i-out", file=sys.stderr)
+        if args.tool_name in _ISOLATED_TOOLS:
+            if not all([args.v_in_min, args.v_in_max, args.v_out, args.i_out]):
+                print(f"Error: {args.tool_name} requires --v-in-min, --v-in-max, --v-out, --i-out", file=sys.stderr)
                 return 1
-            result = execute_tool(name, v_in_min=args.v_in_min, v_in_max=args.v_in_max,
-                                 v_out=args.v_out, i_out=args.i_out, f_sw_khz=args.f_sw)
-        elif name == "topology_recommendation":
-            if args.v_in is None or args.v_out is None or args.i_out is None:
+            result = execute_tool(calc_name, v_in_min=args.v_in_min, v_in_max=args.v_in_max,
+                                  v_out=args.v_out, i_out=args.i_out, f_sw_khz=args.f_sw)
+        elif args.tool_name == "recommend":
+            if not all([args.v_in, args.v_out, args.i_out]):
                 print("Error: recommend requires --v-in, --v-out, --i-out", file=sys.stderr)
                 return 1
-            result = execute_tool(name, v_in=args.v_in, v_out=args.v_out, i_out=args.i_out,
-                                 isolated=args.isolated)
+            result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out,
+                                  i_out=args.i_out, isolated=args.isolated)
+        elif args.tool_name == "llc":
+            if not all([args.v_in, args.v_out, args.i_out]):
+                print("Error: llc requires --v-in, --v-out, --i-out", file=sys.stderr)
+                return 1
+            result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out,
+                                  i_out=args.i_out, f_sw_khz=args.f_sw, q_factor=args.q_factor)
+        elif args.tool_name == "efficiency":
+            if not all([args.v_in, args.v_out, args.i_out]):
+                print("Error: efficiency requires --v-in, --v-out, --i-out", file=sys.stderr)
+                return 1
+            result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out, i_out=args.i_out,
+                                  f_sw_khz=args.f_sw, rds_on_mohm=args.rds_on,
+                                  dcr_mohm=args.dcr, vf_diode=args.vf_diode)
         else:
-            if args.v_in is None or args.v_out is None or args.i_out is None:
+            if not all([args.v_in, args.v_out, args.i_out]):
                 print("Error: requires --v-in, --v-out, --i-out", file=sys.stderr)
                 return 1
-            result = execute_tool(name, v_in=args.v_in, v_out=args.v_out, i_out=args.i_out,
-                                 f_sw_khz=args.f_sw)
+            result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out,
+                                  i_out=args.i_out, f_sw_khz=args.f_sw)
 
         print(result)
         return 0
