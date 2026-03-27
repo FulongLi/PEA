@@ -7,591 +7,1200 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════════════════════════
-   FUTURISTIC THEME – PEA Power Electronics Agent
-   ═══════════════════════════════════════════════════════════════════ */
-:root {
-  --bg:       #03060d;
-  --surface:  rgba(8, 18, 38, .85);
-  --surface2: rgba(12, 28, 55, .7);
-  --glass:    rgba(6, 22, 50, .55);
-  --border:   rgba(0, 200, 255, .12);
-  --glow:     rgba(0, 200, 255, .08);
-  --cyan:     #00c8ff;
-  --cyan2:    #00e5ff;
-  --purple:   #a855f7;
-  --pink:     #ec4899;
-  --green:    #10ffc0;
-  --amber:    #ffbd2e;
-  --red:      #ff3d5a;
-  --text:     #d4e6f7;
-  --text2:    #6b8aaa;
-  --head:     'Orbitron', 'Rajdhani', sans-serif;
-  --body:     'Rajdhani', 'Segoe UI', sans-serif;
-  --mono:     'JetBrains Mono', 'Cascadia Code', monospace;
+:root{
+  --bg:#060a14;--bg2:#0a1020;--surface:rgba(8,18,40,.92);--surface2:rgba(14,28,58,.8);
+  --glass:rgba(6,20,48,.6);--border:rgba(0,190,255,.1);--border2:rgba(0,190,255,.18);
+  --cyan:#00c8ff;--cyan2:#00e5ff;--purple:#a855f7;--pink:#ec4899;
+  --green:#10ffc0;--amber:#ffbd2e;--red:#ff3d5a;
+  --text:#d0e0f0;--text2:#5a7a9a;--text3:#3a5570;
+  --head:'Orbitron','Rajdhani',sans-serif;--body:'Rajdhani','Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','Cascadia Code','Consolas',monospace;
+  --actW:48px;--sideW:260px;--chatW:380px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:15px}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--body);background:var(--bg);color:var(--text);font-size:14px}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,.012) 2px,rgba(0,200,255,.012) 4px)}
 
-/* ── Animated background canvas ──────────────────────────────────── */
-#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-.page-wrap{position:relative;z-index:1;min-height:100vh}
-
-/* ── Scan-line overlay ───────────────────────────────────────────── */
-body::after{
-  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,.015) 2px,rgba(0,200,255,.015) 4px);
-}
-
-/* ── Header ──────────────────────────────────────────────────────── */
-header{
-  position:relative;
-  background:linear-gradient(180deg,rgba(0,40,80,.5) 0%,transparent 100%);
-  border-bottom:1px solid var(--border);
-  padding:1.3rem 2rem;
-  display:flex;align-items:center;gap:1.2rem;
-  backdrop-filter:blur(20px);
-}
-header::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-}
-.logo-hex{
-  width:48px;height:48px;position:relative;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,rgba(0,200,255,.15),rgba(168,85,247,.15));
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  animation:logoPulse 3s ease-in-out infinite;
-}
-.logo-hex::before{
-  content:'';position:absolute;inset:2px;
-  background:var(--bg);
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-}
-.logo-hex span{position:relative;z-index:1;font-size:1.4rem}
-@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(0,200,255,.4))}50%{filter:drop-shadow(0 0 16px rgba(0,200,255,.7))}}
-.header-text h1{font-family:var(--head);font-size:1.25rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:transparent}
-.header-text p{color:var(--text2);font-size:.82rem;letter-spacing:.04em;margin-top:.15rem}
-.header-status{margin-left:auto;display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;font-family:var(--head)}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s ease infinite}
+.ide{display:flex;height:100vh;flex-direction:column}
+.titlebar{height:36px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:10px;flex-shrink:0;-webkit-app-region:drag}
+.titlebar .logo{font-size:1rem}
+.titlebar h1{font-family:var(--head);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.titlebar .status{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:.6rem;color:var(--text2);font-family:var(--head);letter-spacing:.1em;text-transform:uppercase}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s ease infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.workspace{display:flex;flex:1;overflow:hidden}
 
-/* ── Layout ──────────────────────────────────────────────────────── */
-.app{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 72px)}
-@media(max-width:900px){.app{grid-template-columns:1fr}}
+/* Activity Bar */
+.actbar{width:var(--actW);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;flex-shrink:0}
+.act-btn{width:38px;height:38px;border:none;background:transparent;color:var(--text2);font-size:1.1rem;border-radius:6px;cursor:pointer;transition:all .15s;position:relative;display:flex;align-items:center;justify-content:center}
+.act-btn:hover{color:var(--text);background:rgba(0,200,255,.06)}
+.act-btn.active{color:var(--cyan)}
+.act-btn.active::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:2px;background:var(--cyan);border-radius:0 1px 1px 0}
+.act-sep{width:24px;height:1px;background:var(--border);margin:4px 0}
 
-/* ── Sidebar ─────────────────────────────────────────────────────── */
-.sidebar{
-  background:var(--surface);
-  border-right:1px solid var(--border);
-  padding:1.2rem .9rem;
-  overflow-y:auto;
-  backdrop-filter:blur(12px);
-}
-.sidebar h2{
-  font-family:var(--head);font-size:.65rem;text-transform:uppercase;letter-spacing:.2em;
-  color:var(--cyan);margin-bottom:.75rem;padding-left:.4rem;
-  display:flex;align-items:center;gap:.5rem;
-}
-.sidebar h2::before{content:'';width:12px;height:1px;background:var(--cyan)}
-.tool-btn{
-  width:100%;padding:.55rem .75rem;margin-bottom:.3rem;
-  background:transparent;border:1px solid transparent;border-radius:6px;
-  color:var(--text2);font-family:var(--body);font-size:.88rem;font-weight:500;
-  text-align:left;cursor:pointer;transition:all .2s;
-  display:flex;align-items:center;gap:.55rem;
-  position:relative;overflow:hidden;
-}
-.tool-btn::before{
-  content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;
-  background:linear-gradient(90deg,rgba(0,200,255,.06),transparent 60%);
-}
-.tool-btn:hover{color:var(--text);border-color:rgba(0,200,255,.15)}
-.tool-btn:hover::before{opacity:1}
-.tool-btn.active{
-  color:#fff;border-color:rgba(0,200,255,.35);
-  background:linear-gradient(90deg,rgba(0,200,255,.1),rgba(168,85,247,.05));
-  box-shadow:0 0 20px rgba(0,200,255,.08),inset 0 0 20px rgba(0,200,255,.03);
-}
-.tool-btn.active::after{
-  content:'';position:absolute;left:0;top:15%;bottom:15%;width:2px;
-  background:var(--cyan);box-shadow:0 0 8px var(--cyan);border-radius:1px;
-}
-.tool-icon{font-size:1rem;width:22px;text-align:center}
-.badge{font-family:var(--head);font-size:.55rem;padding:.1rem .4rem;border-radius:3px;margin-left:auto;letter-spacing:.06em;font-weight:600;text-transform:uppercase}
-.badge-iso{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.25)}
-.badge-new{background:rgba(16,255,192,.1);color:var(--green);border:1px solid rgba(16,255,192,.2)}
-.badge-eff{background:rgba(255,189,46,.1);color:var(--amber);border:1px solid rgba(255,189,46,.2)}
-.sidebar-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:.6rem 0}
+/* Sidebar */
+.sidebar{width:var(--sideW);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sidebar.hidden{display:none}
+.side-header{padding:10px 14px;font-family:var(--head);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.side-header::before{content:'';width:10px;height:1px;background:var(--cyan)}
+.side-body{flex:1;overflow-y:auto;padding:6px}
+.tool-btn{width:100%;padding:6px 10px;margin-bottom:2px;background:transparent;border:1px solid transparent;border-radius:5px;
+  color:var(--text2);font-family:var(--body);font-size:.84rem;font-weight:500;text-align:left;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;position:relative}
+.tool-btn:hover{color:var(--text);background:rgba(0,200,255,.04)}
+.tool-btn.active{color:#fff;border-color:rgba(0,200,255,.2);background:linear-gradient(90deg,rgba(0,200,255,.08),transparent)}
+.tool-btn.active::after{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2px;background:var(--cyan);border-radius:1px}
+.tool-icon{width:18px;text-align:center;font-size:.9rem}
+.badge{font-family:var(--head);font-size:.5rem;padding:1px 5px;border-radius:3px;margin-left:auto;letter-spacing:.06em;font-weight:600;text-transform:uppercase}
+.badge-iso{background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
+.badge-new{background:rgba(16,255,192,.08);color:var(--green);border:1px solid rgba(16,255,192,.15)}
+.badge-eff{background:rgba(255,189,46,.08);color:var(--amber);border:1px solid rgba(255,189,46,.15)}
+.badge-dab{background:rgba(236,72,153,.08);color:var(--pink);border:1px solid rgba(236,72,153,.15)}
+.side-divider{height:1px;background:var(--border);margin:4px 8px}
+.side-section{font-family:var(--head);font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);padding:6px 10px 2px;margin-top:2px}
 
-/* ── Main panel ──────────────────────────────────────────────────── */
-.main{padding:2rem 2.5rem;overflow-y:auto;position:relative}
-.main::before{
-  content:'';position:absolute;top:0;right:0;width:400px;height:400px;
-  background:radial-gradient(circle,rgba(0,200,255,.04) 0%,transparent 70%);pointer-events:none;
-}
-.tool-title{
-  font-family:var(--head);font-size:1.2rem;font-weight:700;letter-spacing:.08em;
-  text-transform:uppercase;margin-bottom:.25rem;
-  background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:transparent;
-}
-.tool-subtitle{color:var(--text2);font-size:.88rem;margin-bottom:1.5rem;letter-spacing:.02em}
+/* Center workspace */
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tab-bar{height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;overflow-x:auto}
+.tab{padding:0 14px;display:flex;align-items:center;gap:5px;font-family:var(--body);font-size:.8rem;font-weight:500;color:var(--text2);border-right:1px solid var(--border);cursor:pointer;transition:all .12s;position:relative;white-space:nowrap}
+.tab:hover{color:var(--text);background:rgba(0,200,255,.03)}
+.tab.active{color:var(--cyan);background:var(--surface)}
+.tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--cyan)}
+.tab .tab-icon{font-size:.75rem}
+.panels{flex:1;overflow:hidden;position:relative}
+.panel{position:absolute;inset:0;overflow-y:auto;padding:20px 24px;display:none}
+.panel.active{display:block}
+.panel-title{font-family:var(--head);font-size:1rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;
+  background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.panel-sub{color:var(--text2);font-size:.84rem;margin-bottom:16px}
 
-/* ── HUD frame around form ───────────────────────────────────────── */
-.hud-frame{
-  position:relative;max-width:600px;padding:1.5rem;margin-bottom:1.5rem;
-  border:1px solid var(--border);border-radius:8px;
-  background:var(--glass);backdrop-filter:blur(10px);
-}
-.hud-frame::before,.hud-frame::after{
-  content:'';position:absolute;width:16px;height:16px;border-color:var(--cyan);border-style:solid;
-}
-.hud-frame::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:8px 0 0 0}
-.hud-frame::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 8px 0}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
-.form-group{display:flex;flex-direction:column;gap:.25rem}
+/* HUD Frame + Forms */
+.hud-frame{position:relative;max-width:600px;padding:14px;margin-bottom:14px;border:1px solid var(--border);border-radius:6px;background:var(--glass);backdrop-filter:blur(8px)}
+.hud-frame::before,.hud-frame::after{content:'';position:absolute;width:12px;height:12px;border-color:var(--cyan);border-style:solid}
+.hud-frame::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:6px 0 0 0}
+.hud-frame::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 6px 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.form-group{display:flex;flex-direction:column;gap:2px}
 .form-group.full{grid-column:1/-1}
-.form-group label{font-family:var(--head);font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;font-weight:400}
-input[type="number"],select{
-  background:rgba(0,20,50,.6);border:1px solid rgba(0,200,255,.15);border-radius:5px;
-  padding:.5rem .7rem;color:var(--cyan2);font-size:.92rem;font-family:var(--mono);font-weight:500;
-  outline:none;transition:all .2s;
-}
-input[type="number"]:focus{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,200,255,.15),inset 0 0 12px rgba(0,200,255,.05)}
-input[type="number"]::placeholder{color:var(--text2)}
-.checkbox-group{display:flex;align-items:center;gap:.5rem;padding-top:.3rem}
-input[type="checkbox"]{
-  appearance:none;width:18px;height:18px;border:1px solid rgba(0,200,255,.3);border-radius:3px;
-  background:rgba(0,20,50,.5);cursor:pointer;position:relative;transition:all .2s;
-}
-input[type="checkbox"]:checked{background:rgba(0,200,255,.2);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,200,255,.3)}
-input[type="checkbox"]:checked::after{
-  content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:var(--cyan);font-size:.8rem;font-weight:700;
-}
-.checkbox-group label{font-family:var(--body);font-size:.85rem;color:var(--text2);letter-spacing:0;text-transform:none;cursor:pointer}
+.form-group label{font-family:var(--head);font-size:.55rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase}
+input[type="number"],select{background:rgba(0,18,45,.7);border:1px solid rgba(0,200,255,.12);border-radius:4px;padding:5px 8px;color:var(--cyan2);font-size:.88rem;font-family:var(--mono);font-weight:500;outline:none;transition:all .15s}
+input[type="number"]:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,200,255,.1)}
+select{cursor:pointer}
+select option{background:#0a1020;color:var(--text)}
+.checkbox-group{display:flex;align-items:center;gap:6px;padding-top:4px}
+input[type="checkbox"]{appearance:none;width:16px;height:16px;border:1px solid rgba(0,200,255,.25);border-radius:3px;background:rgba(0,18,45,.5);cursor:pointer;position:relative;transition:all .15s}
+input[type="checkbox"]:checked{background:rgba(0,200,255,.15);border-color:var(--cyan)}
+input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:.7rem;font-weight:700}
+.checkbox-group label{font-family:var(--body);font-size:.82rem;color:var(--text2);letter-spacing:0;text-transform:none;cursor:pointer}
+.calc-btn{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(0,200,255,.12),rgba(168,85,247,.1));border:1px solid rgba(0,200,255,.3);border-radius:5px;padding:6px 20px;color:#fff;font-family:var(--head);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.calc-btn:hover{box-shadow:0 0 20px rgba(0,200,255,.2);border-color:var(--cyan);transform:translateY(-1px)}
 
-/* ── Calculate button ────────────────────────────────────────────── */
-.calc-btn{
-  position:relative;overflow:hidden;
-  background:linear-gradient(135deg,rgba(0,200,255,.15),rgba(168,85,247,.15));
-  border:1px solid rgba(0,200,255,.35);border-radius:6px;
-  padding:.65rem 2.2rem;
-  color:#fff;font-family:var(--head);font-size:.82rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
-  cursor:pointer;transition:all .25s;
-}
-.calc-btn::before{
-  content:'';position:absolute;top:50%;left:-75%;width:50%;height:200%;
-  background:linear-gradient(90deg,transparent,rgba(0,200,255,.2),transparent);
-  transform:rotate(25deg) translateY(-50%);transition:left .5s;
-}
-.calc-btn:hover{
-  box-shadow:0 0 25px rgba(0,200,255,.25),0 0 60px rgba(0,200,255,.08);
-  border-color:var(--cyan);transform:translateY(-1px);
-}
-.calc-btn:hover::before{left:125%}
-.calc-btn:active{transform:translateY(0)}
-
-/* ── Result card ─────────────────────────────────────────────────── */
-.result-card{
-  margin-top:1.5rem;max-width:640px;
-  background:var(--surface);border:1px solid var(--border);border-radius:10px;
-  overflow:hidden;position:relative;
-  animation:resultSlide .35s cubic-bezier(.4,0,.2,1);
-}
-@keyframes resultSlide{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
-.result-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);
-}
-.result-header{
-  padding:.75rem 1.2rem;display:flex;align-items:center;justify-content:space-between;
-  background:linear-gradient(90deg,rgba(0,200,255,.05),transparent);
-  border-bottom:1px solid var(--border);
-}
-.result-header h3{font-family:var(--head);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#fff}
-.result-body{padding:1rem 1.2rem}
-.result-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:.45rem 0;border-bottom:1px solid rgba(0,200,255,.06);font-size:.87rem;
-}
+/* Result cards */
+.result-card{margin-top:14px;max-width:620px;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent)}
+.result-header{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,rgba(0,200,255,.04),transparent);border-bottom:1px solid var(--border)}
+.result-header h3{font-family:var(--head);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+.result-body{padding:10px 14px}
+.result-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(0,200,255,.05);font-size:.84rem}
 .result-row:last-child{border-bottom:none}
-.result-row .key{color:var(--text2);font-weight:500}
-.result-row .val{font-family:var(--mono);font-weight:700;color:var(--cyan2);font-size:.85rem}
-.result-notes{
-  margin-top:.75rem;padding:.7rem .85rem;
-  background:linear-gradient(90deg,rgba(0,200,255,.06),transparent);
-  border-left:2px solid var(--cyan);border-radius:0 6px 6px 0;
-  font-size:.8rem;color:var(--text2);line-height:1.55;
-}
-.result-sub{
-  margin-top:.75rem;padding:.65rem .8rem;
-  background:rgba(0,20,50,.4);border:1px solid rgba(0,200,255,.08);border-radius:6px;
-}
-.result-sub h4{font-family:var(--head);font-size:.6rem;color:var(--text2);margin-bottom:.4rem;letter-spacing:.15em;text-transform:uppercase}
-.eff-badge{
-  font-family:var(--mono);font-size:1.2rem;font-weight:700;
-  padding:.15rem .55rem;border-radius:4px;
-  text-shadow:0 0 12px currentColor;
-}
-.eff-good{background:rgba(16,255,192,.1);color:var(--green);border:1px solid rgba(16,255,192,.25)}
-.eff-ok{background:rgba(255,189,46,.1);color:var(--amber);border:1px solid rgba(255,189,46,.2)}
-.eff-low{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
+.result-row .key{color:var(--text2)}
+.result-row .val{font-family:var(--mono);font-weight:600;color:var(--cyan2);font-size:.82rem}
+.result-notes{margin-top:8px;padding:8px;background:linear-gradient(90deg,rgba(0,200,255,.04),transparent);border-left:2px solid var(--cyan);border-radius:0 4px 4px 0;font-size:.78rem;color:var(--text2);line-height:1.5}
+.result-sub{margin-top:8px;padding:6px 8px;background:rgba(0,18,45,.4);border:1px solid rgba(0,200,255,.06);border-radius:5px}
+.result-sub h4{font-family:var(--head);font-size:.55rem;color:var(--text2);margin-bottom:4px;letter-spacing:.12em;text-transform:uppercase}
+.eff-badge{font-family:var(--mono);font-size:1.1rem;font-weight:700;padding:2px 8px;border-radius:4px;text-shadow:0 0 10px currentColor}
+.eff-good{background:rgba(16,255,192,.08);color:var(--green);border:1px solid rgba(16,255,192,.2)}
+.eff-ok{background:rgba(255,189,46,.08);color:var(--amber);border:1px solid rgba(255,189,46,.15)}
+.eff-low{background:rgba(255,61,90,.08);color:var(--red);border:1px solid rgba(255,61,90,.15)}
+.error-msg{margin-top:10px;padding:8px 12px;max-width:600px;background:rgba(255,61,90,.06);border:1px solid rgba(255,61,90,.2);border-radius:5px;color:var(--red);font-size:.84rem;display:flex;align-items:center;gap:6px}
+.small-btn{background:rgba(0,200,255,.06);border:1px solid rgba(0,200,255,.15);color:var(--text2);padding:2px 8px;border-radius:3px;font-family:var(--head);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.small-btn:hover{border-color:var(--cyan);color:var(--cyan)}
 
-.error-msg{
-  margin-top:1rem;padding:.7rem 1rem;max-width:600px;
-  background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.25);border-radius:6px;
-  color:var(--red);font-size:.88rem;
-  display:flex;align-items:center;gap:.5rem;
-}
+/* SPICE Panel */
+.spice-wrap{display:flex;gap:16px;flex-wrap:wrap}
+.spice-editor{flex:1;min-width:300px}
+.spice-editor textarea{width:100%;height:360px;background:rgba(0,12,30,.8);border:1px solid var(--border);border-radius:6px;padding:12px;color:var(--green);font-family:var(--mono);font-size:.8rem;line-height:1.6;resize:vertical;outline:none;tab-size:4}
+.spice-editor textarea:focus{border-color:rgba(16,255,192,.3);box-shadow:0 0 15px rgba(16,255,192,.06)}
+.spice-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.spice-info{flex:1;min-width:250px;max-width:320px}
+.spice-info-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px}
+.spice-info-card h4{font-family:var(--head);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+.spice-info-card p{font-size:.8rem;color:var(--text2);line-height:1.5}
+.spice-info-card code{color:var(--green);background:rgba(16,255,192,.06);padding:1px 4px;border-radius:3px;font-size:.78rem}
 
-.copy-btn{
-  background:rgba(0,200,255,.08);border:1px solid rgba(0,200,255,.2);
-  color:var(--text2);padding:.25rem .6rem;border-radius:4px;
-  font-family:var(--head);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
-  cursor:pointer;transition:all .2s;
-}
-.copy-btn:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 10px rgba(0,200,255,.15)}
+/* Waveform / Results */
+.wave-canvas{width:100%;height:280px;background:rgba(0,10,25,.7);border:1px solid var(--border);border-radius:6px;margin-bottom:12px}
+.results-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:800px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px}
+.metric-card .metric-label{font-family:var(--head);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
+.metric-card .metric-val{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--cyan2)}
+.metric-card .metric-unit{font-size:.7rem;color:var(--text2);margin-left:4px}
 
-#resultArea{min-height:40px}
+/* ── Component Selection Panel ───────────────────────────────────── */
+.comp-section{margin-bottom:20px;max-width:800px}
+.comp-section h3{font-family:var(--head);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.comp-section h3::after{content:'';flex:1;height:1px;background:var(--border)}
+.comp-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.comp-table thead{position:sticky;top:0}
+.comp-table th{font-family:var(--head);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);padding:6px 10px;text-align:left;background:var(--bg2);border-bottom:1px solid var(--border)}
+.comp-table td{padding:6px 10px;border-bottom:1px solid rgba(0,200,255,.04);color:var(--text);font-size:.8rem}
+.comp-table tr:hover{background:rgba(0,200,255,.03)}
+.comp-table .part-name{font-family:var(--mono);font-weight:600;color:var(--cyan2);font-size:.78rem}
+.comp-table .highlight{background:rgba(16,255,192,.06)}
+.comp-table .match-badge{font-family:var(--head);font-size:.5rem;padding:1px 6px;border-radius:3px;background:rgba(16,255,192,.1);color:var(--green);border:1px solid rgba(16,255,192,.2)}
+.comp-filters{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.comp-filters label{font-family:var(--head);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.comp-filters select,.comp-filters input{font-size:.82rem;padding:4px 8px}
+.comp-req{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.comp-req-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 14px;flex:1;min-width:140px}
+.comp-req-card .req-label{font-family:var(--head);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:2px}
+.comp-req-card .req-val{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--cyan2)}
+.comp-req-card .req-unit{font-size:.7rem;color:var(--text2)}
+.comp-tip{margin-top:12px;padding:8px 12px;background:linear-gradient(90deg,rgba(168,85,247,.04),transparent);border-left:2px solid var(--purple);border-radius:0 4px 4px 0;font-size:.78rem;color:var(--text2);line-height:1.5}
 
-/* ── Scrollbar ───────────────────────────────────────────────────── */
-::-webkit-scrollbar{width:5px}
+/* ── Magnetics Design Panel ──────────────────────────────────────── */
+.mag-layout{display:flex;gap:20px;flex-wrap:wrap;max-width:900px}
+.mag-col{flex:1;min-width:320px}
+.mag-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.mag-card-header{padding:8px 14px;background:linear-gradient(90deg,rgba(0,200,255,.04),transparent);border-bottom:1px solid var(--border);font-family:var(--head);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
+.mag-card-body{padding:12px 14px}
+.mag-form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mag-result-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,200,255,.04);font-size:.82rem}
+.mag-result-row:last-child{border-bottom:none}
+.mag-result-row .key{color:var(--text2)}
+.mag-result-row .val{font-family:var(--mono);font-weight:600;color:var(--cyan2)}
+.mag-warning{padding:6px 10px;background:rgba(255,189,46,.06);border:1px solid rgba(255,189,46,.15);border-radius:4px;color:var(--amber);font-size:.78rem;margin-top:8px}
+.mag-ok{padding:6px 10px;background:rgba(16,255,192,.06);border:1px solid rgba(16,255,192,.15);border-radius:4px;color:var(--green);font-size:.78rem;margin-top:8px}
+.core-visual{text-align:center;padding:10px;margin-top:8px}
+.core-visual svg{max-width:180px}
+
+/* Chat Panel */
+.chat-panel{width:var(--chatW);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.chat-panel.hidden{display:none}
+.chat-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chat-header h3{font-family:var(--head);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text2)}
+.chat-header .ai-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 2s ease infinite}
+.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:95%;padding:8px 12px;border-radius:8px;font-size:.84rem;line-height:1.5;animation:slideIn .2s ease}
+.chat-msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(0,200,255,.12),rgba(168,85,247,.08));border:1px solid rgba(0,200,255,.15);color:var(--text)}
+.chat-msg.ai{align-self:flex-start;background:rgba(0,18,40,.6);border:1px solid var(--border);color:var(--text)}
+.chat-msg .msg-label{font-family:var(--head);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:3px}
+.chat-msg pre{background:rgba(0,12,30,.7);border:1px solid var(--border);border-radius:4px;padding:6px 8px;margin-top:6px;font-family:var(--mono);font-size:.76rem;color:var(--green);overflow-x:auto;white-space:pre-wrap}
+.chat-input-wrap{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;background:rgba(0,18,45,.7);border:1px solid rgba(0,200,255,.12);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--body);font-size:.88rem;outline:none;transition:border-color .15s}
+.chat-input:focus{border-color:var(--cyan)}
+.chat-input::placeholder{color:var(--text3)}
+.chat-send{background:linear-gradient(135deg,rgba(0,200,255,.15),rgba(168,85,247,.1));border:1px solid rgba(0,200,255,.25);border-radius:6px;width:36px;color:var(--cyan);font-size:1rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.chat-send:hover{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,200,255,.2)}
+
+/* Statusbar */
+.statusbar{height:24px;background:rgba(0,200,255,.08);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 12px;font-size:.65rem;color:var(--text2);gap:14px;flex-shrink:0}
+.statusbar span{display:flex;align-items:center;gap:4px}
+
+::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(0,200,255,.2);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,200,255,.35)}
+::-webkit-scrollbar-thumb{background:rgba(0,200,255,.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,200,255,.25)}
 </style>
 </head>
 <body>
+<div class="ide">
 
-<canvas id="bgCanvas"></canvas>
+<!-- Titlebar -->
+<div class="titlebar">
+  <span class="logo">⚡</span>
+  <h1>PEA — Power Electronics Agent</h1>
+  <div class="status"><span class="status-dot"></span> System Online</div>
+</div>
 
-<div class="page-wrap">
-<header>
-  <div class="logo-hex"><span>⚡</span></div>
-  <div class="header-text">
-    <h1>PEA &mdash; Power Electronics Agent</h1>
-    <p>DC-DC Converter Design System &bull; 8 Topologies &bull; Loss Analysis</p>
+<!-- Workspace -->
+<div class="workspace">
+
+  <!-- Activity Bar -->
+  <div class="actbar">
+    <button class="act-btn active" data-act="explorer" title="Explorer">◈</button>
+    <button class="act-btn" data-act="search" title="Search">⊕</button>
+    <div class="act-sep"></div>
+    <button class="act-btn active" data-act="chat" title="Toggle AI Chat">⊡</button>
   </div>
-  <div class="header-status"><span class="status-dot"></span> System Online</div>
-</header>
 
-<div class="app">
-  <aside class="sidebar">
-    <h2>Design Modules</h2>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-header">Design Modules</div>
+    <div class="side-body">
+      <button class="tool-btn active" data-tool="recommend"><span class="tool-icon">◈</span>Topology Advisor</button>
 
-    <button class="tool-btn active" data-tool="recommend"><span class="tool-icon">◈</span> Topology Advisor</button>
-    <div class="sidebar-divider"></div>
+      <div class="side-section">Non-Isolated</div>
+      <button class="tool-btn" data-tool="buck"><span class="tool-icon">▽</span>Buck</button>
+      <button class="tool-btn" data-tool="boost"><span class="tool-icon">△</span>Boost</button>
+      <button class="tool-btn" data-tool="buck_boost"><span class="tool-icon">⬡</span>Buck-Boost</button>
+      <button class="tool-btn" data-tool="sepic"><span class="tool-icon">⟲</span>SEPIC</button>
+      <button class="tool-btn" data-tool="cuk"><span class="tool-icon">⟳</span>Ćuk</button>
 
-    <button class="tool-btn" data-tool="buck"><span class="tool-icon">▽</span> Buck <small style="color:var(--text2);margin-left:auto;font-size:.72rem">Step-Down</small></button>
-    <button class="tool-btn" data-tool="boost"><span class="tool-icon">△</span> Boost <small style="color:var(--text2);margin-left:auto;font-size:.72rem">Step-Up</small></button>
-    <button class="tool-btn" data-tool="buck_boost"><span class="tool-icon">⬡</span> Buck-Boost <small style="color:var(--text2);margin-left:auto;font-size:.72rem">Inverting</small></button>
-    <button class="tool-btn" data-tool="sepic"><span class="tool-icon">⟲</span> SEPIC <span class="badge badge-new">NEW</span></button>
-    <button class="tool-btn" data-tool="cuk"><span class="tool-icon">⟳</span> Ćuk <span class="badge badge-new">NEW</span></button>
-    <div class="sidebar-divider"></div>
+      <div class="side-section">Isolated</div>
+      <button class="tool-btn" data-tool="forward"><span class="tool-icon">⊞</span>Forward<span class="badge badge-iso">ISO</span></button>
+      <button class="tool-btn" data-tool="flyback"><span class="tool-icon">⊠</span>Flyback<span class="badge badge-iso">ISO</span></button>
+      <button class="tool-btn" data-tool="llc"><span class="tool-icon">∿</span>LLC Resonant<span class="badge badge-iso">ISO</span></button>
+      <button class="tool-btn" data-tool="dab"><span class="tool-icon">⇌</span>DAB<span class="badge badge-dab">DAB</span></button>
 
-    <button class="tool-btn" data-tool="forward"><span class="tool-icon">⊞</span> Forward <span class="badge badge-iso">ISOLATED</span></button>
-    <button class="tool-btn" data-tool="flyback"><span class="tool-icon">⊠</span> Flyback <span class="badge badge-iso">ISOLATED</span></button>
-    <button class="tool-btn" data-tool="llc"><span class="tool-icon">∿</span> LLC Resonant <span class="badge badge-iso">ISOLATED</span></button>
-    <div class="sidebar-divider"></div>
-
-    <button class="tool-btn" data-tool="efficiency"><span class="tool-icon">⏱</span> Efficiency Analysis <span class="badge badge-eff">LOSS</span></button>
+      <div class="side-section">Analysis</div>
+      <button class="tool-btn" data-tool="efficiency"><span class="tool-icon">⏱</span>Efficiency<span class="badge badge-eff">LOSS</span></button>
+    </div>
   </aside>
 
-  <main class="main">
-    <h2 class="tool-title" id="toolTitle">Topology Advisor</h2>
-    <p class="tool-subtitle" id="toolSubtitle">Analyze specifications and recommend the optimal converter topology.</p>
-
-    <div class="hud-frame">
-      <div class="form-grid" id="formArea"></div>
+  <!-- Center -->
+  <div class="center">
+    <div class="tab-bar">
+      <div class="tab active" data-tab="design"><span class="tab-icon">◇</span> Design</div>
+      <div class="tab" data-tab="spice"><span class="tab-icon">∿</span> SPICE</div>
+      <div class="tab" data-tab="components"><span class="tab-icon">⬢</span> Components</div>
+      <div class="tab" data-tab="magnetics"><span class="tab-icon">⊗</span> Magnetics</div>
+      <div class="tab" data-tab="results"><span class="tab-icon">▦</span> Results</div>
     </div>
+    <div class="panels">
 
-    <button class="calc-btn" onclick="calculate()">⚡&ensp;Execute Analysis</button>
-    <div id="resultArea"></div>
-  </main>
+      <!-- ═══ Design Panel ═══ -->
+      <div class="panel active" id="panelDesign" data-tab="design">
+        <h2 class="panel-title" id="toolTitle">Topology Advisor</h2>
+        <p class="panel-sub" id="toolSubtitle">Analyze specifications and recommend the optimal converter topology.</p>
+        <div class="hud-frame"><div class="form-grid" id="formArea"></div></div>
+        <button class="calc-btn" onclick="calculate()">⚡ Execute Analysis</button>
+        <div id="resultArea"></div>
+        <div id="schematicArea"></div>
+      </div>
+
+      <!-- ═══ SPICE Panel ═══ -->
+      <div class="panel" id="panelSpice" data-tab="spice">
+        <h2 class="panel-title">SPICE Simulation</h2>
+        <p class="panel-sub">Auto-generated SPICE netlist. Edit and export for ngspice / LTspice.</p>
+        <div class="spice-wrap">
+          <div class="spice-editor">
+            <textarea id="spiceNetlist" spellcheck="false" placeholder="Run a design calculation first to auto-generate a SPICE netlist..."></textarea>
+            <div class="spice-actions">
+              <button class="calc-btn" onclick="copySpice()">⎘ Copy</button>
+              <button class="calc-btn" onclick="downloadSpice()">↓ Download .cir</button>
+              <button class="calc-btn" onclick="runSpiceSim()">▶ Simulate</button>
+            </div>
+          </div>
+          <div class="spice-info">
+            <div class="spice-info-card">
+              <h4>Quick Start</h4>
+              <p>1. Run <b>Execute Analysis</b> in Design tab<br>2. Netlist auto-generated here<br>3. Copy/download for <code>ngspice</code> or <code>LTspice</code></p>
+            </div>
+            <div class="spice-info-card" id="spiceStatus">
+              <h4>Status</h4>
+              <p style="color:var(--text3)">No simulation running</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Components Panel ═══ -->
+      <div class="panel" id="panelComponents" data-tab="components">
+        <h2 class="panel-title">Component Selection</h2>
+        <p class="panel-sub">Auto-recommended components based on your converter design parameters.</p>
+
+        <div class="comp-req" id="compReqs">
+          <div class="comp-req-card"><div class="req-label">V_in</div><div class="req-val" id="crVin">--<span class="req-unit">V</span></div></div>
+          <div class="comp-req-card"><div class="req-label">V_out</div><div class="req-val" id="crVout">--<span class="req-unit">V</span></div></div>
+          <div class="comp-req-card"><div class="req-label">I_out</div><div class="req-val" id="crIout">--<span class="req-unit">A</span></div></div>
+          <div class="comp-req-card"><div class="req-label">Topology</div><div class="req-val" id="crTopo" style="font-size:.9rem">--</div></div>
+          <div class="comp-req-card"><div class="req-label">f_sw</div><div class="req-val" id="crFsw">--<span class="req-unit">kHz</span></div></div>
+        </div>
+
+        <!-- MOSFET -->
+        <div class="comp-section" id="secMosfet">
+          <h3>⬡ MOSFET Selection</h3>
+          <div class="comp-filters">
+            <label>Min V_DS:</label><span id="cfVds" style="color:var(--cyan);font-family:var(--mono);font-size:.82rem">--</span>
+            <label style="margin-left:12px">Max Rds(on):</label><span id="cfRds" style="color:var(--cyan);font-family:var(--mono);font-size:.82rem">--</span>
+          </div>
+          <table class="comp-table"><thead><tr><th>Part</th><th>V_DS</th><th>I_D</th><th>Rds(on)</th><th>Q_g</th><th>Package</th><th></th></tr></thead>
+          <tbody id="mosfetTable"></tbody></table>
+        </div>
+
+        <!-- Diode -->
+        <div class="comp-section" id="secDiode">
+          <h3>▷ Diode / Rectifier Selection</h3>
+          <table class="comp-table"><thead><tr><th>Part</th><th>V_R</th><th>I_F</th><th>V_F</th><th>Type</th><th>Package</th><th></th></tr></thead>
+          <tbody id="diodeTable"></tbody></table>
+        </div>
+
+        <!-- Capacitor -->
+        <div class="comp-section" id="secCap">
+          <h3>⊞ Output Capacitor Selection</h3>
+          <table class="comp-table"><thead><tr><th>Part</th><th>Capacitance</th><th>Voltage</th><th>ESR</th><th>Type</th><th>Package</th><th></th></tr></thead>
+          <tbody id="capTable"></tbody></table>
+        </div>
+
+        <div class="comp-tip" id="compTip">Run a design calculation first to see auto-selected components.</div>
+      </div>
+
+      <!-- ═══ Magnetics Panel ═══ -->
+      <div class="panel" id="panelMagnetics" data-tab="magnetics">
+        <h2 class="panel-title">Magnetics Design</h2>
+        <p class="panel-sub">Inductor & transformer design — core selection, winding calculation, flux density analysis.</p>
+
+        <div class="mag-layout">
+          <div class="mag-col">
+            <!-- Inductor Design -->
+            <div class="mag-card">
+              <div class="mag-card-header">⊗ Inductor Design</div>
+              <div class="mag-card-body">
+                <div class="mag-form">
+                  <div class="form-group"><label>Inductance <span style="color:var(--text3);font-size:.5rem">μH</span></label><input type="number" id="magL" value="47" step="1" min="0.1"></div>
+                  <div class="form-group"><label>Peak Current <span style="color:var(--text3);font-size:.5rem">A</span></label><input type="number" id="magIpk" value="3" step="0.1" min="0.1"></div>
+                  <div class="form-group"><label>RMS Current <span style="color:var(--text3);font-size:.5rem">A</span></label><input type="number" id="magIrms" value="2" step="0.1" min="0.1"></div>
+                  <div class="form-group"><label>f_sw <span style="color:var(--text3);font-size:.5rem">kHz</span></label><input type="number" id="magFsw" value="100" step="10" min="10"></div>
+                  <div class="form-group"><label>Core Shape</label>
+                    <select id="magCoreShape">
+                      <option value="EE">EE Core</option>
+                      <option value="EI">EI Core</option>
+                      <option value="PQ">PQ Core</option>
+                      <option value="RM">RM Core</option>
+                      <option value="toroid">Toroid</option>
+                      <option value="EP">EP Core</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Core Material</label>
+                    <select id="magCoreMat">
+                      <option value="N87">N87 (TDK)</option>
+                      <option value="N97">N97 (TDK)</option>
+                      <option value="3C90">3C90 (Ferroxcube)</option>
+                      <option value="3C95">3C95 (Ferroxcube)</option>
+                      <option value="3F3">3F3 (Ferroxcube)</option>
+                      <option value="PC40">PC40 (TDK)</option>
+                      <option value="PC95">PC95 (TDK)</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>B_max <span style="color:var(--text3);font-size:.5rem">mT</span></label><input type="number" id="magBmax" value="200" step="10" min="50"></div>
+                  <div class="form-group"><label>J (Current Density) <span style="color:var(--text3);font-size:.5rem">A/mm²</span></label><input type="number" id="magJ" value="5" step="0.5" min="1"></div>
+                </div>
+                <button class="calc-btn" style="margin-top:12px" onclick="calcInductor()">⊗ Calculate Inductor</button>
+                <div id="indResult"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mag-col">
+            <!-- Transformer Design -->
+            <div class="mag-card">
+              <div class="mag-card-header">⊗ Transformer Design</div>
+              <div class="mag-card-body">
+                <div class="mag-form">
+                  <div class="form-group"><label>V_pri <span style="color:var(--text3);font-size:.5rem">V</span></label><input type="number" id="magVpri" value="400" step="1" min="1"></div>
+                  <div class="form-group"><label>V_sec <span style="color:var(--text3);font-size:.5rem">V</span></label><input type="number" id="magVsec" value="12" step="0.1" min="0.1"></div>
+                  <div class="form-group"><label>Power <span style="color:var(--text3);font-size:.5rem">W</span></label><input type="number" id="magPower" value="200" step="10" min="1"></div>
+                  <div class="form-group"><label>f_sw <span style="color:var(--text3);font-size:.5rem">kHz</span></label><input type="number" id="magTxFsw" value="100" step="10" min="10"></div>
+                  <div class="form-group"><label>Core Shape</label>
+                    <select id="magTxCore">
+                      <option value="EE">EE Core</option>
+                      <option value="PQ">PQ Core</option>
+                      <option value="RM">RM Core</option>
+                      <option value="ETD">ETD Core</option>
+                      <option value="EFD">EFD Core</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Core Material</label>
+                    <select id="magTxMat">
+                      <option value="N87">N87 (TDK)</option>
+                      <option value="N97">N97 (TDK)</option>
+                      <option value="3C90">3C90 (Ferroxcube)</option>
+                      <option value="3C95">3C95 (Ferroxcube)</option>
+                      <option value="3F3">3F3 (Ferroxcube)</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>B_max <span style="color:var(--text3);font-size:.5rem">mT</span></label><input type="number" id="magTxBmax" value="200" step="10" min="50"></div>
+                  <div class="form-group"><label>Duty Cycle</label><input type="number" id="magTxD" value="0.45" step="0.05" min="0.05" max="0.95"></div>
+                </div>
+                <button class="calc-btn" style="margin-top:12px" onclick="calcTransformer()">⊗ Calculate Transformer</button>
+                <div id="txResult"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Results Panel ═══ -->
+      <div class="panel" id="panelResults" data-tab="results">
+        <h2 class="panel-title">Results Viewer</h2>
+        <p class="panel-sub">Design parameters, waveforms, and performance metrics.</p>
+        <canvas class="wave-canvas" id="waveCanvas"></canvas>
+        <div class="results-grid" id="metricsGrid">
+          <div class="metric-card"><div class="metric-label">Output Power</div><div class="metric-val" id="mPower">--<span class="metric-unit">W</span></div></div>
+          <div class="metric-card"><div class="metric-label">Efficiency</div><div class="metric-val" id="mEff">--<span class="metric-unit">%</span></div></div>
+          <div class="metric-card"><div class="metric-label">Duty Cycle</div><div class="metric-val" id="mDuty">--</div></div>
+          <div class="metric-card"><div class="metric-label">Inductance</div><div class="metric-val" id="mInd">--<span class="metric-unit">μH</span></div></div>
+          <div class="metric-card"><div class="metric-label">Capacitance</div><div class="metric-val" id="mCap">--<span class="metric-unit">μF</span></div></div>
+          <div class="metric-card"><div class="metric-label">Ripple Current</div><div class="metric-val" id="mRipI">--<span class="metric-unit">A</span></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <span class="ai-dot"></span>
+      <h3>PEA Agent</h3>
+      <span style="margin-left:auto;font-size:.65rem;color:var(--text3)">AI Assistant</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg ai">
+        <div class="msg-label">PEA Agent</div>
+        Welcome! I'm your Power Electronics AI. I can:<br>
+        • Recommend topologies (Buck to DAB)<br>
+        • Calculate design parameters<br>
+        • Generate SPICE netlists<br>
+        • Select components<br>
+        • Design magnetics (inductors & transformers)<br><br>
+        Try: <i>"Design a 12V to 5V 2A buck converter"</i>
+      </div>
+    </div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" id="chatInput" placeholder="Ask PEA anything..." autocomplete="off">
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
 </div>
+
+<!-- Statusbar -->
+<div class="statusbar">
+  <span>⚡ PEA v0.3.0</span>
+  <span id="sbTool">◈ Topology Advisor</span>
+  <span style="margin-left:auto" id="sbStatus">Ready</span>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     BACKGROUND ANIMATION – Circuit grid + floating particles
-     ═══════════════════════════════════════════════════════════════════ -->
+</div>
+
 <script>
-(function(){
-  const c=document.getElementById('bgCanvas'),ctx=c.getContext('2d');
-  let W,H;
-  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
-  window.addEventListener('resize',resize);resize();
-
-  // Grid nodes
-  const spacing=80;
-  function drawGrid(t){
-    ctx.strokeStyle='rgba(0,200,255,0.04)';
-    ctx.lineWidth=.5;
-    for(let x=0;x<W;x+=spacing){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
-    for(let y=0;y<H;y+=spacing){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-    // Glowing intersections
-    for(let x=0;x<W;x+=spacing){
-      for(let y=0;y<H;y+=spacing){
-        const pulse=Math.sin(t*0.001+x*0.01+y*0.01)*0.5+0.5;
-        const alpha=0.03+pulse*0.04;
-        ctx.fillStyle=`rgba(0,200,255,${alpha})`;
-        ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);ctx.fill();
-      }
-    }
-  }
-
-  // Particles
-  const particles=[];
-  for(let i=0;i<60;i++){
-    particles.push({
-      x:Math.random()*2000,y:Math.random()*2000,
-      vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,
-      r:Math.random()*1.5+.5,
-      a:Math.random()*.3+.1,
-      hue:Math.random()>.7?280:190
-    });
-  }
-
-  // Traces - animated lines that travel across grid
-  const traces=[];
-  function spawnTrace(){
-    const hor=Math.random()>.5;
-    traces.push({
-      x:hor?-100:Math.floor(Math.random()*W/spacing)*spacing,
-      y:hor?Math.floor(Math.random()*H/spacing)*spacing:-100,
-      dx:hor?2:0, dy:hor?0:1.5,
-      len:60+Math.random()*120,
-      life:0, maxLife:300+Math.random()*200,
-      hue:Math.random()>.6?280:190
-    });
-  }
-  for(let i=0;i<5;i++) spawnTrace();
-
-  function frame(t){
-    ctx.clearRect(0,0,W,H);
-    drawGrid(t);
-
-    // Particles
-    for(const p of particles){
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
-      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
-      const grd=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3);
-      grd.addColorStop(0,`hsla(${p.hue},100%,70%,${p.a})`);
-      grd.addColorStop(1,'transparent');
-      ctx.fillStyle=grd;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r*3,0,Math.PI*2);ctx.fill();
-    }
-
-    // Traces
-    for(let i=traces.length-1;i>=0;i--){
-      const tr=traces[i];
-      tr.x+=tr.dx; tr.y+=tr.dy; tr.life++;
-      const a=Math.max(0,1-tr.life/tr.maxLife);
-      const grd=ctx.createLinearGradient(
-        tr.x-tr.dx*tr.len, tr.y-tr.dy*tr.len, tr.x, tr.y
-      );
-      grd.addColorStop(0,'transparent');
-      grd.addColorStop(1,`hsla(${tr.hue},100%,65%,${a*0.35})`);
-      ctx.strokeStyle=grd;ctx.lineWidth=1.5;
-      ctx.beginPath();
-      ctx.moveTo(tr.x-tr.dx*tr.len,tr.y-tr.dy*tr.len);
-      ctx.lineTo(tr.x,tr.y);
-      ctx.stroke();
-      // head glow
-      ctx.fillStyle=`hsla(${tr.hue},100%,70%,${a*0.6})`;
-      ctx.beginPath();ctx.arc(tr.x,tr.y,2,0,Math.PI*2);ctx.fill();
-
-      if(tr.life>tr.maxLife){traces.splice(i,1);spawnTrace()}
-    }
-
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-})();
-</script>
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     CALCULATOR ENGINE (identical to Python backend)
-     ═══════════════════════════════════════════════════════════════════ -->
-<script>
-const TOOLS={
-  recommend:{
-    title:'Topology Advisor',
-    subtitle:'Analyze specifications and recommend the optimal converter topology.',
-    fields:[
-      {id:'v_in',label:'Input Voltage',unit:'V',val:12,step:.1,min:.1},
-      {id:'v_out',label:'Output Voltage',unit:'V',val:5,step:.1,min:.1},
-      {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
-      {id:'isolated',label:'Require galvanic isolation',type:'checkbox',val:false},
-    ],
-    compute:topologyRecommendation,
-  },
-  buck:{title:'Buck Converter',subtitle:'Step-down topology — V_out < V_in. Computes inductance, capacitance, duty cycle.',fields:stdF(),compute:buckDesign},
-  boost:{title:'Boost Converter',subtitle:'Step-up topology — V_out > V_in. Watch for RHP zero at high duty cycle.',fields:stdF(5,12),compute:boostDesign},
-  buck_boost:{title:'Buck-Boost Converter',subtitle:'Inverting topology. Output polarity is reversed. Suitable for wide input range.',fields:stdF(),compute:buckBoostDesign},
-  sepic:{title:'SEPIC Converter',subtitle:'Non-inverting buck-boost with common ground. Requires two inductors and coupling capacitor.',fields:stdF(),compute:sepicDesign},
-  cuk:{title:'Ćuk Converter',subtitle:'Inverting with continuous input & output currents. Low EMI characteristics.',fields:stdF(),compute:cukDesign},
-  forward:{title:'Forward Converter',subtitle:'Isolated single-ended topology. Effective range: 50-300 W. Max D ≈ 0.5 with reset winding.',fields:isoF(),compute:forwardDesign},
-  flyback:{title:'Flyback Converter',subtitle:'Isolated coupled-inductor topology. Cost-effective for low-medium power applications.',fields:isoF(),compute:flybackDesign},
-  llc:{title:'LLC Resonant Converter',subtitle:'High-efficiency isolated resonant topology with ZVS. Full-bridge primary configuration.',
-    fields:[
-      {id:'v_in',label:'Input Voltage',unit:'V',val:400,step:1,min:1},
-      {id:'v_out',label:'Output Voltage',unit:'V',val:12,step:.1,min:.1},
-      {id:'i_out',label:'Output Current',unit:'A',val:20,step:.5,min:.01},
-      {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
-      {id:'q',label:'Q Factor',unit:'',val:.5,step:.1,min:.1},
-    ],compute:llcDesign},
-  efficiency:{title:'Efficiency Analysis',subtitle:'First-order loss breakdown: MOSFET conduction, inductor DCR, diode/SR, switching overlap.',
-    fields:[
-      {id:'v_in',label:'Input Voltage',unit:'V',val:12,step:.1,min:.1},
-      {id:'v_out',label:'Output Voltage',unit:'V',val:5,step:.1,min:.1},
-      {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
-      {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
-      {id:'rds',label:'Rds(on)',unit:'mΩ',val:50,step:5,min:1},
-      {id:'dcr',label:'Inductor DCR',unit:'mΩ',val:30,step:5,min:1},
-      {id:'vf',label:'Diode Vf',unit:'V',val:.5,step:.1,min:0},
-      {id:'trise',label:'Rise Time',unit:'ns',val:20,step:5,min:1},
-      {id:'tfall',label:'Fall Time',unit:'ns',val:20,step:5,min:1},
-      {id:'sync',label:'Synchronous rectification',type:'checkbox',val:false},
-    ],compute:efficiencyEstimate},
-};
-
-function stdF(vin=12,vout=5){return[
-  {id:'v_in',label:'Input Voltage',unit:'V',val:vin,step:.1,min:.1},
-  {id:'v_out',label:'Output Voltage',unit:'V',val:vout,step:.1,min:.1},
-  {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
-  {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
-]}
-function isoF(){return[
-  {id:'v_in_min',label:'V_in Min',unit:'V',val:9,step:.1,min:.1},
-  {id:'v_in_max',label:'V_in Max',unit:'V',val:18,step:.1,min:.1},
-  {id:'v_out',label:'Output Voltage',unit:'V',val:5,step:.1,min:.1},
-  {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
-  {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
-]}
-
-function topologyRecommendation(f){
-  const ratio=f.v_out/f.v_in,p=f.v_out*f.i_out;
-  if(f.isolated){
-    if(p<50)return{recommended:'Flyback',alternatives:['Forward'],rationale:'Flyback is cost-effective for low-power isolated applications.',output_power_W:r2(p)};
-    if(p<200)return{recommended:'Flyback',alternatives:['Forward','Push-Pull'],rationale:'Flyback or Forward suitable for medium power.',output_power_W:r2(p)};
-    return{recommended:'LLC Resonant',alternatives:['Forward','Phase-shifted Full Bridge'],rationale:'LLC resonant offers highest efficiency at higher power with ZVS.',output_power_W:r2(p)};
-  }
-  if(ratio<.9)return{recommended:'Buck',alternatives:['Buck-Boost'],rationale:'Buck is optimal for step-down. Highest efficiency.',output_power_W:r2(p)};
-  if(ratio>1.1)return{recommended:'Boost',alternatives:['SEPIC','Buck-Boost'],rationale:'Boost is optimal for step-up.',output_power_W:r2(p)};
-  return{recommended:'SEPIC',alternatives:['Ćuk','Buck-Boost','Buck+Boost cascade'],rationale:'Input and output voltages are close. SEPIC provides non-inverting buck-boost.',output_power_W:r2(p)};
+// ═══════════════════════════════════════════════════════════════════
+// TAB / NAV
+// ═══════════════════════════════════════════════════════════════════
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${name}"]`).classList.add('active');
+  document.querySelector(`.panel[data-tab="${name}"]`).classList.add('active');
 }
-function buckDesign(f){if(f.v_out>=f.v_in)return{error:'Buck requires V_out < V_in'};const D=f.v_out/f.v_in,fsw=f.f_sw*1e3,di=f.i_out*.3;const L=(f.v_out*(1-D)/(fsw*di))*1e6;const dv=f.v_out*.01,C=(di/(8*fsw*dv))*1e6;return{topology:'Buck',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Step-down converter. Use synchronous rectification for high efficiency.'}}
-function boostDesign(f){if(f.v_out<=f.v_in)return{error:'Boost requires V_out > V_in'};const D=1-f.v_in/f.v_out,fsw=f.f_sw*1e3,iin=f.i_out*f.v_out/f.v_in,di=iin*.3;const L=(f.v_in*D/(fsw*di))*1e6;const dv=f.v_out*.01,C=(f.i_out*D/(fsw*dv))*1e6;return{topology:'Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Step-up converter. Watch for RHP zero at high duty cycle.'}}
-function buckBoostDesign(f){const vo=Math.abs(f.v_out),D=vo/(f.v_in+vo),fsw=f.f_sw*1e3,iin=f.i_out*vo/f.v_in,di=iin*.3;const L=(f.v_in*D/(fsw*di))*1e6;const dv=vo*.01,C=(f.i_out*D/(fsw*dv))*1e6;return{topology:'Buck-Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Inverting topology. Output polarity is reversed.'}}
-function sepicDesign(f){const D=f.v_out/(f.v_in+f.v_out),fsw=f.f_sw*1e3,iin=f.i_out*f.v_out/f.v_in,di=iin*.3;const L1=(f.v_in*D/(fsw*di))*1e6;const dv=f.v_out*.01,Cout=(f.i_out*D/(fsw*dv))*1e6;const Cc=(f.i_out*D/(fsw*f.v_in*.05))*1e6;return{topology:'SEPIC',duty_cycle:r3(D),L1_inductance_uH:r2(L1),L2_inductance_uH:r2(L1),output_capacitance_uF:r2(Cout),coupling_capacitance_uF:r2(Cc),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Non-inverting buck-boost. L1 and L2 can share a coupled core.'}}
-function cukDesign(f){const vo=Math.abs(f.v_out),D=vo/(f.v_in+vo),fsw=f.f_sw*1e3;const iin=f.i_out*vo/f.v_in,diIn=iin*.3,diOut=f.i_out*.3;const L1=(f.v_in*D/(fsw*diIn))*1e6;const L2=(vo*(1-D)/(fsw*diOut))*1e6;const dv=vo*.01,Cout=(diOut/(8*fsw*dv))*1e6;const Cc=(f.i_out*D/(fsw*(f.v_in+vo)*.05))*1e6;return{topology:'Ćuk',duty_cycle:r3(D),L1_input_inductance_uH:r2(L1),L2_output_inductance_uH:r2(L2),output_capacitance_uF:r2(Cout),coupling_capacitance_uF:r2(Cc),switching_frequency_kHz:f.f_sw,ripple_current_input_A:r3(diIn),ripple_current_output_A:r3(diOut),ripple_voltage_V:r4(dv),notes:'Inverting with continuous I/O currents. Output polarity is negative.'}}
-function forwardDesign(f){const fsw=f.f_sw*1e3,vnom=(f.v_in_min+f.v_in_max)/2,dmax=.5;const n=f.v_out/(f.v_in_min*dmax);let Dnom=f.v_out/(n*vnom);Dnom=Math.min(Dnom,dmax);const di=f.i_out*.3,vsec=n*vnom;let L=((vsec*Dnom-f.v_out)/(fsw*di))*1e6;L=Math.max(L,.1);const dv=f.v_out*.01,C=(di/(8*fsw*dv))*1e6;return{topology:'Forward',duty_cycle:r3(Dnom),turns_ratio_Ns_Np:r3(n),output_inductance_uH:r2(L),output_capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,peak_switch_voltage_V:r1(2*f.v_in_max),ripple_current_A:r3(di),notes:'Isolated single-ended. Max D ≈ 0.5 with 1:1 reset winding. MOSFET sees ~2× V_in.'}}
-function flybackDesign(f){const fsw=f.f_sw*1e3,vnom=(f.v_in_min+f.v_in_max)/2,D=.45;const n=(f.v_out/vnom)*(1-D)/D;const pout=f.v_out*f.i_out;const Lp=(f.v_in_min**2*D**2/(2*pout*fsw))*1e6;return{topology:'Flyback',duty_cycle:r3(D),turns_ratio_Ns_Np:r2(n),primary_inductance_uH:r2(Lp),switching_frequency_kHz:f.f_sw,notes:'Isolated converter. Add snubber for MOSFET protection. Consider LLC for higher power.'}}
-function llcDesign(f){const fr=f.f_sw*1e3,pout=f.v_out*f.i_out,Q=f.q;if(pout<=0)return{error:'Output power must be positive'};const n=2*f.v_out/f.v_in;const Rac=8*n**2*f.v_out**2/(Math.PI**2*pout);const Cr=1e9/(2*Math.PI*fr*Q*Rac);const CrF=Cr*1e-9;const Lr=(1/((2*Math.PI*fr)**2*CrF))*1e6;const Lm=Lr*5;return{topology:'LLC Resonant',turns_ratio_Ns_Np:r3(n),resonant_inductance_Lr_uH:r2(Lr),magnetizing_inductance_Lm_uH:r2(Lm),resonant_capacitance_Cr_nF:r2(Cr),Lm_Lr_ratio:5,resonant_frequency_kHz:f.f_sw,Q_factor:Q,equivalent_ac_resistance_ohm:r2(Rac),notes:'Full-bridge primary, center-tap secondary. Achieves ZVS near/above resonance. Lm/Lr=5 is a starting point.'}}
-function efficiencyEstimate(f){const pout=f.v_out*f.i_out;if(pout<=0)return{error:'Output power must be positive'};const fsw=f.f_sw*1e3,rds=f.rds/1e3,dcr=f.dcr/1e3;const D=f.v_out<f.v_in?Math.min(f.v_out/f.v_in,.99):Math.max(1-f.v_in/f.v_out,.01);const irms=f.i_out*Math.sqrt(D);const pFet=irms**2*rds;const pDCR=f.i_out**2*dcr;const pDiode=f.sync?f.i_out**2*(1-D)*rds:f.vf*f.i_out*(1-D);const pCond=pFet+pDCR+pDiode;const tr=f.trise*1e-9,tf=f.tfall*1e-9;const pOn=.5*f.v_in*f.i_out*tr*fsw,pOff=.5*f.v_in*f.i_out*tf*fsw;const pSw=pOn+pOff,pTotal=pCond+pSw,pin=pout+pTotal;const eta=pout/pin*100;return{output_power_W:r2(pout),estimated_efficiency_pct:r1(eta),total_loss_W:r3(pTotal),conduction_loss_W:r3(pCond),switching_loss_W:r3(pSw),breakdown:{MOSFET_conduction_W:r3(pFet),inductor_DCR_W:r3(pDCR),diode_or_SR_conduction_W:r3(pDiode),turn_on_loss_W:r3(pOn),turn_off_loss_W:r3(pOff)},notes:(f.sync?'Synchronous rectification':'Diode rectification')+'. First-order estimate; excludes gate-drive, quiescent, and core losses.'}}
-function r1(v){return Math.round(v*10)/10}
-function r2(v){return Math.round(v*100)/100}
-function r3(v){return Math.round(v*1000)/1000}
-function r4(v){return Math.round(v*10000)/10000}
-
-// ═══════════════════════════════════════════════════════════════════
-// UI
-// ═══════════════════════════════════════════════════════════════════
-let activeTool='recommend';
-
-document.querySelectorAll('.tool-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelector('.tool-btn.active')?.classList.remove('active');
-    btn.classList.add('active');
-    activeTool=btn.dataset.tool;
-    renderForm();
+document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>switchTab(t.dataset.tab))});
+document.querySelectorAll('.act-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const a=b.dataset.act;
+    if(a==='chat'){document.getElementById('chatPanel').classList.toggle('hidden');b.classList.toggle('active')}
+    else if(a==='explorer'){document.getElementById('sidebar').classList.toggle('hidden');b.classList.toggle('active')}
   });
 });
 
+let activeTool='recommend';
+document.querySelectorAll('.tool-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelector('.tool-btn.active')?.classList.remove('active');
+    btn.classList.add('active');activeTool=btn.dataset.tool;renderForm();
+    document.getElementById('sbTool').textContent='◈ '+TOOLS[activeTool].title;
+    switchTab('design');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// CALCULATOR ENGINE
+// ═══════════════════════════════════════════════════════════════════
+function stdF(a=12,b=5){return[{id:'v_in',label:'V_in',unit:'V',val:a,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:b,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10}]}
+function isoF(){return[{id:'v_in_min',label:'V_in min',unit:'V',val:9,step:.1,min:.1},{id:'v_in_max',label:'V_in max',unit:'V',val:18,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:5,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10}]}
+function r1(v){return Math.round(v*10)/10}function r2(v){return Math.round(v*100)/100}function r3(v){return Math.round(v*1000)/1000}function r4(v){return Math.round(v*10000)/10000}
+
+const TOOLS={
+  recommend:{title:'Topology Advisor',subtitle:'Analyze specifications and recommend the optimal converter topology.',
+    fields:[{id:'v_in',label:'V_in',unit:'V',val:12,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:5,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'isolated',label:'Require galvanic isolation',type:'checkbox',val:false}],compute:topologyRec},
+  buck:{title:'Buck Converter',subtitle:'Step-down — V_out < V_in',fields:stdF(),compute:buckD},
+  boost:{title:'Boost Converter',subtitle:'Step-up — V_out > V_in',fields:stdF(5,12),compute:boostD},
+  buck_boost:{title:'Buck-Boost',subtitle:'Inverting topology',fields:stdF(),compute:bbD},
+  sepic:{title:'SEPIC',subtitle:'Non-inverting buck-boost',fields:stdF(),compute:sepicD},
+  cuk:{title:'Ćuk Converter',subtitle:'Inverting, continuous I/O',fields:stdF(),compute:cukD},
+  forward:{title:'Forward',subtitle:'Isolated 50-300W',fields:isoF(),compute:fwdD},
+  flyback:{title:'Flyback',subtitle:'Isolated low-medium power',fields:isoF(),compute:flyD},
+  llc:{title:'LLC Resonant',subtitle:'High-eff isolated ZVS',
+    fields:[{id:'v_in',label:'V_in',unit:'V',val:400,step:1,min:1},{id:'v_out',label:'V_out',unit:'V',val:12,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:20,step:.5,min:.01},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10},{id:'q',label:'Q factor',unit:'',val:.5,step:.1,min:.1}],compute:llcD},
+  dab:{title:'Dual Active Bridge',subtitle:'Bidirectional isolated — ZVS, high power',
+    fields:[{id:'v1',label:'V₁ (Port 1)',unit:'V',val:400,step:1,min:1},{id:'v2',label:'V₂ (Port 2)',unit:'V',val:48,step:.5,min:.1},{id:'p_rated',label:'P_rated',unit:'W',val:1000,step:50,min:10},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10},{id:'phi',label:'Phase shift φ',unit:'°',val:30,step:1,min:1}],compute:dabD},
+  efficiency:{title:'Efficiency',subtitle:'Loss breakdown analysis',
+    fields:[{id:'v_in',label:'V_in',unit:'V',val:12,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:5,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10},{id:'rds',label:'Rds(on)',unit:'mΩ',val:50,step:5,min:1},{id:'dcr',label:'DCR',unit:'mΩ',val:30,step:5,min:1},{id:'vf',label:'Vf',unit:'V',val:.5,step:.1,min:0},{id:'trise',label:'t_rise',unit:'ns',val:20,step:5,min:1},{id:'tfall',label:'t_fall',unit:'ns',val:20,step:5,min:1},{id:'sync',label:'Sync rectification',type:'checkbox',val:false}],compute:effD},
+};
+
+// ── Topology functions ──────────────────────────────────────────────
+function topologyRec(f){
+  const r=f.v_out/f.v_in,p=f.v_out*f.i_out;
+  if(f.isolated){
+    if(p>500)return{recommended:'DAB',alternatives:['LLC Resonant','Phase-shifted FB'],rationale:'DAB optimal for high-power bidirectional isolated. ZVS achievable.',output_power_W:r2(p)};
+    if(p<50)return{recommended:'Flyback',alternatives:['Forward'],rationale:'Flyback cost-effective for low-power isolated.',output_power_W:r2(p)};
+    if(p<200)return{recommended:'Flyback',alternatives:['Forward','Push-Pull'],rationale:'Flyback/Forward for medium power.',output_power_W:r2(p)};
+    return{recommended:'LLC Resonant',alternatives:['DAB','Forward'],rationale:'LLC highest efficiency at high power. DAB if bidirectional needed.',output_power_W:r2(p)};
+  }
+  if(r<.9)return{recommended:'Buck',alternatives:['Buck-Boost'],rationale:'Buck optimal for step-down.',output_power_W:r2(p)};
+  if(r>1.1)return{recommended:'Boost',alternatives:['SEPIC'],rationale:'Boost optimal for step-up.',output_power_W:r2(p)};
+  return{recommended:'SEPIC',alternatives:['Ćuk','Buck-Boost'],rationale:'V_in ≈ V_out. SEPIC non-inverting.',output_power_W:r2(p)};
+}
+function buckD(f){if(f.v_out>=f.v_in)return{error:'Buck: V_out must < V_in'};const D=f.v_out/f.v_in,fs=f.f_sw*1e3,di=f.i_out*.3,L=(f.v_out*(1-D)/(fs*di))*1e6,dv=f.v_out*.01,C=(di/(8*fs*dv))*1e6;return{topology:'Buck',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),peak_current_A:r2(f.i_out+di/2),notes:'Step-down. Use sync rect for high efficiency.'}}
+function boostD(f){if(f.v_out<=f.v_in)return{error:'Boost: V_out must > V_in'};const D=1-f.v_in/f.v_out,fs=f.f_sw*1e3,ii=f.i_out*f.v_out/f.v_in,di=ii*.3,L=(f.v_in*D/(fs*di))*1e6,dv=f.v_out*.01,C=(f.i_out*D/(fs*dv))*1e6;return{topology:'Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),peak_current_A:r2(ii+di/2),notes:'Step-up. Watch RHP zero at high D.'}}
+function bbD(f){const vo=Math.abs(f.v_out),D=vo/(f.v_in+vo),fs=f.f_sw*1e3,ii=f.i_out*vo/f.v_in,di=ii*.3,L=(f.v_in*D/(fs*di))*1e6,dv=vo*.01,C=(f.i_out*D/(fs*dv))*1e6;return{topology:'Buck-Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),peak_current_A:r2(ii+di/2),notes:'Inverting. Output polarity reversed.'}}
+function sepicD(f){const D=f.v_out/(f.v_in+f.v_out),fs=f.f_sw*1e3,ii=f.i_out*f.v_out/f.v_in,di=ii*.3,L1=(f.v_in*D/(fs*di))*1e6,dv=f.v_out*.01,Co=(f.i_out*D/(fs*dv))*1e6,Cc=(f.i_out*D/(fs*f.v_in*.05))*1e6;return{topology:'SEPIC',duty_cycle:r3(D),L1_uH:r2(L1),L2_uH:r2(L1),C_out_uF:r2(Co),C_couple_uF:r2(Cc),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),notes:'Non-inverting buck-boost. L1/L2 can be coupled.'}}
+function cukD(f){const vo=Math.abs(f.v_out),D=vo/(f.v_in+vo),fs=f.f_sw*1e3,ii=f.i_out*vo/f.v_in,d1=ii*.3,d2=f.i_out*.3,L1=(f.v_in*D/(fs*d1))*1e6,L2=(vo*(1-D)/(fs*d2))*1e6,dv=vo*.01,Co=(d2/(8*fs*dv))*1e6;return{topology:'Ćuk',duty_cycle:r3(D),L1_uH:r2(L1),L2_uH:r2(L2),C_out_uF:r2(Co),switching_frequency_kHz:f.f_sw,notes:'Inverting, continuous I/O current.'}}
+function fwdD(f){const fs=f.f_sw*1e3,vn=(f.v_in_min+f.v_in_max)/2,n=f.v_out/(f.v_in_min*.5);let D=Math.min(f.v_out/(n*vn),.5);const di=f.i_out*.3,L=Math.max(((n*vn*D-f.v_out)/(fs*di))*1e6,.1),dv=f.v_out*.01,C=(di/(8*fs*dv))*1e6;return{topology:'Forward',duty_cycle:r3(D),turns_ratio:r3(n),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,Vsw_peak:r1(2*f.v_in_max),notes:'Isolated. Max D≈0.5. MOSFET sees ~2×V_in.'}}
+function flyD(f){const fs=f.f_sw*1e3,vn=(f.v_in_min+f.v_in_max)/2,D=.45,n=(f.v_out/vn)*(1-D)/D,p=f.v_out*f.i_out,Lp=(f.v_in_min**2*D**2/(2*p*fs))*1e6;return{topology:'Flyback',duty_cycle:r3(D),turns_ratio:r2(n),Lp_uH:r2(Lp),switching_frequency_kHz:f.f_sw,notes:'Isolated. Add snubber. Consider LLC for >100W.'}}
+function llcD(f){const fr=f.f_sw*1e3,p=f.v_out*f.i_out,Q=f.q;if(p<=0)return{error:'P_out must be > 0'};const n=2*f.v_out/f.v_in,Ra=8*n**2*f.v_out**2/(Math.PI**2*p),Cr=1e9/(2*Math.PI*fr*Q*Ra),Lr=(1/((2*Math.PI*fr)**2*Cr*1e-9))*1e6,Lm=Lr*5;return{topology:'LLC',turns_ratio:r3(n),Lr_uH:r2(Lr),Lm_uH:r2(Lm),Cr_nF:r2(Cr),Rac_ohm:r2(Ra),f_r_kHz:f.f_sw,Q:Q,notes:'FB primary, CT secondary. ZVS near/above resonance.'}}
+
+// ── DAB Converter ───────────────────────────────────────────────────
+function dabD(f){
+  const fs=f.f_sw*1e3, phi=f.phi*Math.PI/180;
+  const n=f.v2/f.v1;
+  const P_max=f.v1*f.v2*Math.PI/(8*fs); // theoretical max at phi=90°
+  const P_target=f.p_rated;
+  // L = V1*V2*phi*(pi-phi)/(2*pi^2*fsw*P)
+  const Lh=f.v1*n*f.v1*phi*(Math.PI-phi)/(2*Math.PI*Math.PI*fs*P_target);
+  const L_uH=Lh*1e6;
+  // Transferred power at given phi
+  const P_actual=f.v1*n*f.v1*phi*(Math.PI-phi)/(2*Math.PI*Math.PI*fs*Lh);
+  // Peak inductor current
+  const I_Lpk=f.v1*(Math.PI-phi)/(2*Math.PI*fs*Lh);
+  const I_Lrms=f.v1*Math.sqrt(phi*(Math.PI-phi)*(2*Math.PI-phi)/(3*Math.PI))/(2*Math.PI*fs*Lh);
+  // ZVS condition: sufficient magnetizing current
+  const zvs_margin=I_Lpk>0?'Achievable':'Check dead-time';
+  // Currents reflected to secondary
+  const I_sec_pk=I_Lpk/n;
+  const I_sec_rms=I_Lrms/n;
+  return{
+    topology:'DAB',
+    turns_ratio_n:r4(n),
+    leakage_inductance_uH:r2(L_uH),
+    phase_shift_deg:f.phi,
+    transferred_power_W:r1(P_actual),
+    I_L_peak_A:r2(I_Lpk),
+    I_L_rms_A:r2(I_Lrms),
+    I_sec_peak_A:r2(I_sec_pk),
+    I_sec_rms_A:r2(I_sec_rms),
+    duty_cycle:r3(f.phi/180),
+    switching_frequency_kHz:f.f_sw,
+    ZVS_status:zvs_margin,
+    notes:'Dual Active Bridge: bidirectional, ZVS at moderate load. SPS modulation. Use EPS/TPS for light-load ZVS.'
+  };
+}
+
+function effD(f){const p=f.v_out*f.i_out;if(p<=0)return{error:'P_out must be > 0'};const fs=f.f_sw*1e3,rd=f.rds/1e3,dc=f.dcr/1e3,D=f.v_out<f.v_in?Math.min(f.v_out/f.v_in,.99):Math.max(1-f.v_in/f.v_out,.01),ir=f.i_out*Math.sqrt(D),pF=ir**2*rd,pD=f.i_out**2*dc,pDi=f.sync?f.i_out**2*(1-D)*rd:f.vf*f.i_out*(1-D),pC=pF+pD+pDi,tr=f.trise*1e-9,tf=f.tfall*1e-9,pOn=.5*f.v_in*f.i_out*tr*fs,pOff=.5*f.v_in*f.i_out*tf*fs,pS=pOn+pOff,pT=pC+pS,eta=p/(p+pT)*100;return{output_power_W:r2(p),efficiency_pct:r1(eta),total_loss_W:r3(pT),conduction_W:r3(pC),switching_W:r3(pS),breakdown:{FET:r3(pF),DCR:r3(pD),Diode_SR:r3(pDi),Turn_on:r3(pOn),Turn_off:r3(pOff)},notes:(f.sync?'Sync rect':'Diode rect')+'. Excludes gate/core losses.'}}
+
+// ═══════════════════════════════════════════════════════════════════
+// UI RENDERING
+// ═══════════════════════════════════════════════════════════════════
 function renderForm(){
-  const tool=TOOLS[activeTool];
-  document.getElementById('toolTitle').textContent=tool.title;
-  document.getElementById('toolSubtitle').textContent=tool.subtitle;
+  const t=TOOLS[activeTool];
+  document.getElementById('toolTitle').textContent=t.title;
+  document.getElementById('toolSubtitle').textContent=t.subtitle;
   document.getElementById('resultArea').innerHTML='';
-  const grid=document.getElementById('formArea');
-  grid.innerHTML='';
-  tool.fields.forEach(f=>{
-    const div=document.createElement('div');
-    div.className='form-group'+(f.type==='checkbox'?' full':'');
-    if(f.type==='checkbox'){
-      div.innerHTML=`<div class="checkbox-group"><input type="checkbox" id="${f.id}" ${f.val?'checked':''}><label for="${f.id}">${f.label}</label></div>`;
-    }else{
-      const unitHtml=f.unit?` <span style="color:var(--text2);font-size:.7rem">${f.unit}</span>`:'';
-      div.innerHTML=`<label for="${f.id}">${f.label}${unitHtml}</label><input type="number" id="${f.id}" value="${f.val}" step="${f.step||1}" min="${f.min||0}">`;
-    }
-    grid.appendChild(div);
+  document.getElementById('schematicArea').innerHTML='';
+  const g=document.getElementById('formArea');g.innerHTML='';
+  t.fields.forEach(f=>{
+    const d=document.createElement('div');d.className='form-group'+(f.type==='checkbox'?' full':'');
+    if(f.type==='checkbox')d.innerHTML=`<div class="checkbox-group"><input type="checkbox" id="${f.id}" ${f.val?'checked':''}><label for="${f.id}">${f.label}</label></div>`;
+    else{const u=f.unit?` <span style="color:var(--text3);font-size:.5rem">${f.unit}</span>`:'';d.innerHTML=`<label for="${f.id}">${f.label}${u}</label><input type="number" id="${f.id}" value="${f.val}" step="${f.step||1}" min="${f.min||0}">`}
+    g.appendChild(d);
   });
 }
+function getV(){const t=TOOLS[activeTool],v={};t.fields.forEach(f=>{const e=document.getElementById(f.id);v[f.id]=f.type==='checkbox'?e.checked:parseFloat(e.value)});return v}
 
-function getValues(){
-  const tool=TOOLS[activeTool],vals={};
-  tool.fields.forEach(f=>{
-    const el=document.getElementById(f.id);
-    vals[f.id]=f.type==='checkbox'?el.checked:parseFloat(el.value);
-  });
-  return vals;
-}
-
+let lastResult=null,lastVals=null;
 function calculate(){
-  const vals=getValues();
-  const result=TOOLS[activeTool].compute(vals);
-  renderResult(result);
+  const v=getV();lastVals=v;
+  const r=TOOLS[activeTool].compute(v);lastResult=r;
+  renderResult(r);
+  generateSpice(activeTool,v,r);
+  updateMetrics(r,v);
+  drawWaveform(activeTool,v,r);
+  updateComponents(activeTool,v,r);
+  autoFillMagnetics(activeTool,v,r);
+  document.getElementById('sbStatus').textContent='✓ Analysis complete';
 }
 
-function renderResult(data){
-  const area=document.getElementById('resultArea');
-  if(data.error){area.innerHTML=`<div class="error-msg"><span style="font-size:1.1rem">⚠</span> ${data.error}</div>`;return}
-  const notes=data.notes||'';const breakdown=data.breakdown;delete data.notes;delete data.breakdown;
-  let effBadge='';
-  if(data.estimated_efficiency_pct!==undefined){
-    const e=data.estimated_efficiency_pct;
-    const cls=e>=90?'eff-good':e>=80?'eff-ok':'eff-low';
-    effBadge=`<span class="eff-badge ${cls}">${e}%</span>`;
+function renderResult(d){
+  const a=document.getElementById('resultArea');
+  if(d.error){a.innerHTML=`<div class="error-msg"><span>⚠</span>${d.error}</div>`;return}
+  const notes=d.notes||'';const bd=d.breakdown;delete d.notes;delete d.breakdown;
+  let eb='';if(d.efficiency_pct!==undefined){const e=d.efficiency_pct;const c=e>=90?'eff-good':e>=80?'eff-ok':'eff-low';eb=`<span class="eff-badge ${c}">${e}%</span>`}
+  const ti=d.topology||d.recommended||'Result';
+  let rows='';for(const[k,v]of Object.entries(d)){if(v==null)continue;const l=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());rows+=`<div class="result-row"><span class="key">${l}</span><span class="val">${Array.isArray(v)?v.join(', '):v}</span></div>`}
+  let bh='';if(bd){bh='<div class="result-sub"><h4>Loss Breakdown</h4>';for(const[k,v]of Object.entries(bd))bh+=`<div class="result-row"><span class="key">${k}</span><span class="val">${v} W</span></div>`;bh+='</div>'}
+  const nh=notes?`<div class="result-notes">◈ ${notes}</div>`:'';
+  const full={...d};if(notes)full.notes=notes;if(bd)full.breakdown=bd;
+  a.innerHTML=`<div class="result-card"><div class="result-header"><h3>${ti} ${eb}</h3><button class="small-btn" onclick="navigator.clipboard.writeText(document.getElementById('resultArea').dataset.json)">COPY</button></div><div class="result-body">${rows}${bh}${nh}</div></div>`;
+  a.dataset.json=JSON.stringify(full,null,2);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SPICE GENERATION
+// ═══════════════════════════════════════════════════════════════════
+function generateSpice(tool,v,r){
+  if(r.error)return;
+  const ta=document.getElementById('spiceNetlist');
+  let nl='';const ts=new Date().toISOString().slice(0,19);
+  switch(tool){
+    case 'buck':
+      nl=`* PEA Buck Converter — ${ts}\n.param Vin=${v.v_in} Vout=${v.v_out} fsw=${v.f_sw}k\n.param D=${r.duty_cycle} Tperiod={1/fsw} Ton={D*Tperiod}\n.param L=${r.inductance_uH}u C=${r.capacitance_uF}u\n.param Rload={Vout/${v.i_out}}\n\nVin input 0 DC {Vin}\nVpulse gate 0 PULSE(0 10 0 10n 10n {Ton} {Tperiod})\nS1 input sw gate 0 SWIDEAL\n.model SWIDEAL SW(Ron=0.05 Roff=1e6 Vt=5)\nD1 0 sw DFAST\n.model DFAST D(Is=1e-14 Rs=0.01 N=1 BV=100)\nL1 sw out {L}\nC1 out 0 {C}\nRload out 0 {Rload}\n\n.tran 1u 5m 0 100n UIC\n.control\n  run\n  plot V(out) title "Output Voltage"\n  plot I(L1) title "Inductor Current"\n  plot V(sw) title "Switch Node"\n.endc\n.end`;break;
+    case 'boost':
+      nl=`* PEA Boost Converter — ${ts}\n.param Vin=${v.v_in} Vout=${v.v_out} fsw=${v.f_sw}k\n.param D=${r.duty_cycle} Tperiod={1/fsw} Ton={D*Tperiod}\n.param L=${r.inductance_uH}u C=${r.capacitance_uF}u\n.param Rload={Vout/${v.i_out}}\n\nVin input 0 DC {Vin}\nVpulse gate 0 PULSE(0 10 0 10n 10n {Ton} {Tperiod})\nL1 input sw {L}\nS1 sw 0 gate 0 SWIDEAL\n.model SWIDEAL SW(Ron=0.05 Roff=1e6 Vt=5)\nD1 sw out DFAST\n.model DFAST D(Is=1e-14 Rs=0.01 N=1 BV=100)\nC1 out 0 {C}\nRload out 0 {Rload}\n\n.tran 1u 5m 0 100n UIC\n.control\n  run\n  plot V(out) title "Output Voltage"\n  plot I(L1) title "Inductor Current"\n.endc\n.end`;break;
+    case 'dab':
+      nl=`* PEA Dual Active Bridge — ${ts}
+* V1=${v.v1}V, V2=${v.v2}V, P=${v.p_rated}W, fsw=${v.f_sw}kHz, phi=${v.phi}°
+* n=${r.turns_ratio_n}, L_leak=${r.leakage_inductance_uH}uH
+
+.param V1=${v.v1} V2=${v.v2} fsw=${v.f_sw}k
+.param Tperiod={1/fsw} phi_deg=${v.phi}
+.param phi_t={phi_deg/360*Tperiod}
+.param Thalf={Tperiod/2}
+.param N=${r.turns_ratio_n}
+.param Lleak=${r.leakage_inductance_uH}u
+
+* Primary H-bridge
+V1dc v1p 0 DC {V1}
+Vpri_a ga 0 PULSE(0 15 0 10n 10n {Thalf} {Tperiod})
+Vpri_b gb 0 PULSE(0 15 {Thalf} 10n 10n {Thalf} {Tperiod})
+
+S1a v1p pri_a ga 0 SWIDEAL
+S2a 0 pri_a gb 0 SWIDEAL
+S1b v1p pri_b gb 0 SWIDEAL
+S2b 0 pri_b ga 0 SWIDEAL
+
+.model SWIDEAL SW(Ron=0.05 Roff=1e6 Vt=5)
+
+* Leakage inductance
+L_leak pri_a tx_a {Lleak}
+
+* Ideal transformer 1:N
+E_sec sec_a 0 tx_a pri_b {N}
+F_pri tx_a pri_b V_sense {N}
+V_sense sec_a sec_a2 0
+
+* Secondary H-bridge (phase-shifted)
+Vsec_a gsa 0 PULSE(0 15 {phi_t} 10n 10n {Thalf} {Tperiod})
+Vsec_b gsb 0 PULSE(0 15 {phi_t+Thalf} 10n 10n {Thalf} {Tperiod})
+
+V2dc v2p 0 DC {V2}
+S3a v2p sec_out gsa 0 SWIDEAL
+S4a 0 sec_out gsb 0 SWIDEAL
+S3b v2p sec_b2 gsb 0 SWIDEAL
+S4b 0 sec_b2 gsa 0 SWIDEAL
+
+C_out sec_out 0 100u
+R_load sec_out 0 {V2*V2/${v.p_rated}}
+
+.tran 100n 2m 0 50n UIC
+.control
+  run
+  plot V(pri_a,pri_b) title "Primary Bridge Voltage"
+  plot V(sec_out) title "Secondary Output"
+  plot I(L_leak) title "Leakage Inductor Current"
+.endc
+.end`;break;
+    default:
+      nl=`* PEA ${r.topology||activeTool} — ${ts}\n* Design parameters:\n`;
+      for(const[k,val]of Object.entries(r)){if(k!=='notes'&&k!=='breakdown'&&val!=null)nl+=`* ${k} = ${val}\n`}
+      nl+=`\n.end`;
   }
-  const title=data.topology||data.recommended||'Result';
-  let rows='';
-  for(const[k,v]of Object.entries(data)){
-    if(v===null||v===undefined)continue;
-    const label=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    const val=Array.isArray(v)?v.join(', '):v;
-    rows+=`<div class="result-row"><span class="key">${label}</span><span class="val">${val}</span></div>`;
+  ta.value=nl;
+}
+function copySpice(){navigator.clipboard.writeText(document.getElementById('spiceNetlist').value);document.getElementById('sbStatus').textContent='✓ Copied'}
+function downloadSpice(){const b=new Blob([document.getElementById('spiceNetlist').value],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`PEA_${activeTool}.cir`;a.click();document.getElementById('sbStatus').textContent='✓ Downloaded'}
+function runSpiceSim(){
+  const st=document.getElementById('spiceStatus');
+  st.innerHTML='<h4>Status</h4><p style="color:var(--amber)">⟳ Simulating...</p>';
+  setTimeout(()=>{
+    st.innerHTML='<h4>Status</h4><p style="color:var(--green)">✓ Preview ready. Run in ngspice/LTspice for accuracy.</p>';
+    switchTab('results');
+    if(lastResult&&lastVals)drawWaveform(activeTool,lastVals,lastResult);
+  },800);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// COMPONENT SELECTION
+// ═══════════════════════════════════════════════════════════════════
+const MOSFET_DB=[
+  {part:'IRFZ44N',vds:55,id:49,rds:17.5,qg:63,pkg:'TO-220'},
+  {part:'IRF3205',vds:55,id:110,rds:8,qg:146,pkg:'TO-220'},
+  {part:'BSC014N06NS',vds:60,id:100,rds:1.4,qg:75,pkg:'TDSON-8'},
+  {part:'IRLZ44N',vds:55,id:47,rds:22,qg:48,pkg:'TO-220'},
+  {part:'AON6414',vds:30,id:85,rds:2.2,qg:38,pkg:'DFN 5x6'},
+  {part:'CSD18540Q5B',vds:60,id:100,rds:3.5,qg:25,pkg:'SON 5x6'},
+  {part:'IPB072N15N3',vds:150,id:100,rds:7.2,qg:87,pkg:'D2PAK'},
+  {part:'STB80NF55',vds:55,id:80,rds:6.5,qg:90,pkg:'D2PAK'},
+  {part:'IPP200N15N3',vds:150,id:50,rds:20,qg:28,pkg:'TO-220'},
+  {part:'SCT3060AL',vds:650,id:39,rds:60,qg:62,pkg:'TO-247'},
+  {part:'C3M0065090D',vds:900,id:36,rds:65,qg:30,pkg:'TO-247'},
+  {part:'IMW65R048M1H',vds:650,id:24,rds:48,qg:43,pkg:'TO-247'},
+  {part:'IPW65R019C7',vds:700,id:57,rds:19,qg:200,pkg:'TO-247'},
+  {part:'BSZ070N08LS5',vds:80,id:53,rds:7,qg:18,pkg:'TSDSON-8'},
+  {part:'FDMS86180',vds:100,id:64,rds:3.6,qg:48,pkg:'PQFN 5x6'},
+];
+const DIODE_DB=[
+  {part:'SS34',vr:40,if_:3,vf:0.5,type:'Schottky',pkg:'SMA'},
+  {part:'SS54',vr:40,if_:5,vf:0.5,type:'Schottky',pkg:'SMC'},
+  {part:'B560C',vr:60,if_:5,vf:0.7,type:'Schottky',pkg:'SMC'},
+  {part:'MBR20100CT',vr:100,if_:20,vf:0.8,type:'Schottky',pkg:'TO-220'},
+  {part:'MBR3045PT',vr:45,if_:30,vf:0.6,type:'Schottky',pkg:'TO-247'},
+  {part:'STPS20H100CT',vr:100,if_:20,vf:0.63,type:'Schottky',pkg:'TO-220'},
+  {part:'C4D10120A',vr:1200,if_:10,vf:1.5,type:'SiC',pkg:'TO-220'},
+  {part:'C3D08065A',vr:650,if_:8,vf:1.35,type:'SiC',pkg:'TO-220'},
+  {part:'IDH10G65C5',vr:650,if_:10,vf:1.5,type:'SiC',pkg:'TO-220'},
+  {part:'US1M',vr:1000,if_:1,vf:1.0,type:'Ultra-fast',pkg:'SMA'},
+  {part:'ES2J',vr:600,if_:2,vf:1.25,type:'Ultra-fast',pkg:'SMB'},
+];
+const CAP_DB=[
+  {part:'GRM31CR71A106K',c_uF:10,v:10,esr:5,type:'MLCC X7R',pkg:'1206'},
+  {part:'GRM32ER71E106K',c_uF:10,v:25,esr:5,type:'MLCC X7R',pkg:'1210'},
+  {part:'GRM32ER71A226K',c_uF:22,v:10,esr:3,type:'MLCC X7R',pkg:'1210'},
+  {part:'CL31B475KBHNNNE',c_uF:4.7,v:50,esr:8,type:'MLCC X7R',pkg:'1206'},
+  {part:'GRM32ER61C476M',c_uF:47,v:16,esr:3,type:'MLCC X5R',pkg:'1210'},
+  {part:'EEE-FK1V101P',c_uF:100,v:35,esr:45,type:'Electrolytic',pkg:'8mm'},
+  {part:'EEE-FK1E221P',c_uF:220,v:25,esr:30,type:'Electrolytic',pkg:'8mm'},
+  {part:'865080640004',c_uF:100,v:50,esr:35,type:'Electrolytic',pkg:'10mm'},
+  {part:'EEH-ZA1V331P',c_uF:330,v:35,esr:9,type:'Polymer',pkg:'10mm'},
+  {part:'ECW-F4105JL',c_uF:1,v:400,esr:15,type:'Film PP',pkg:'Box'},
+  {part:'MKP1848610094P4',c_uF:10,v:400,esr:10,type:'Film PP',pkg:'Box'},
+  {part:'B32774D4106K',c_uF:10,v:450,esr:7,type:'Film MKP',pkg:'Box'},
+];
+
+function updateComponents(tool,v,r){
+  if(r.error)return;
+  const vin=v.v_in||v.v_in_max||v.v1||12;
+  const vout=v.v_out||v.v2||5;
+  const iout=v.i_out||v.p_rated/vout||2;
+  const fsw=v.f_sw||100;
+  const topo=r.topology||r.recommended||tool;
+
+  document.getElementById('crVin').innerHTML=r1(vin)+'<span class="req-unit">V</span>';
+  document.getElementById('crVout').innerHTML=r1(vout)+'<span class="req-unit">V</span>';
+  document.getElementById('crIout').innerHTML=r2(iout)+'<span class="req-unit">A</span>';
+  document.getElementById('crTopo').textContent=topo;
+  document.getElementById('crFsw').innerHTML=fsw+'<span class="req-unit">kHz</span>';
+
+  // MOSFET requirements
+  const vds_min=Math.max(vin,vout)*1.5;
+  const id_min=iout*1.5;
+  const rds_max=200;
+  document.getElementById('cfVds').textContent=r1(vds_min)+'V';
+  document.getElementById('cfRds').textContent=rds_max+'mΩ';
+
+  const mt=document.getElementById('mosfetTable');mt.innerHTML='';
+  const mf=MOSFET_DB.filter(m=>m.vds>=vds_min&&m.id>=id_min).sort((a,b)=>a.rds-b.rds);
+  (mf.length?mf:MOSFET_DB.slice(0,5)).forEach((m,i)=>{
+    const match=m.vds>=vds_min&&m.id>=id_min&&m.rds<=rds_max;
+    mt.innerHTML+=`<tr class="${match?'highlight':''}"><td class="part-name">${m.part}</td><td>${m.vds}V</td><td>${m.id}A</td><td>${m.rds}mΩ</td><td>${m.qg}nC</td><td>${m.pkg}</td><td>${match?'<span class="match-badge">MATCH</span>':''}</td></tr>`;
+  });
+
+  // Diode
+  const vr_min=Math.max(vin,vout)*1.3;
+  const if_min=iout*1.2;
+  const dt=document.getElementById('diodeTable');dt.innerHTML='';
+  const df=DIODE_DB.filter(d=>d.vr>=vr_min&&d.if_>=if_min).sort((a,b)=>a.vf-b.vf);
+  (df.length?df:DIODE_DB.slice(0,5)).forEach(d=>{
+    const match=d.vr>=vr_min&&d.if_>=if_min;
+    dt.innerHTML+=`<tr class="${match?'highlight':''}"><td class="part-name">${d.part}</td><td>${d.vr}V</td><td>${d.if_}A</td><td>${d.vf}V</td><td>${d.type}</td><td>${d.pkg}</td><td>${match?'<span class="match-badge">MATCH</span>':''}</td></tr>`;
+  });
+
+  // Capacitor
+  const c_need=r.capacitance_uF||r.C_out_uF||10;
+  const v_cap=Math.max(vin,vout)*1.5;
+  const ct=document.getElementById('capTable');ct.innerHTML='';
+  const cf=CAP_DB.filter(c=>c.c_uF>=c_need*0.5&&c.v>=v_cap).sort((a,b)=>a.esr-b.esr);
+  (cf.length?cf:CAP_DB.slice(0,5)).forEach(c=>{
+    const match=c.c_uF>=c_need&&c.v>=v_cap;
+    ct.innerHTML+=`<tr class="${match?'highlight':''}"><td class="part-name">${c.part}</td><td>${c.c_uF}μF</td><td>${c.v}V</td><td>${c.esr}mΩ</td><td>${c.type}</td><td>${c.pkg}</td><td>${match?'<span class="match-badge">MATCH</span>':''}</td></tr>`;
+  });
+
+  document.getElementById('compTip').innerHTML=`◈ Showing components for <b>${topo}</b> design. V_DS ≥ ${r1(vds_min)}V, I_D ≥ ${r1(id_min)}A. Green rows are best matches. Always verify with datasheets.`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAGNETICS DESIGN
+// ═══════════════════════════════════════════════════════════════════
+const CORE_DATA={
+  EE:{sizes:[
+    {name:'EE16',Ae:20.1,le:34.7,Ve:697,Aw:19.3,Al:1600},
+    {name:'EE19',Ae:22.6,le:39.4,Ve:890,Aw:26.4,Al:1750},
+    {name:'EE25',Ae:39.4,le:57.8,Ve:2278,Aw:47.4,Al:2100},
+    {name:'EE30',Ae:58.1,le:67.2,Ve:3904,Aw:74.8,Al:2400},
+    {name:'EE40',Ae:81,le:96,Ve:7776,Aw:121,Al:2800},
+    {name:'EE42',Ae:178,le:97,Ve:17266,Aw:213,Al:4000},
+    {name:'EE55',Ae:250,le:124,Ve:31000,Aw:362,Al:4700},
+    {name:'EE65',Ae:330,le:147,Ve:48510,Aw:495,Al:5200},
+  ]},
+  PQ:{sizes:[
+    {name:'PQ20/20',Ae:62,le:46,Ve:2852,Aw:40,Al:3100},
+    {name:'PQ26/25',Ae:119,le:56,Ve:6664,Aw:69,Al:4600},
+    {name:'PQ32/30',Ae:162,le:70,Ve:11340,Aw:104,Al:5300},
+    {name:'PQ40/40',Ae:202,le:88,Ve:17776,Aw:145,Al:5900},
+  ]},
+  RM:{sizes:[
+    {name:'RM8',Ae:52,le:38,Ve:1976,Aw:26,Al:2700},
+    {name:'RM10',Ae:83,le:44,Ve:3652,Aw:44,Al:3400},
+    {name:'RM12',Ae:116,le:52,Ve:6032,Aw:61,Al:4200},
+    {name:'RM14',Ae:157,le:60,Ve:9420,Aw:83,Al:4800},
+  ]},
+  toroid:{sizes:[
+    {name:'T25/15/10',Ae:45,le:62,Ve:2790,Aw:177,Al:2300},
+    {name:'T36/23/15',Ae:98,le:92,Ve:9016,Aw:415,Al:3200},
+    {name:'T50/30/19',Ae:154,le:125,Ve:19250,Aw:707,Al:3800},
+  ]},
+  EI:{sizes:[
+    {name:'EI30',Ae:48,le:68,Ve:3264,Aw:55,Al:2200},
+    {name:'EI40',Ae:80,le:96,Ve:7680,Aw:110,Al:2700},
+  ]},
+  EP:{sizes:[
+    {name:'EP13',Ae:17.1,le:30,Ve:513,Aw:12.4,Al:1500},
+    {name:'EP17',Ae:24.5,le:37,Ve:907,Aw:17.7,Al:1800},
+    {name:'EP20',Ae:31.2,le:43,Ve:1342,Aw:23.8,Al:2000},
+  ]},
+  ETD:{sizes:[
+    {name:'ETD29',Ae:76,le:72,Ve:5472,Aw:90,Al:3100},
+    {name:'ETD34',Ae:97,le:78,Ve:7566,Aw:119,Al:3600},
+    {name:'ETD39',Ae:125,le:92,Ve:11500,Aw:177,Al:4200},
+    {name:'ETD44',Ae:173,le:103,Ve:17819,Aw:214,Al:4900},
+    {name:'ETD49',Ae:211,le:114,Ve:24054,Aw:268,Al:5300},
+  ]},
+  EFD:{sizes:[
+    {name:'EFD15',Ae:14.8,le:33,Ve:488,Aw:14,Al:1400},
+    {name:'EFD20',Ae:31,le:47,Ve:1457,Aw:22,Al:2100},
+    {name:'EFD25',Ae:40,le:57,Ve:2280,Aw:33,Al:2500},
+    {name:'EFD30',Ae:69,le:68,Ve:4692,Aw:52,Al:3200},
+  ]},
+};
+
+const MAT_DATA={
+  N87:{bsat:390,f_range:'25k-500k',mu_i:2200,steinmetz:{k:1.2e-6,alpha:1.46,beta:2.75}},
+  N97:{bsat:410,f_range:'25k-500k',mu_i:2300,steinmetz:{k:0.8e-6,alpha:1.52,beta:2.73}},
+  '3C90':{bsat:380,f_range:'25k-200k',mu_i:2300,steinmetz:{k:1.5e-6,alpha:1.36,beta:2.86}},
+  '3C95':{bsat:410,f_range:'25k-500k',mu_i:3000,steinmetz:{k:0.9e-6,alpha:1.48,beta:2.78}},
+  '3F3':{bsat:380,f_range:'100k-1M',mu_i:2000,steinmetz:{k:0.6e-6,alpha:1.64,beta:2.68}},
+  PC40:{bsat:390,f_range:'25k-500k',mu_i:2300,steinmetz:{k:1.1e-6,alpha:1.44,beta:2.8}},
+  PC95:{bsat:380,f_range:'100k-1M',mu_i:2500,steinmetz:{k:0.5e-6,alpha:1.7,beta:2.6}},
+};
+
+function autoFillMagnetics(tool,v,r){
+  if(r.error)return;
+  const L=r.inductance_uH||r.Lp_uH||r.Lr_uH||r.L1_uH||r.leakage_inductance_uH;
+  const ipk=r.peak_current_A||r.I_L_peak_A||(v.i_out?v.i_out*1.15:null);
+  const irms=r.I_L_rms_A||(v.i_out||null);
+  const fsw=v.f_sw||100;
+  if(L)document.getElementById('magL').value=r2(L);
+  if(ipk)document.getElementById('magIpk').value=r2(ipk);
+  if(irms)document.getElementById('magIrms').value=r2(irms);
+  if(fsw)document.getElementById('magFsw').value=fsw;
+
+  if(['flyback','forward','dab','llc'].includes(tool)){
+    const vpri=v.v_in||v.v1||(v.v_in_min&&v.v_in_max?(v.v_in_min+v.v_in_max)/2:null);
+    if(vpri)document.getElementById('magVpri').value=r1(vpri);
+    if(v.v_out||v.v2)document.getElementById('magVsec').value=r1(v.v_out||v.v2);
+    const p=v.p_rated||(v.v_out&&v.i_out?v.v_out*v.i_out:null);
+    if(p)document.getElementById('magPower').value=r1(p);
+    if(fsw)document.getElementById('magTxFsw').value=fsw;
+    if(r.duty_cycle)document.getElementById('magTxD').value=r.duty_cycle;
   }
-  let breakdownHtml='';
-  if(breakdown){
-    breakdownHtml='<div class="result-sub"><h4>Loss Breakdown</h4>';
-    for(const[k,v]of Object.entries(breakdown)){
-      const label=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-      breakdownHtml+=`<div class="result-row"><span class="key">${label}</span><span class="val">${v}</span></div>`;
-    }
-    breakdownHtml+='</div>';
+}
+
+function calcInductor(){
+  const L=parseFloat(document.getElementById('magL').value)*1e-6;
+  const Ipk=parseFloat(document.getElementById('magIpk').value);
+  const Irms=parseFloat(document.getElementById('magIrms').value);
+  const fsw=parseFloat(document.getElementById('magFsw').value)*1e3;
+  const shape=document.getElementById('magCoreShape').value;
+  const mat=document.getElementById('magCoreMat').value;
+  const Bmax=parseFloat(document.getElementById('magBmax').value)/1000;
+  const J=parseFloat(document.getElementById('magJ').value);
+
+  const LI2=L*Ipk*Ipk;
+  const energy_uJ=r2(LI2*1e6);
+
+  // Ae_min from flux: Ae >= L*Ipk/(N*Bmax), and N >= L*Ipk/(Ae*Bmax)
+  // Ap (area product) = Ae * Aw >= L*Ipk*Irms/(Bmax*J*Ku*1e6)
+  const Ku=0.4;
+  const Ap_min=L*Ipk*Irms/(Bmax*J*1e6*Ku)*1e12; // mm^4
+
+  const cores=(CORE_DATA[shape]||CORE_DATA.EE).sizes;
+  let selected=null;
+  for(const c of cores){
+    if(c.Ae*c.Aw>=Ap_min){selected=c;break;}
   }
-  const notesHtml=notes?`<div class="result-notes">◈ ${notes}</div>`:'';
-  const fullData={...data};if(notes)fullData.notes=notes;if(breakdown)fullData.breakdown=breakdown;
+  if(!selected)selected=cores[cores.length-1];
+
+  const Ae_mm2=selected.Ae;
+  const N=Math.ceil(L*Ipk/(Bmax*Ae_mm2*1e-6));
+  const B_actual=L*Ipk/(N*Ae_mm2*1e-6)*1000;
+  const Aw_wire=Irms/J;
+  const d_wire=Math.sqrt(4*Aw_wire/Math.PI);
+  const awg=Math.round(Math.log(d_wire/8.251)/Math.log(0.890526)*-1);
+  const fill=N*Aw_wire/selected.Aw;
+
+  // Air gap: lg = mu0*N^2*Ae/L - le/mu_r
+  const mu0=4*Math.PI*1e-7;
+  const mu_r=MAT_DATA[mat]?MAT_DATA[mat].mu_i:2200;
+  const lg=(mu0*N*N*Ae_mm2*1e-6/L - selected.le*1e-3/mu_r)*1e3;
+
+  // Steinmetz core loss: Pv = k * f^alpha * B^beta (mW/cm^3)
+  const st=MAT_DATA[mat]?MAT_DATA[mat].steinmetz:{k:1.2e-6,alpha:1.46,beta:2.75};
+  const dB=B_actual*0.3;
+  const Pv=st.k*Math.pow(fsw,st.alpha)*Math.pow(dB,st.beta);
+  const Pcore=Pv*selected.Ve*1e-6*1e3;
+
+  // Copper loss
+  const rho_cu=1.72e-8;
+  const MLT=2*(Math.sqrt(Ae_mm2)*2+5)*1e-3;
+  const Rdc=rho_cu*N*MLT/(Aw_wire*1e-6);
+  const Pcu=Irms*Irms*Rdc;
+
+  const area=document.getElementById('indResult');
+  let warn='';
+  if(B_actual>MAT_DATA[mat].bsat*0.9) warn=`<div class="mag-warning">⚠ B_peak (${r1(B_actual)}mT) near saturation (${MAT_DATA[mat].bsat}mT). Increase core size or turns.</div>`;
+  else if(fill>0.5) warn=`<div class="mag-warning">⚠ Window fill ${r1(fill*100)}% &gt; 50%. Consider larger core.</div>`;
+  else warn=`<div class="mag-ok">✓ Design within limits. B_peak = ${r1(B_actual)}mT (${r1(B_actual/MAT_DATA[mat].bsat*100)}% of B_sat)</div>`;
+
   area.innerHTML=`
-    <div class="result-card">
-      <div class="result-header"><h3>${title} ${effBadge}</h3><button class="copy-btn" onclick="copyResult()">COPY JSON</button></div>
-      <div class="result-body">${rows}${breakdownHtml}${notesHtml}</div>
-    </div>`;
-  area.dataset.json=JSON.stringify(fullData,null,2);
+    <div class="result-card" style="max-width:100%;margin-top:12px">
+      <div class="result-header"><h3>Inductor — ${selected.name} ${mat}</h3></div>
+      <div class="result-body">
+        <div class="mag-result-row"><span class="key">Core</span><span class="val">${selected.name} (${shape})</span></div>
+        <div class="mag-result-row"><span class="key">Material</span><span class="val">${mat}</span></div>
+        <div class="mag-result-row"><span class="key">Turns (N)</span><span class="val">${N}</span></div>
+        <div class="mag-result-row"><span class="key">Wire</span><span class="val">AWG ${awg} (⌀${r2(d_wire)}mm)</span></div>
+        <div class="mag-result-row"><span class="key">B_peak</span><span class="val">${r1(B_actual)} mT</span></div>
+        <div class="mag-result-row"><span class="key">Air Gap</span><span class="val">${lg>0?r2(lg)+' mm':'None needed'}</span></div>
+        <div class="mag-result-row"><span class="key">Window Fill</span><span class="val">${r1(fill*100)}%</span></div>
+        <div class="mag-result-row"><span class="key">Energy (½LI²)</span><span class="val">${energy_uJ} μJ</span></div>
+        <div class="mag-result-row"><span class="key">Ae</span><span class="val">${Ae_mm2} mm²</span></div>
+        <div class="mag-result-row"><span class="key">Core Loss</span><span class="val">${r2(Pcore*1000)} mW</span></div>
+        <div class="mag-result-row"><span class="key">Copper Loss</span><span class="val">${r2(Pcu*1000)} mW</span></div>
+        <div class="mag-result-row"><span class="key">Total Loss</span><span class="val">${r1((Pcore+Pcu)*1000)} mW</span></div>
+      </div>
+    </div>${warn}`;
+  document.getElementById('sbStatus').textContent='✓ Inductor designed';
 }
 
-function copyResult(){
-  const json=document.getElementById('resultArea').dataset.json;
-  if(json){navigator.clipboard.writeText(json).then(()=>{
-    const btn=document.querySelector('.copy-btn');btn.textContent='COPIED ✓';
-    setTimeout(()=>btn.textContent='COPY JSON',1500);
-  })}
+function calcTransformer(){
+  const Vpri=parseFloat(document.getElementById('magVpri').value);
+  const Vsec=parseFloat(document.getElementById('magVsec').value);
+  const P=parseFloat(document.getElementById('magPower').value);
+  const fsw=parseFloat(document.getElementById('magTxFsw').value)*1e3;
+  const shape=document.getElementById('magTxCore').value;
+  const mat=document.getElementById('magTxMat').value;
+  const Bmax=parseFloat(document.getElementById('magTxBmax').value)/1000;
+  const D=parseFloat(document.getElementById('magTxD').value);
+  const J=5;
+
+  const n=Vsec/Vpri;
+  const Ipri=P/Vpri;
+  const Isec=P/Vsec;
+
+  // Ae_min from Faraday: Ae >= Vpri*D/(N*Bmax*fsw)
+  // Ap = Ae*Aw >= Vpri*Ipri/(2*Bmax*fsw*J*Ku*1e6)
+  const Ku=0.3;
+  const Ap_min=P/(2*Bmax*fsw*J*1e6*Ku)*1e12;
+
+  const cores=(CORE_DATA[shape]||CORE_DATA.EE).sizes;
+  let selected=null;
+  for(const c of cores){if(c.Ae*c.Aw>=Ap_min){selected=c;break;}}
+  if(!selected)selected=cores[cores.length-1];
+
+  const Ae=selected.Ae*1e-6;
+  const Npri=Math.max(Math.ceil(Vpri*D/(Bmax*Ae*fsw)),1);
+  const Nsec=Math.max(Math.ceil(Npri*n),1);
+  const n_actual=Nsec/Npri;
+  const B_actual=Vpri*D/(Npri*Ae*fsw)*1000;
+
+  const Aw_pri=Ipri*Math.sqrt(D)/J;
+  const Aw_sec=Isec*Math.sqrt(1-D)/J;
+  const d_pri=Math.sqrt(4*Aw_pri/Math.PI);
+  const d_sec=Math.sqrt(4*Aw_sec/Math.PI);
+  const awg_pri=Math.round(Math.log(d_pri/8.251)/Math.log(0.890526)*-1);
+  const awg_sec=Math.round(Math.log(d_sec/8.251)/Math.log(0.890526)*-1);
+  const fill=(Npri*Aw_pri+Nsec*Aw_sec)/selected.Aw;
+
+  const st=MAT_DATA[mat]?MAT_DATA[mat].steinmetz:{k:1.2e-6,alpha:1.46,beta:2.75};
+  const Pv=st.k*Math.pow(fsw,st.alpha)*Math.pow(B_actual,st.beta);
+  const Pcore=Pv*selected.Ve*1e-6*1e3;
+
+  const area=document.getElementById('txResult');
+  let warn='';
+  if(B_actual>MAT_DATA[mat].bsat*0.9) warn=`<div class="mag-warning">⚠ B_peak (${r1(B_actual)}mT) near saturation. Increase N_pri or core size.</div>`;
+  else if(fill>0.6) warn=`<div class="mag-warning">⚠ Window fill ${r1(fill*100)}%. Consider larger core or interleaved winding.</div>`;
+  else warn=`<div class="mag-ok">✓ B_peak = ${r1(B_actual)}mT (${r1(B_actual/MAT_DATA[mat].bsat*100)}% of B_sat). Fill = ${r1(fill*100)}%</div>`;
+
+  area.innerHTML=`
+    <div class="result-card" style="max-width:100%;margin-top:12px">
+      <div class="result-header"><h3>Transformer — ${selected.name} ${mat}</h3></div>
+      <div class="result-body">
+        <div class="mag-result-row"><span class="key">Core</span><span class="val">${selected.name} (${shape})</span></div>
+        <div class="mag-result-row"><span class="key">Material</span><span class="val">${mat}</span></div>
+        <div class="mag-result-row"><span class="key">Turns Ratio</span><span class="val">${Npri} : ${Nsec} (${r3(n_actual)})</span></div>
+        <div class="mag-result-row"><span class="key">N_pri</span><span class="val">${Npri} turns</span></div>
+        <div class="mag-result-row"><span class="key">N_sec</span><span class="val">${Nsec} turns</span></div>
+        <div class="mag-result-row"><span class="key">Wire (pri)</span><span class="val">AWG ${awg_pri} (⌀${r2(d_pri)}mm)</span></div>
+        <div class="mag-result-row"><span class="key">Wire (sec)</span><span class="val">AWG ${awg_sec} (⌀${r2(d_sec)}mm)</span></div>
+        <div class="mag-result-row"><span class="key">B_peak</span><span class="val">${r1(B_actual)} mT</span></div>
+        <div class="mag-result-row"><span class="key">Ae</span><span class="val">${selected.Ae} mm²</span></div>
+        <div class="mag-result-row"><span class="key">Window Fill</span><span class="val">${r1(fill*100)}%</span></div>
+        <div class="mag-result-row"><span class="key">Core Loss</span><span class="val">${r2(Pcore*1000)} mW</span></div>
+        <div class="mag-result-row"><span class="key">I_pri</span><span class="val">${r2(Ipri)} A</span></div>
+        <div class="mag-result-row"><span class="key">I_sec</span><span class="val">${r2(Isec)} A</span></div>
+      </div>
+    </div>${warn}`;
+  document.getElementById('sbStatus').textContent='✓ Transformer designed';
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Enter')calculate()});
+// ═══════════════════════════════════════════════════════════════════
+// METRICS + WAVEFORM
+// ═══════════════════════════════════════════════════════════════════
+function updateMetrics(r,v){
+  const p=(v.v_out||v.v2||0)*(v.i_out||(v.p_rated?(v.p_rated/(v.v2||1)):0));
+  document.getElementById('mPower').innerHTML=r2(p||v.p_rated||0)+'<span class="metric-unit">W</span>';
+  document.getElementById('mDuty').textContent=r.duty_cycle||'--';
+  document.getElementById('mInd').innerHTML=(r.inductance_uH||r.Lp_uH||r.Lr_uH||r.L1_uH||r.leakage_inductance_uH||'--')+'<span class="metric-unit">μH</span>';
+  document.getElementById('mCap').innerHTML=(r.capacitance_uF||r.C_out_uF||'--')+'<span class="metric-unit">μF</span>';
+  document.getElementById('mRipI').innerHTML=(r.ripple_current_A||'--')+'<span class="metric-unit">A</span>';
+  document.getElementById('mEff').innerHTML=(r.efficiency_pct||'--')+'<span class="metric-unit">%</span>';
+}
+
+function drawWaveform(tool,v,r){
+  const c=document.getElementById('waveCanvas'),ctx=c.getContext('2d');
+  c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;ctx.scale(2,2);
+  const W=c.offsetWidth,H=c.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+
+  ctx.strokeStyle='rgba(0,200,255,0.06)';ctx.lineWidth=.5;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+
+  if(r.error)return;
+
+  const D=r.duty_cycle||0.5, fsw=v.f_sw||100, periods=6;
+  const T=W/periods, margin=30;
+  const h1=H/3-10, h2=H*2/3-10;
+
+  if(tool==='dab'){
+    // DAB: V_AB (primary), V_CD (secondary shifted), I_L
+    const phi_frac=v.phi/180;
+    // V_AB
+    ctx.strokeStyle='rgba(0,200,255,0.8)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<periods;i++){
+      const x0=i*T;
+      ctx.moveTo(x0,margin);ctx.lineTo(x0+T/2,margin);
+      ctx.lineTo(x0+T/2,h1);ctx.lineTo(x0+T,h1);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(0,200,255,0.5)';ctx.font='10px JetBrains Mono';ctx.fillText('V_AB (pri)',4,margin-4);
+
+    // V_CD phase shifted
+    ctx.strokeStyle='rgba(236,72,153,0.7)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<periods;i++){
+      const x0=i*T+phi_frac*T/2;
+      ctx.moveTo(x0,margin+8);ctx.lineTo(x0+T/2,margin+8);
+      ctx.lineTo(x0+T/2,h1+8);ctx.lineTo(x0+T,h1+8);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(236,72,153,0.5)';ctx.fillText('V_CD (sec, φ-shifted)',100,margin+4);
+
+    // I_L trapezoidal
+    const Ipk=r.I_L_peak_A||5;
+    const yBase=H-margin;const yScale=(yBase-h2-10)/(Ipk*2.2);const yMid=(h2+yBase)/2;
+    ctx.strokeStyle='rgba(168,85,247,0.8)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<periods;i++){
+      const x0=i*T;
+      if(i===0)ctx.moveTo(x0,yMid+Ipk*yScale);
+      ctx.lineTo(x0+phi_frac*T/2,yMid-Ipk*yScale);
+      ctx.lineTo(x0+T/2,yMid-Ipk*yScale*0.5);
+      ctx.lineTo(x0+T/2+phi_frac*T/2,yMid+Ipk*yScale);
+      ctx.lineTo(x0+T,yMid+Ipk*yScale*0.5);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(168,85,247,0.5)';ctx.fillText('I_L',4,h2+15);
+    ctx.fillStyle='rgba(90,122,154,0.6)';ctx.font='9px JetBrains Mono';
+    ctx.fillText(`φ=${v.phi}°`,W-60,margin+20);
+  } else if(D>0){
+    ctx.strokeStyle='rgba(0,200,255,0.8)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<periods;i++){
+      const x0=i*T;ctx.moveTo(x0,margin);ctx.lineTo(x0+D*T,margin);ctx.lineTo(x0+D*T,h1);ctx.lineTo(x0+T,h1);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(0,200,255,0.5)';ctx.font='10px JetBrains Mono';ctx.fillText('V_sw',4,margin-4);
+
+    const iAvg=(v.i_out||2),di=(r.ripple_current_A||iAvg*0.3);
+    const iMin=iAvg-di/2,iMax=iAvg+di/2;
+    const yScale=(H-h2-margin)/(iMax*1.3);const yBase=H-margin;
+    ctx.strokeStyle='rgba(168,85,247,0.8)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<periods;i++){
+      const x0=i*T,y1=yBase-iMin*yScale,y2=yBase-iMax*yScale;
+      if(i===0)ctx.moveTo(x0,y1);
+      ctx.lineTo(x0+D*T,y2);ctx.lineTo(x0+T,y1);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(168,85,247,0.5)';ctx.fillText('I_L',4,h2+15);
+    ctx.fillStyle='rgba(90,122,154,0.6)';ctx.font='9px JetBrains Mono';
+    ctx.fillText(`${r2(iAvg)}A avg`,W-60,yBase-iAvg*yScale);
+  }
+  ctx.fillStyle='rgba(90,122,154,0.6)';ctx.font='9px JetBrains Mono';
+  ctx.fillText(`f_sw=${fsw}kHz`,W-90,H-5);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════════════════
+document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
+function sendChat(){
+  const inp=document.getElementById('chatInput'),msg=inp.value.trim();if(!msg)return;
+  const box=document.getElementById('chatMessages');
+  box.innerHTML+=`<div class="chat-msg user"><div class="msg-label">You</div>${escHtml(msg)}</div>`;
+  inp.value='';
+  setTimeout(()=>{
+    box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>${processChat(msg)}</div>`;
+    box.scrollTop=box.scrollHeight;
+  },300+Math.random()*400);
+  box.scrollTop=box.scrollHeight;
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function processChat(msg){
+  const m=msg.toLowerCase();
+  const vMatch=m.match(/(\d+\.?\d*)\s*v?\s*to\s*(\d+\.?\d*)\s*v/);
+  const iMatch=m.match(/(\d+\.?\d*)\s*a/);
+  const pMatch=m.match(/(\d+\.?\d*)\s*w/);
+  if(vMatch){
+    const vin=parseFloat(vMatch[1]),vout=parseFloat(vMatch[2]),iout=iMatch?parseFloat(iMatch[1]):1;
+    const iso=m.includes('isolat')||m.includes('dab');
+    const rec=topologyRec({v_in:vin,v_out:vout,i_out:iout,isolated:iso});
+    let design=null,topo=rec.recommended.toLowerCase();
+    if(topo==='dab')design=dabD({v1:vin,v2:vout,p_rated:vin*iout,f_sw:100,phi:30});
+    else if(topo.includes('buck')&&!topo.includes('boost'))design=buckD({v_in:vin,v_out:vout,i_out:iout,f_sw:100});
+    else if(topo.includes('boost'))design=boostD({v_in:vin,v_out:vout,i_out:iout,f_sw:100});
+    else design=sepicD({v_in:vin,v_out:vout,i_out:iout,f_sw:100});
+    let r=`<b>Recommendation: ${rec.recommended}</b><br>${rec.rationale}<br>Output power: ${rec.output_power_W}W`;
+    if(design&&!design.error){
+      r+=`<br><br><b>Design (${design.topology}):</b><pre>`;
+      for(const[k,v]of Object.entries(design)){if(k!=='notes')r+=`${k}: ${v}\n`}
+      r+=`</pre>`;if(design.notes)r+=`<br>💡 ${design.notes}`;
+    }
+    return r;
+  }
+  if(m.includes('dab')||m.includes('dual active'))return 'The <b>DAB (Dual Active Bridge)</b> is a bidirectional isolated converter ideal for high-power applications (EV charging, ESS, V2G).<br><br>Key features:<br>• ZVS achievable with phase-shift control<br>• Bidirectional power flow<br>• SPS (single phase-shift) is simplest; EPS/TPS for extended ZVS range<br><br>Select <b>DAB</b> in the sidebar to design one.';
+  if(m.includes('magneti')||m.includes('inductor')||m.includes('transformer')||m.includes('core'))return 'Switch to the <b>Magnetics</b> tab for inductor and transformer design.<br><br>Features:<br>• Core shape selection (EE, PQ, RM, ETD, toroid...)<br>• Ferrite material library (N87, 3C90, 3F3...)<br>• Turns, wire gauge, air gap, flux density calculation<br>• Core loss via Steinmetz equation<br>• Window fill and saturation checks';
+  if(m.includes('component')||m.includes('mosfet')||m.includes('diode')||m.includes('select'))return 'Switch to the <b>Components</b> tab after running a design calculation. Auto-recommended:<br>• MOSFETs filtered by V_DS, I_D, Rds(on)<br>• Diodes (Schottky, SiC, ultra-fast)<br>• Output capacitors (MLCC, electrolytic, polymer, film)';
+  if(m.includes('spice')||m.includes('simulate'))return 'The <b>SPICE</b> tab auto-generates netlists (including DAB) after you run Execute Analysis. Download .cir for ngspice/LTspice.';
+  if(m.includes('efficiency')||m.includes('loss'))return 'Select <b>Efficiency</b> in the sidebar for loss breakdown (MOSFET conduction, switching, DCR, diode).';
+  if(m.includes('hello')||m.includes('hi'))return 'Hello! I\'m PEA. Ask me anything about power electronics design, or try: <i>"Design a 400V to 48V 1kW DAB converter"</i>';
+  return 'I can help with:<br>• <b>Design</b>: "Design a 12V to 5V 2A converter"<br>• <b>DAB</b>: "Design a 400V to 48V 1kW isolated converter"<br>• <b>Magnetics</b>: "How to design the inductor?"<br>• <b>Components</b>: "Which MOSFET to use?"<br>• <b>SPICE</b>: "How to simulate?"<br><br>For full AI, run: <code>streamlit run app.py</code>';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
 renderForm();
 </script>
 </body>
