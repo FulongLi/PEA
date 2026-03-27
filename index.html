@@ -4,644 +4,594 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PEA - Power Electronics AI Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d2e;
-    --surface2: #232738;
-    --border: #2d3148;
-    --accent: #6c63ff;
-    --accent-glow: rgba(108, 99, 255, .25);
-    --green: #22c55e;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
-    --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+/* ═══════════════════════════════════════════════════════════════════
+   FUTURISTIC THEME – PEA Power Electronics Agent
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg:       #03060d;
+  --surface:  rgba(8, 18, 38, .85);
+  --surface2: rgba(12, 28, 55, .7);
+  --glass:    rgba(6, 22, 50, .55);
+  --border:   rgba(0, 200, 255, .12);
+  --glow:     rgba(0, 200, 255, .08);
+  --cyan:     #00c8ff;
+  --cyan2:    #00e5ff;
+  --purple:   #a855f7;
+  --pink:     #ec4899;
+  --green:    #10ffc0;
+  --amber:    #ffbd2e;
+  --red:      #ff3d5a;
+  --text:     #d4e6f7;
+  --text2:    #6b8aaa;
+  --head:     'Orbitron', 'Rajdhani', sans-serif;
+  --body:     'Rajdhani', 'Segoe UI', sans-serif;
+  --mono:     'JetBrains Mono', 'Cascadia Code', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:15px}
 
-  /* ── Header ─────────────────────────────────────────── */
-  header {
-    background: linear-gradient(135deg, #1e1b4b 0%, #0f1117 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 1.5rem 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  header .logo { font-size: 2rem; }
-  header h1 { font-size: 1.4rem; font-weight: 700; }
-  header p { color: var(--text2); font-size: .85rem; margin-top: .15rem; }
+/* ── Animated background canvas ──────────────────────────────────── */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.page-wrap{position:relative;z-index:1;min-height:100vh}
 
-  /* ── Layout ─────────────────────────────────────────── */
-  .app {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    min-height: calc(100vh - 80px);
-  }
-  @media (max-width: 860px) {
-    .app { grid-template-columns: 1fr; }
-  }
+/* ── Scan-line overlay ───────────────────────────────────────────── */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,.015) 2px,rgba(0,200,255,.015) 4px);
+}
 
-  /* ── Sidebar ────────────────────────────────────────── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 1.25rem;
-    overflow-y: auto;
-  }
-  .sidebar h2 {
-    font-size: .8rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--text2);
-    margin-bottom: .75rem;
-  }
-  .tool-btn {
-    width: 100%;
-    padding: .6rem .85rem;
-    margin-bottom: .35rem;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    color: var(--text);
-    font-size: .88rem;
-    text-align: left;
-    cursor: pointer;
-    transition: all .15s;
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-  }
-  .tool-btn:hover { background: var(--surface2); }
-  .tool-btn.active {
-    background: var(--accent-glow);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .tool-btn .badge {
-    font-size: .65rem;
-    padding: .1rem .4rem;
-    border-radius: 4px;
-    margin-left: auto;
-    font-weight: 600;
-  }
-  .badge-iso { background: #7c3aed33; color: #a78bfa; }
-  .badge-new { background: #16a34a22; color: var(--green); }
-  .badge-eff { background: #f59e0b22; color: var(--amber); }
+/* ── Header ──────────────────────────────────────────────────────── */
+header{
+  position:relative;
+  background:linear-gradient(180deg,rgba(0,40,80,.5) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);
+  padding:1.3rem 2rem;
+  display:flex;align-items:center;gap:1.2rem;
+  backdrop-filter:blur(20px);
+}
+header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.logo-hex{
+  width:48px;height:48px;position:relative;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,rgba(0,200,255,.15),rgba(168,85,247,.15));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  animation:logoPulse 3s ease-in-out infinite;
+}
+.logo-hex::before{
+  content:'';position:absolute;inset:2px;
+  background:var(--bg);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+}
+.logo-hex span{position:relative;z-index:1;font-size:1.4rem}
+@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(0,200,255,.4))}50%{filter:drop-shadow(0 0 16px rgba(0,200,255,.7))}}
+.header-text h1{font-family:var(--head);font-size:1.25rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:transparent}
+.header-text p{color:var(--text2);font-size:.82rem;letter-spacing:.04em;margin-top:.15rem}
+.header-status{margin-left:auto;display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;font-family:var(--head)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* ── Main panel ─────────────────────────────────────── */
-  .main {
-    padding: 2rem;
-    overflow-y: auto;
-  }
-  .main h2 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: .3rem;
-  }
-  .main .subtitle {
-    color: var(--text2);
-    font-size: .88rem;
-    margin-bottom: 1.5rem;
-  }
+/* ── Layout ──────────────────────────────────────────────────────── */
+.app{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 72px)}
+@media(max-width:900px){.app{grid-template-columns:1fr}}
 
-  /* ── Form grid ──────────────────────────────────────── */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .85rem;
-    max-width: 560px;
-    margin-bottom: 1.5rem;
-  }
-  .form-group { display: flex; flex-direction: column; gap: .3rem; }
-  .form-group.full { grid-column: 1 / -1; }
-  label {
-    font-size: .78rem;
-    color: var(--text2);
-    font-weight: 500;
-  }
-  input[type="number"], select {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: .55rem .75rem;
-    color: var(--text);
-    font-size: .9rem;
-    font-family: var(--mono);
-    outline: none;
-    transition: border-color .15s;
-  }
-  input:focus, select:focus { border-color: var(--accent); }
-  .checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    padding-top: .4rem;
-  }
-  input[type="checkbox"] {
-    accent-color: var(--accent);
-    width: 16px;
-    height: 16px;
-  }
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+.sidebar{
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  padding:1.2rem .9rem;
+  overflow-y:auto;
+  backdrop-filter:blur(12px);
+}
+.sidebar h2{
+  font-family:var(--head);font-size:.65rem;text-transform:uppercase;letter-spacing:.2em;
+  color:var(--cyan);margin-bottom:.75rem;padding-left:.4rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.sidebar h2::before{content:'';width:12px;height:1px;background:var(--cyan)}
+.tool-btn{
+  width:100%;padding:.55rem .75rem;margin-bottom:.3rem;
+  background:transparent;border:1px solid transparent;border-radius:6px;
+  color:var(--text2);font-family:var(--body);font-size:.88rem;font-weight:500;
+  text-align:left;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:.55rem;
+  position:relative;overflow:hidden;
+}
+.tool-btn::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;
+  background:linear-gradient(90deg,rgba(0,200,255,.06),transparent 60%);
+}
+.tool-btn:hover{color:var(--text);border-color:rgba(0,200,255,.15)}
+.tool-btn:hover::before{opacity:1}
+.tool-btn.active{
+  color:#fff;border-color:rgba(0,200,255,.35);
+  background:linear-gradient(90deg,rgba(0,200,255,.1),rgba(168,85,247,.05));
+  box-shadow:0 0 20px rgba(0,200,255,.08),inset 0 0 20px rgba(0,200,255,.03);
+}
+.tool-btn.active::after{
+  content:'';position:absolute;left:0;top:15%;bottom:15%;width:2px;
+  background:var(--cyan);box-shadow:0 0 8px var(--cyan);border-radius:1px;
+}
+.tool-icon{font-size:1rem;width:22px;text-align:center}
+.badge{font-family:var(--head);font-size:.55rem;padding:.1rem .4rem;border-radius:3px;margin-left:auto;letter-spacing:.06em;font-weight:600;text-transform:uppercase}
+.badge-iso{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.25)}
+.badge-new{background:rgba(16,255,192,.1);color:var(--green);border:1px solid rgba(16,255,192,.2)}
+.badge-eff{background:rgba(255,189,46,.1);color:var(--amber);border:1px solid rgba(255,189,46,.2)}
+.sidebar-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:.6rem 0}
 
-  /* ── Button ─────────────────────────────────────────── */
-  .calc-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: .7rem 2rem;
-    font-size: .95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-  }
-  .calc-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-  .calc-btn:active { transform: translateY(0); }
+/* ── Main panel ──────────────────────────────────────────────────── */
+.main{padding:2rem 2.5rem;overflow-y:auto;position:relative}
+.main::before{
+  content:'';position:absolute;top:0;right:0;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(0,200,255,.04) 0%,transparent 70%);pointer-events:none;
+}
+.tool-title{
+  font-family:var(--head);font-size:1.2rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:.25rem;
+  background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:transparent;
+}
+.tool-subtitle{color:var(--text2);font-size:.88rem;margin-bottom:1.5rem;letter-spacing:.02em}
 
-  /* ── Result card ────────────────────────────────────── */
-  .result-card {
-    margin-top: 1.5rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    max-width: 640px;
-    animation: fadeIn .25s ease;
-  }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
-  .result-header {
-    padding: .85rem 1.2rem;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .result-header h3 { font-size: .95rem; }
-  .result-body { padding: 1rem 1.2rem; }
-  .result-row {
-    display: flex;
-    justify-content: space-between;
-    padding: .4rem 0;
-    border-bottom: 1px solid var(--border);
-    font-size: .88rem;
-  }
-  .result-row:last-child { border-bottom: none; }
-  .result-row .key { color: var(--text2); }
-  .result-row .val { font-family: var(--mono); font-weight: 600; }
-  .result-notes {
-    margin-top: .75rem;
-    padding: .75rem;
-    background: #6c63ff0a;
-    border-left: 3px solid var(--accent);
-    border-radius: 0 6px 6px 0;
-    font-size: .82rem;
-    color: var(--text2);
-    line-height: 1.5;
-  }
-  .result-sub {
-    margin-top: .75rem;
-    padding: .6rem .8rem;
-    background: var(--surface2);
-    border-radius: 8px;
-  }
-  .result-sub h4 {
-    font-size: .78rem;
-    color: var(--text2);
-    margin-bottom: .4rem;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-  }
-  .eff-badge {
-    font-size: 1.3rem;
-    font-weight: 700;
-    font-family: var(--mono);
-    padding: .15rem .6rem;
-    border-radius: 6px;
-  }
-  .eff-good { background: #22c55e22; color: var(--green); }
-  .eff-ok   { background: #f59e0b22; color: var(--amber); }
-  .eff-low  { background: #ef444422; color: var(--red); }
+/* ── HUD frame around form ───────────────────────────────────────── */
+.hud-frame{
+  position:relative;max-width:600px;padding:1.5rem;margin-bottom:1.5rem;
+  border:1px solid var(--border);border-radius:8px;
+  background:var(--glass);backdrop-filter:blur(10px);
+}
+.hud-frame::before,.hud-frame::after{
+  content:'';position:absolute;width:16px;height:16px;border-color:var(--cyan);border-style:solid;
+}
+.hud-frame::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:8px 0 0 0}
+.hud-frame::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 8px 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.form-group{display:flex;flex-direction:column;gap:.25rem}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-family:var(--head);font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;font-weight:400}
+input[type="number"],select{
+  background:rgba(0,20,50,.6);border:1px solid rgba(0,200,255,.15);border-radius:5px;
+  padding:.5rem .7rem;color:var(--cyan2);font-size:.92rem;font-family:var(--mono);font-weight:500;
+  outline:none;transition:all .2s;
+}
+input[type="number"]:focus{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,200,255,.15),inset 0 0 12px rgba(0,200,255,.05)}
+input[type="number"]::placeholder{color:var(--text2)}
+.checkbox-group{display:flex;align-items:center;gap:.5rem;padding-top:.3rem}
+input[type="checkbox"]{
+  appearance:none;width:18px;height:18px;border:1px solid rgba(0,200,255,.3);border-radius:3px;
+  background:rgba(0,20,50,.5);cursor:pointer;position:relative;transition:all .2s;
+}
+input[type="checkbox"]:checked{background:rgba(0,200,255,.2);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,200,255,.3)}
+input[type="checkbox"]:checked::after{
+  content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--cyan);font-size:.8rem;font-weight:700;
+}
+.checkbox-group label{font-family:var(--body);font-size:.85rem;color:var(--text2);letter-spacing:0;text-transform:none;cursor:pointer}
 
-  .error-msg {
-    margin-top: 1rem;
-    padding: .75rem 1rem;
-    background: #ef444418;
-    border: 1px solid #ef444444;
-    border-radius: 8px;
-    color: var(--red);
-    font-size: .88rem;
-    max-width: 560px;
-  }
-  #resultArea { min-height: 50px; }
+/* ── Calculate button ────────────────────────────────────────────── */
+.calc-btn{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(0,200,255,.15),rgba(168,85,247,.15));
+  border:1px solid rgba(0,200,255,.35);border-radius:6px;
+  padding:.65rem 2.2rem;
+  color:#fff;font-family:var(--head);font-size:.82rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;transition:all .25s;
+}
+.calc-btn::before{
+  content:'';position:absolute;top:50%;left:-75%;width:50%;height:200%;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.2),transparent);
+  transform:rotate(25deg) translateY(-50%);transition:left .5s;
+}
+.calc-btn:hover{
+  box-shadow:0 0 25px rgba(0,200,255,.25),0 0 60px rgba(0,200,255,.08);
+  border-color:var(--cyan);transform:translateY(-1px);
+}
+.calc-btn:hover::before{left:125%}
+.calc-btn:active{transform:translateY(0)}
 
-  .copy-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    padding: .3rem .65rem;
-    border-radius: 5px;
-    font-size: .75rem;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .copy-btn:hover { border-color: var(--accent); color: var(--text); }
+/* ── Result card ─────────────────────────────────────────────────── */
+.result-card{
+  margin-top:1.5rem;max-width:640px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;position:relative;
+  animation:resultSlide .35s cubic-bezier(.4,0,.2,1);
+}
+@keyframes resultSlide{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.result-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);
+}
+.result-header{
+  padding:.75rem 1.2rem;display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(90deg,rgba(0,200,255,.05),transparent);
+  border-bottom:1px solid var(--border);
+}
+.result-header h3{font-family:var(--head);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.result-body{padding:1rem 1.2rem}
+.result-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.45rem 0;border-bottom:1px solid rgba(0,200,255,.06);font-size:.87rem;
+}
+.result-row:last-child{border-bottom:none}
+.result-row .key{color:var(--text2);font-weight:500}
+.result-row .val{font-family:var(--mono);font-weight:700;color:var(--cyan2);font-size:.85rem}
+.result-notes{
+  margin-top:.75rem;padding:.7rem .85rem;
+  background:linear-gradient(90deg,rgba(0,200,255,.06),transparent);
+  border-left:2px solid var(--cyan);border-radius:0 6px 6px 0;
+  font-size:.8rem;color:var(--text2);line-height:1.55;
+}
+.result-sub{
+  margin-top:.75rem;padding:.65rem .8rem;
+  background:rgba(0,20,50,.4);border:1px solid rgba(0,200,255,.08);border-radius:6px;
+}
+.result-sub h4{font-family:var(--head);font-size:.6rem;color:var(--text2);margin-bottom:.4rem;letter-spacing:.15em;text-transform:uppercase}
+.eff-badge{
+  font-family:var(--mono);font-size:1.2rem;font-weight:700;
+  padding:.15rem .55rem;border-radius:4px;
+  text-shadow:0 0 12px currentColor;
+}
+.eff-good{background:rgba(16,255,192,.1);color:var(--green);border:1px solid rgba(16,255,192,.25)}
+.eff-ok{background:rgba(255,189,46,.1);color:var(--amber);border:1px solid rgba(255,189,46,.2)}
+.eff-low{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
+
+.error-msg{
+  margin-top:1rem;padding:.7rem 1rem;max-width:600px;
+  background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.25);border-radius:6px;
+  color:var(--red);font-size:.88rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+
+.copy-btn{
+  background:rgba(0,200,255,.08);border:1px solid rgba(0,200,255,.2);
+  color:var(--text2);padding:.25rem .6rem;border-radius:4px;
+  font-family:var(--head);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.copy-btn:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 10px rgba(0,200,255,.15)}
+
+#resultArea{min-height:40px}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,200,255,.2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,200,255,.35)}
 </style>
 </head>
 <body>
 
+<canvas id="bgCanvas"></canvas>
+
+<div class="page-wrap">
 <header>
-  <div class="logo">⚡</div>
-  <div>
-    <h1>PEA &mdash; Power Electronics AI Agent</h1>
-    <p>Design assistant for DC-DC converters &bull; 8 topologies &bull; efficiency estimation</p>
+  <div class="logo-hex"><span>⚡</span></div>
+  <div class="header-text">
+    <h1>PEA &mdash; Power Electronics Agent</h1>
+    <p>DC-DC Converter Design System &bull; 8 Topologies &bull; Loss Analysis</p>
   </div>
+  <div class="header-status"><span class="status-dot"></span> System Online</div>
 </header>
 
 <div class="app">
-  <!-- Sidebar -->
   <aside class="sidebar">
-    <h2>Design Tools</h2>
-    <button class="tool-btn active" data-tool="recommend">📋 Topology Recommendation</button>
-    <button class="tool-btn" data-tool="buck">⬇ Buck (Step-Down)</button>
-    <button class="tool-btn" data-tool="boost">⬆ Boost (Step-Up)</button>
-    <button class="tool-btn" data-tool="buck_boost">↕ Buck-Boost (Inverting)</button>
-    <button class="tool-btn" data-tool="sepic">🔄 SEPIC <span class="badge badge-new">NEW</span></button>
-    <button class="tool-btn" data-tool="cuk">🔄 Ćuk <span class="badge badge-new">NEW</span></button>
-    <button class="tool-btn" data-tool="forward">🔌 Forward <span class="badge badge-iso">ISO</span></button>
-    <button class="tool-btn" data-tool="flyback">🔌 Flyback <span class="badge badge-iso">ISO</span></button>
-    <button class="tool-btn" data-tool="llc">🔌 LLC Resonant <span class="badge badge-iso">ISO</span></button>
-    <button class="tool-btn" data-tool="efficiency">📊 Efficiency Estimate <span class="badge badge-eff">EFF</span></button>
+    <h2>Design Modules</h2>
+
+    <button class="tool-btn active" data-tool="recommend"><span class="tool-icon">◈</span> Topology Advisor</button>
+    <div class="sidebar-divider"></div>
+
+    <button class="tool-btn" data-tool="buck"><span class="tool-icon">▽</span> Buck <small style="color:var(--text2);margin-left:auto;font-size:.72rem">Step-Down</small></button>
+    <button class="tool-btn" data-tool="boost"><span class="tool-icon">△</span> Boost <small style="color:var(--text2);margin-left:auto;font-size:.72rem">Step-Up</small></button>
+    <button class="tool-btn" data-tool="buck_boost"><span class="tool-icon">⬡</span> Buck-Boost <small style="color:var(--text2);margin-left:auto;font-size:.72rem">Inverting</small></button>
+    <button class="tool-btn" data-tool="sepic"><span class="tool-icon">⟲</span> SEPIC <span class="badge badge-new">NEW</span></button>
+    <button class="tool-btn" data-tool="cuk"><span class="tool-icon">⟳</span> Ćuk <span class="badge badge-new">NEW</span></button>
+    <div class="sidebar-divider"></div>
+
+    <button class="tool-btn" data-tool="forward"><span class="tool-icon">⊞</span> Forward <span class="badge badge-iso">ISOLATED</span></button>
+    <button class="tool-btn" data-tool="flyback"><span class="tool-icon">⊠</span> Flyback <span class="badge badge-iso">ISOLATED</span></button>
+    <button class="tool-btn" data-tool="llc"><span class="tool-icon">∿</span> LLC Resonant <span class="badge badge-iso">ISOLATED</span></button>
+    <div class="sidebar-divider"></div>
+
+    <button class="tool-btn" data-tool="efficiency"><span class="tool-icon">⏱</span> Efficiency Analysis <span class="badge badge-eff">LOSS</span></button>
   </aside>
 
-  <!-- Main -->
   <main class="main">
-    <h2 id="toolTitle">Topology Recommendation</h2>
-    <p class="subtitle" id="toolSubtitle">Get a recommended converter topology based on your voltage and current specs.</p>
+    <h2 class="tool-title" id="toolTitle">Topology Advisor</h2>
+    <p class="tool-subtitle" id="toolSubtitle">Analyze specifications and recommend the optimal converter topology.</p>
 
-    <div class="form-grid" id="formArea"></div>
-    <button class="calc-btn" id="calcBtn" onclick="calculate()">⚡ Calculate</button>
+    <div class="hud-frame">
+      <div class="form-grid" id="formArea"></div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">⚡&ensp;Execute Analysis</button>
     <div id="resultArea"></div>
   </main>
 </div>
+</div>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     BACKGROUND ANIMATION – Circuit grid + floating particles
+     ═══════════════════════════════════════════════════════════════════ -->
 <script>
-// ═══════════════════════════════════════════════════════════════════════
-// Tool definitions – fields, descriptions, and compute functions
-// ═══════════════════════════════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('bgCanvas'),ctx=c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  window.addEventListener('resize',resize);resize();
 
-const TOOLS = {
-  recommend: {
-    title: 'Topology Recommendation',
-    subtitle: 'Get a recommended converter topology based on your voltage and current specs.',
-    fields: [
-      { id:'v_in',  label:'V_in (V)',   val:12,  step:0.1, min:0.1 },
-      { id:'v_out', label:'V_out (V)',  val:5,   step:0.1, min:0.1 },
-      { id:'i_out', label:'I_out (A)',  val:2,   step:0.1, min:0.01 },
-      { id:'isolated', label:'Require galvanic isolation', type:'checkbox', val:false },
+  // Grid nodes
+  const spacing=80;
+  function drawGrid(t){
+    ctx.strokeStyle='rgba(0,200,255,0.04)';
+    ctx.lineWidth=.5;
+    for(let x=0;x<W;x+=spacing){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let y=0;y<H;y+=spacing){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+    // Glowing intersections
+    for(let x=0;x<W;x+=spacing){
+      for(let y=0;y<H;y+=spacing){
+        const pulse=Math.sin(t*0.001+x*0.01+y*0.01)*0.5+0.5;
+        const alpha=0.03+pulse*0.04;
+        ctx.fillStyle=`rgba(0,200,255,${alpha})`;
+        ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);ctx.fill();
+      }
+    }
+  }
+
+  // Particles
+  const particles=[];
+  for(let i=0;i<60;i++){
+    particles.push({
+      x:Math.random()*2000,y:Math.random()*2000,
+      vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,
+      r:Math.random()*1.5+.5,
+      a:Math.random()*.3+.1,
+      hue:Math.random()>.7?280:190
+    });
+  }
+
+  // Traces - animated lines that travel across grid
+  const traces=[];
+  function spawnTrace(){
+    const hor=Math.random()>.5;
+    traces.push({
+      x:hor?-100:Math.floor(Math.random()*W/spacing)*spacing,
+      y:hor?Math.floor(Math.random()*H/spacing)*spacing:-100,
+      dx:hor?2:0, dy:hor?0:1.5,
+      len:60+Math.random()*120,
+      life:0, maxLife:300+Math.random()*200,
+      hue:Math.random()>.6?280:190
+    });
+  }
+  for(let i=0;i<5;i++) spawnTrace();
+
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+    drawGrid(t);
+
+    // Particles
+    for(const p of particles){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      const grd=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3);
+      grd.addColorStop(0,`hsla(${p.hue},100%,70%,${p.a})`);
+      grd.addColorStop(1,'transparent');
+      ctx.fillStyle=grd;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*3,0,Math.PI*2);ctx.fill();
+    }
+
+    // Traces
+    for(let i=traces.length-1;i>=0;i--){
+      const tr=traces[i];
+      tr.x+=tr.dx; tr.y+=tr.dy; tr.life++;
+      const a=Math.max(0,1-tr.life/tr.maxLife);
+      const grd=ctx.createLinearGradient(
+        tr.x-tr.dx*tr.len, tr.y-tr.dy*tr.len, tr.x, tr.y
+      );
+      grd.addColorStop(0,'transparent');
+      grd.addColorStop(1,`hsla(${tr.hue},100%,65%,${a*0.35})`);
+      ctx.strokeStyle=grd;ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(tr.x-tr.dx*tr.len,tr.y-tr.dy*tr.len);
+      ctx.lineTo(tr.x,tr.y);
+      ctx.stroke();
+      // head glow
+      ctx.fillStyle=`hsla(${tr.hue},100%,70%,${a*0.6})`;
+      ctx.beginPath();ctx.arc(tr.x,tr.y,2,0,Math.PI*2);ctx.fill();
+
+      if(tr.life>tr.maxLife){traces.splice(i,1);spawnTrace()}
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CALCULATOR ENGINE (identical to Python backend)
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+const TOOLS={
+  recommend:{
+    title:'Topology Advisor',
+    subtitle:'Analyze specifications and recommend the optimal converter topology.',
+    fields:[
+      {id:'v_in',label:'Input Voltage',unit:'V',val:12,step:.1,min:.1},
+      {id:'v_out',label:'Output Voltage',unit:'V',val:5,step:.1,min:.1},
+      {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
+      {id:'isolated',label:'Require galvanic isolation',type:'checkbox',val:false},
     ],
-    compute: topologyRecommendation,
+    compute:topologyRecommendation,
   },
-  buck: {
-    title: 'Buck Converter (Step-Down)',
-    subtitle: 'Design a Buck converter for V_out < V_in. Calculates L, C, duty cycle.',
-    fields: stdFields(),
-    compute: buckDesign,
-  },
-  boost: {
-    title: 'Boost Converter (Step-Up)',
-    subtitle: 'Design a Boost converter for V_out > V_in.',
-    fields: stdFields(5, 12),
-    compute: boostDesign,
-  },
-  buck_boost: {
-    title: 'Buck-Boost Converter (Inverting)',
-    subtitle: 'Design an inverting Buck-Boost. Output polarity is negative.',
-    fields: stdFields(),
-    compute: buckBoostDesign,
-  },
-  sepic: {
-    title: 'SEPIC Converter',
-    subtitle: 'Non-inverting buck-boost with common ground. Requires two inductors and a coupling capacitor.',
-    fields: stdFields(),
-    compute: sepicDesign,
-  },
-  cuk: {
-    title: 'Ćuk Converter',
-    subtitle: 'Inverting topology with continuous input and output currents (low EMI).',
-    fields: stdFields(),
-    compute: cukDesign,
-  },
-  forward: {
-    title: 'Forward Converter (Isolated)',
-    subtitle: 'Isolated single-ended topology. Good for 50-300 W.',
-    fields: isoFields(),
-    compute: forwardDesign,
-  },
-  flyback: {
-    title: 'Flyback Converter (Isolated)',
-    subtitle: 'Isolated coupled-inductor topology. Good for low-medium power.',
-    fields: isoFields(),
-    compute: flybackDesign,
-  },
-  llc: {
-    title: 'LLC Resonant Converter',
-    subtitle: 'High-efficiency isolated resonant topology with ZVS. Full-bridge primary.',
-    fields: [
-      { id:'v_in',  label:'V_in (V)',  val:400, step:1, min:1 },
-      { id:'v_out', label:'V_out (V)', val:12,  step:0.1, min:0.1 },
-      { id:'i_out', label:'I_out (A)', val:20,  step:0.5, min:0.01 },
-      { id:'f_sw',  label:'f_sw (kHz)', val:100, step:10, min:10 },
-      { id:'q',     label:'Q factor',   val:0.5, step:0.1, min:0.1 },
-    ],
-    compute: llcDesign,
-  },
-  efficiency: {
-    title: 'Efficiency Estimate',
-    subtitle: 'First-order loss breakdown: conduction (Rds_on, DCR, Vf) + switching losses.',
-    fields: [
-      { id:'v_in',  label:'V_in (V)',  val:12,  step:0.1, min:0.1 },
-      { id:'v_out', label:'V_out (V)', val:5,   step:0.1, min:0.1 },
-      { id:'i_out', label:'I_out (A)', val:2,   step:0.1, min:0.01 },
-      { id:'f_sw',  label:'f_sw (kHz)', val:100, step:10, min:10 },
-      { id:'rds',   label:'Rds(on) (mΩ)', val:50, step:5, min:1 },
-      { id:'dcr',   label:'Inductor DCR (mΩ)', val:30, step:5, min:1 },
-      { id:'vf',    label:'Diode Vf (V)', val:0.5, step:0.1, min:0 },
-      { id:'trise', label:'Rise time (ns)', val:20, step:5, min:1 },
-      { id:'tfall', label:'Fall time (ns)', val:20, step:5, min:1 },
-      { id:'sync',  label:'Synchronous rectification', type:'checkbox', val:false },
-    ],
-    compute: efficiencyEstimate,
-  },
+  buck:{title:'Buck Converter',subtitle:'Step-down topology — V_out < V_in. Computes inductance, capacitance, duty cycle.',fields:stdF(),compute:buckDesign},
+  boost:{title:'Boost Converter',subtitle:'Step-up topology — V_out > V_in. Watch for RHP zero at high duty cycle.',fields:stdF(5,12),compute:boostDesign},
+  buck_boost:{title:'Buck-Boost Converter',subtitle:'Inverting topology. Output polarity is reversed. Suitable for wide input range.',fields:stdF(),compute:buckBoostDesign},
+  sepic:{title:'SEPIC Converter',subtitle:'Non-inverting buck-boost with common ground. Requires two inductors and coupling capacitor.',fields:stdF(),compute:sepicDesign},
+  cuk:{title:'Ćuk Converter',subtitle:'Inverting with continuous input & output currents. Low EMI characteristics.',fields:stdF(),compute:cukDesign},
+  forward:{title:'Forward Converter',subtitle:'Isolated single-ended topology. Effective range: 50-300 W. Max D ≈ 0.5 with reset winding.',fields:isoF(),compute:forwardDesign},
+  flyback:{title:'Flyback Converter',subtitle:'Isolated coupled-inductor topology. Cost-effective for low-medium power applications.',fields:isoF(),compute:flybackDesign},
+  llc:{title:'LLC Resonant Converter',subtitle:'High-efficiency isolated resonant topology with ZVS. Full-bridge primary configuration.',
+    fields:[
+      {id:'v_in',label:'Input Voltage',unit:'V',val:400,step:1,min:1},
+      {id:'v_out',label:'Output Voltage',unit:'V',val:12,step:.1,min:.1},
+      {id:'i_out',label:'Output Current',unit:'A',val:20,step:.5,min:.01},
+      {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
+      {id:'q',label:'Q Factor',unit:'',val:.5,step:.1,min:.1},
+    ],compute:llcDesign},
+  efficiency:{title:'Efficiency Analysis',subtitle:'First-order loss breakdown: MOSFET conduction, inductor DCR, diode/SR, switching overlap.',
+    fields:[
+      {id:'v_in',label:'Input Voltage',unit:'V',val:12,step:.1,min:.1},
+      {id:'v_out',label:'Output Voltage',unit:'V',val:5,step:.1,min:.1},
+      {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
+      {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
+      {id:'rds',label:'Rds(on)',unit:'mΩ',val:50,step:5,min:1},
+      {id:'dcr',label:'Inductor DCR',unit:'mΩ',val:30,step:5,min:1},
+      {id:'vf',label:'Diode Vf',unit:'V',val:.5,step:.1,min:0},
+      {id:'trise',label:'Rise Time',unit:'ns',val:20,step:5,min:1},
+      {id:'tfall',label:'Fall Time',unit:'ns',val:20,step:5,min:1},
+      {id:'sync',label:'Synchronous rectification',type:'checkbox',val:false},
+    ],compute:efficiencyEstimate},
 };
 
-function stdFields(vin=12, vout=5) {
-  return [
-    { id:'v_in',  label:'V_in (V)',  val:vin,  step:0.1, min:0.1 },
-    { id:'v_out', label:'V_out (V)', val:vout, step:0.1, min:0.1 },
-    { id:'i_out', label:'I_out (A)', val:2,    step:0.1, min:0.01 },
-    { id:'f_sw',  label:'f_sw (kHz)',val:100,  step:10,  min:10 },
-  ];
-}
-function isoFields() {
-  return [
-    { id:'v_in_min', label:'V_in min (V)', val:9,  step:0.1, min:0.1 },
-    { id:'v_in_max', label:'V_in max (V)', val:18, step:0.1, min:0.1 },
-    { id:'v_out',    label:'V_out (V)',     val:5,  step:0.1, min:0.1 },
-    { id:'i_out',    label:'I_out (A)',     val:2,  step:0.1, min:0.01 },
-    { id:'f_sw',     label:'f_sw (kHz)',    val:100,step:10,  min:10 },
-  ];
-}
+function stdF(vin=12,vout=5){return[
+  {id:'v_in',label:'Input Voltage',unit:'V',val:vin,step:.1,min:.1},
+  {id:'v_out',label:'Output Voltage',unit:'V',val:vout,step:.1,min:.1},
+  {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
+  {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
+]}
+function isoF(){return[
+  {id:'v_in_min',label:'V_in Min',unit:'V',val:9,step:.1,min:.1},
+  {id:'v_in_max',label:'V_in Max',unit:'V',val:18,step:.1,min:.1},
+  {id:'v_out',label:'Output Voltage',unit:'V',val:5,step:.1,min:.1},
+  {id:'i_out',label:'Output Current',unit:'A',val:2,step:.1,min:.01},
+  {id:'f_sw',label:'Switching Freq',unit:'kHz',val:100,step:10,min:10},
+]}
 
-// ═══════════════════════════════════════════════════════════════════════
-// Calculator implementations (mirrors pea/tools/calculator.py)
-// ═══════════════════════════════════════════════════════════════════════
-
-function topologyRecommendation(f) {
-  const ratio = f.v_out / f.v_in, p = f.v_out * f.i_out;
-  if (f.isolated) {
-    if (p < 50) return { recommended:'Flyback', alternatives:['Forward'], rationale:'Flyback is cost-effective for low-power isolated applications.', output_power_W:r2(p) };
-    if (p < 200) return { recommended:'Flyback', alternatives:['Forward','Push-Pull'], rationale:'Flyback or Forward suitable for medium power.', output_power_W:r2(p) };
-    return { recommended:'LLC Resonant', alternatives:['Forward','Phase-shifted Full Bridge'], rationale:'LLC resonant offers highest efficiency at higher power with ZVS.', output_power_W:r2(p) };
+function topologyRecommendation(f){
+  const ratio=f.v_out/f.v_in,p=f.v_out*f.i_out;
+  if(f.isolated){
+    if(p<50)return{recommended:'Flyback',alternatives:['Forward'],rationale:'Flyback is cost-effective for low-power isolated applications.',output_power_W:r2(p)};
+    if(p<200)return{recommended:'Flyback',alternatives:['Forward','Push-Pull'],rationale:'Flyback or Forward suitable for medium power.',output_power_W:r2(p)};
+    return{recommended:'LLC Resonant',alternatives:['Forward','Phase-shifted Full Bridge'],rationale:'LLC resonant offers highest efficiency at higher power with ZVS.',output_power_W:r2(p)};
   }
-  if (ratio < 0.9) return { recommended:'Buck', alternatives:['Buck-Boost'], rationale:'Buck is optimal for step-down. Highest efficiency.', output_power_W:r2(p) };
-  if (ratio > 1.1) return { recommended:'Boost', alternatives:['SEPIC','Buck-Boost'], rationale:'Boost is optimal for step-up.', output_power_W:r2(p) };
-  return { recommended:'SEPIC', alternatives:['Ćuk','Buck-Boost','Buck+Boost cascade'], rationale:'Input and output voltages are close. SEPIC provides non-inverting buck-boost.', output_power_W:r2(p) };
+  if(ratio<.9)return{recommended:'Buck',alternatives:['Buck-Boost'],rationale:'Buck is optimal for step-down. Highest efficiency.',output_power_W:r2(p)};
+  if(ratio>1.1)return{recommended:'Boost',alternatives:['SEPIC','Buck-Boost'],rationale:'Boost is optimal for step-up.',output_power_W:r2(p)};
+  return{recommended:'SEPIC',alternatives:['Ćuk','Buck-Boost','Buck+Boost cascade'],rationale:'Input and output voltages are close. SEPIC provides non-inverting buck-boost.',output_power_W:r2(p)};
 }
-
-function buckDesign(f) {
-  if (f.v_out >= f.v_in) return { error:'Buck requires V_out < V_in' };
-  const D=f.v_out/f.v_in, fsw=f.f_sw*1e3, di=f.i_out*0.3;
-  const L=(f.v_out*(1-D)/(fsw*di))*1e6;
-  const dv=f.v_out*0.01, C=(di/(8*fsw*dv))*1e6;
-  return { topology:'Buck', duty_cycle:r3(D), inductance_uH:r2(L), capacitance_uF:r2(C), switching_frequency_kHz:f.f_sw, ripple_current_A:r3(di), ripple_voltage_V:r4(dv), notes:'Step-down converter. Use synchronous rectification for high efficiency.' };
-}
-
-function boostDesign(f) {
-  if (f.v_out <= f.v_in) return { error:'Boost requires V_out > V_in' };
-  const D=1-f.v_in/f.v_out, fsw=f.f_sw*1e3, iin=f.i_out*f.v_out/f.v_in, di=iin*0.3;
-  const L=(f.v_in*D/(fsw*di))*1e6;
-  const dv=f.v_out*0.01, C=(f.i_out*D/(fsw*dv))*1e6;
-  return { topology:'Boost', duty_cycle:r3(D), inductance_uH:r2(L), capacitance_uF:r2(C), switching_frequency_kHz:f.f_sw, ripple_current_A:r3(di), ripple_voltage_V:r4(dv), notes:'Step-up converter. Watch for RHP zero at high duty cycle.' };
-}
-
-function buckBoostDesign(f) {
-  const vo=Math.abs(f.v_out), D=vo/(f.v_in+vo), fsw=f.f_sw*1e3, iin=f.i_out*vo/f.v_in, di=iin*0.3;
-  const L=(f.v_in*D/(fsw*di))*1e6;
-  const dv=vo*0.01, C=(f.i_out*D/(fsw*dv))*1e6;
-  return { topology:'Buck-Boost', duty_cycle:r3(D), inductance_uH:r2(L), capacitance_uF:r2(C), switching_frequency_kHz:f.f_sw, ripple_current_A:r3(di), ripple_voltage_V:r4(dv), notes:'Inverting topology. Output polarity is reversed.' };
-}
-
-function sepicDesign(f) {
-  const D=f.v_out/(f.v_in+f.v_out), fsw=f.f_sw*1e3, iin=f.i_out*f.v_out/f.v_in, di=iin*0.3;
-  const L1=(f.v_in*D/(fsw*di))*1e6;
-  const dv=f.v_out*0.01, Cout=(f.i_out*D/(fsw*dv))*1e6;
-  const Cc=(f.i_out*D/(fsw*f.v_in*0.05))*1e6;
-  return { topology:'SEPIC', duty_cycle:r3(D), L1_inductance_uH:r2(L1), L2_inductance_uH:r2(L1), output_capacitance_uF:r2(Cout), coupling_capacitance_uF:r2(Cc), switching_frequency_kHz:f.f_sw, ripple_current_A:r3(di), ripple_voltage_V:r4(dv), notes:'Non-inverting buck-boost. L1 and L2 can share a coupled core.' };
-}
-
-function cukDesign(f) {
-  const vo=Math.abs(f.v_out), D=vo/(f.v_in+vo), fsw=f.f_sw*1e3;
-  const iin=f.i_out*vo/f.v_in, diIn=iin*0.3, diOut=f.i_out*0.3;
-  const L1=(f.v_in*D/(fsw*diIn))*1e6;
-  const L2=(vo*(1-D)/(fsw*diOut))*1e6;
-  const dv=vo*0.01, Cout=(diOut/(8*fsw*dv))*1e6;
-  const Cc=(f.i_out*D/(fsw*(f.v_in+vo)*0.05))*1e6;
-  return { topology:'Ćuk', duty_cycle:r3(D), L1_input_inductance_uH:r2(L1), L2_output_inductance_uH:r2(L2), output_capacitance_uF:r2(Cout), coupling_capacitance_uF:r2(Cc), switching_frequency_kHz:f.f_sw, ripple_current_input_A:r3(diIn), ripple_current_output_A:r3(diOut), ripple_voltage_V:r4(dv), notes:'Inverting with continuous I/O currents. Output polarity is negative.' };
-}
-
-function forwardDesign(f) {
-  const fsw=f.f_sw*1e3, vnom=(f.v_in_min+f.v_in_max)/2, dmax=0.5;
-  const n=f.v_out/(f.v_in_min*dmax);
-  let Dnom=f.v_out/(n*vnom); Dnom=Math.min(Dnom,dmax);
-  const di=f.i_out*0.3, vsec=n*vnom;
-  let L=((vsec*Dnom-f.v_out)/(fsw*di))*1e6; L=Math.max(L,0.1);
-  const dv=f.v_out*0.01, C=(di/(8*fsw*dv))*1e6;
-  return { topology:'Forward', duty_cycle:r3(Dnom), turns_ratio_Ns_Np:r3(n), output_inductance_uH:r2(L), output_capacitance_uF:r2(C), switching_frequency_kHz:f.f_sw, peak_switch_voltage_V:r1(2*f.v_in_max), ripple_current_A:r3(di), notes:'Isolated single-ended. Max D ≈ 0.5 with 1:1 reset winding. MOSFET sees ~2× V_in.' };
-}
-
-function flybackDesign(f) {
-  const fsw=f.f_sw*1e3, vnom=(f.v_in_min+f.v_in_max)/2, D=0.45;
-  const n=(f.v_out/vnom)*(1-D)/D;
-  const pout=f.v_out*f.i_out;
-  const Lp=(f.v_in_min**2*D**2/(2*pout*fsw))*1e6;
-  return { topology:'Flyback', duty_cycle:r3(D), turns_ratio_Ns_Np:r2(n), primary_inductance_uH:r2(Lp), switching_frequency_kHz:f.f_sw, notes:'Isolated converter. Add snubber for MOSFET protection. Consider LLC for higher power.' };
-}
-
-function llcDesign(f) {
-  const fr=f.f_sw*1e3, pout=f.v_out*f.i_out, Q=f.q;
-  if (pout<=0) return { error:'Output power must be positive' };
-  const n=2*f.v_out/f.v_in;
-  const Rac=8*n**2*f.v_out**2/(Math.PI**2*pout);
-  const Cr=1e9/(2*Math.PI*fr*Q*Rac);
-  const CrF=Cr*1e-9;
-  const Lr=((1/((2*Math.PI*fr)**2*CrF)))*1e6;
-  const Lm=Lr*5;
-  return { topology:'LLC Resonant', turns_ratio_Ns_Np:r3(n), resonant_inductance_Lr_uH:r2(Lr), magnetizing_inductance_Lm_uH:r2(Lm), resonant_capacitance_Cr_nF:r2(Cr), Lm_Lr_ratio:5, resonant_frequency_kHz:f.f_sw, Q_factor:Q, equivalent_ac_resistance_ohm:r2(Rac), notes:'Full-bridge primary, center-tap secondary. Achieves ZVS near/above resonance. Lm/Lr=5 is a starting point.' };
-}
-
-function efficiencyEstimate(f) {
-  const pout=f.v_out*f.i_out;
-  if (pout<=0) return { error:'Output power must be positive' };
-  const fsw=f.f_sw*1e3, rds=f.rds/1e3, dcr=f.dcr/1e3;
-  const D = f.v_out < f.v_in ? Math.min(f.v_out/f.v_in, 0.99) : Math.max(1-f.v_in/f.v_out, 0.01);
-  const irms=f.i_out*Math.sqrt(D);
-  const pFet=irms**2*rds;
-  const pDCR=f.i_out**2*dcr;
-  const pDiode=f.sync ? f.i_out**2*(1-D)*rds : f.vf*f.i_out*(1-D);
-  const pCond=pFet+pDCR+pDiode;
-  const tr=f.trise*1e-9, tf=f.tfall*1e-9;
-  const pOn=0.5*f.v_in*f.i_out*tr*fsw, pOff=0.5*f.v_in*f.i_out*tf*fsw;
-  const pSw=pOn+pOff, pTotal=pCond+pSw, pin=pout+pTotal;
-  const eta=pout/pin*100;
-  return { output_power_W:r2(pout), estimated_efficiency_pct:r1(eta), total_loss_W:r3(pTotal), conduction_loss_W:r3(pCond), switching_loss_W:r3(pSw), breakdown:{ MOSFET_conduction_W:r3(pFet), inductor_DCR_W:r3(pDCR), diode_or_SR_conduction_W:r3(pDiode), turn_on_loss_W:r3(pOn), turn_off_loss_W:r3(pOff) }, notes:(f.sync?'Synchronous rectification':'Diode rectification')+'. First-order estimate; excludes gate-drive, quiescent, and core losses.' };
-}
-
+function buckDesign(f){if(f.v_out>=f.v_in)return{error:'Buck requires V_out < V_in'};const D=f.v_out/f.v_in,fsw=f.f_sw*1e3,di=f.i_out*.3;const L=(f.v_out*(1-D)/(fsw*di))*1e6;const dv=f.v_out*.01,C=(di/(8*fsw*dv))*1e6;return{topology:'Buck',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Step-down converter. Use synchronous rectification for high efficiency.'}}
+function boostDesign(f){if(f.v_out<=f.v_in)return{error:'Boost requires V_out > V_in'};const D=1-f.v_in/f.v_out,fsw=f.f_sw*1e3,iin=f.i_out*f.v_out/f.v_in,di=iin*.3;const L=(f.v_in*D/(fsw*di))*1e6;const dv=f.v_out*.01,C=(f.i_out*D/(fsw*dv))*1e6;return{topology:'Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Step-up converter. Watch for RHP zero at high duty cycle.'}}
+function buckBoostDesign(f){const vo=Math.abs(f.v_out),D=vo/(f.v_in+vo),fsw=f.f_sw*1e3,iin=f.i_out*vo/f.v_in,di=iin*.3;const L=(f.v_in*D/(fsw*di))*1e6;const dv=vo*.01,C=(f.i_out*D/(fsw*dv))*1e6;return{topology:'Buck-Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Inverting topology. Output polarity is reversed.'}}
+function sepicDesign(f){const D=f.v_out/(f.v_in+f.v_out),fsw=f.f_sw*1e3,iin=f.i_out*f.v_out/f.v_in,di=iin*.3;const L1=(f.v_in*D/(fsw*di))*1e6;const dv=f.v_out*.01,Cout=(f.i_out*D/(fsw*dv))*1e6;const Cc=(f.i_out*D/(fsw*f.v_in*.05))*1e6;return{topology:'SEPIC',duty_cycle:r3(D),L1_inductance_uH:r2(L1),L2_inductance_uH:r2(L1),output_capacitance_uF:r2(Cout),coupling_capacitance_uF:r2(Cc),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),notes:'Non-inverting buck-boost. L1 and L2 can share a coupled core.'}}
+function cukDesign(f){const vo=Math.abs(f.v_out),D=vo/(f.v_in+vo),fsw=f.f_sw*1e3;const iin=f.i_out*vo/f.v_in,diIn=iin*.3,diOut=f.i_out*.3;const L1=(f.v_in*D/(fsw*diIn))*1e6;const L2=(vo*(1-D)/(fsw*diOut))*1e6;const dv=vo*.01,Cout=(diOut/(8*fsw*dv))*1e6;const Cc=(f.i_out*D/(fsw*(f.v_in+vo)*.05))*1e6;return{topology:'Ćuk',duty_cycle:r3(D),L1_input_inductance_uH:r2(L1),L2_output_inductance_uH:r2(L2),output_capacitance_uF:r2(Cout),coupling_capacitance_uF:r2(Cc),switching_frequency_kHz:f.f_sw,ripple_current_input_A:r3(diIn),ripple_current_output_A:r3(diOut),ripple_voltage_V:r4(dv),notes:'Inverting with continuous I/O currents. Output polarity is negative.'}}
+function forwardDesign(f){const fsw=f.f_sw*1e3,vnom=(f.v_in_min+f.v_in_max)/2,dmax=.5;const n=f.v_out/(f.v_in_min*dmax);let Dnom=f.v_out/(n*vnom);Dnom=Math.min(Dnom,dmax);const di=f.i_out*.3,vsec=n*vnom;let L=((vsec*Dnom-f.v_out)/(fsw*di))*1e6;L=Math.max(L,.1);const dv=f.v_out*.01,C=(di/(8*fsw*dv))*1e6;return{topology:'Forward',duty_cycle:r3(Dnom),turns_ratio_Ns_Np:r3(n),output_inductance_uH:r2(L),output_capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,peak_switch_voltage_V:r1(2*f.v_in_max),ripple_current_A:r3(di),notes:'Isolated single-ended. Max D ≈ 0.5 with 1:1 reset winding. MOSFET sees ~2× V_in.'}}
+function flybackDesign(f){const fsw=f.f_sw*1e3,vnom=(f.v_in_min+f.v_in_max)/2,D=.45;const n=(f.v_out/vnom)*(1-D)/D;const pout=f.v_out*f.i_out;const Lp=(f.v_in_min**2*D**2/(2*pout*fsw))*1e6;return{topology:'Flyback',duty_cycle:r3(D),turns_ratio_Ns_Np:r2(n),primary_inductance_uH:r2(Lp),switching_frequency_kHz:f.f_sw,notes:'Isolated converter. Add snubber for MOSFET protection. Consider LLC for higher power.'}}
+function llcDesign(f){const fr=f.f_sw*1e3,pout=f.v_out*f.i_out,Q=f.q;if(pout<=0)return{error:'Output power must be positive'};const n=2*f.v_out/f.v_in;const Rac=8*n**2*f.v_out**2/(Math.PI**2*pout);const Cr=1e9/(2*Math.PI*fr*Q*Rac);const CrF=Cr*1e-9;const Lr=(1/((2*Math.PI*fr)**2*CrF))*1e6;const Lm=Lr*5;return{topology:'LLC Resonant',turns_ratio_Ns_Np:r3(n),resonant_inductance_Lr_uH:r2(Lr),magnetizing_inductance_Lm_uH:r2(Lm),resonant_capacitance_Cr_nF:r2(Cr),Lm_Lr_ratio:5,resonant_frequency_kHz:f.f_sw,Q_factor:Q,equivalent_ac_resistance_ohm:r2(Rac),notes:'Full-bridge primary, center-tap secondary. Achieves ZVS near/above resonance. Lm/Lr=5 is a starting point.'}}
+function efficiencyEstimate(f){const pout=f.v_out*f.i_out;if(pout<=0)return{error:'Output power must be positive'};const fsw=f.f_sw*1e3,rds=f.rds/1e3,dcr=f.dcr/1e3;const D=f.v_out<f.v_in?Math.min(f.v_out/f.v_in,.99):Math.max(1-f.v_in/f.v_out,.01);const irms=f.i_out*Math.sqrt(D);const pFet=irms**2*rds;const pDCR=f.i_out**2*dcr;const pDiode=f.sync?f.i_out**2*(1-D)*rds:f.vf*f.i_out*(1-D);const pCond=pFet+pDCR+pDiode;const tr=f.trise*1e-9,tf=f.tfall*1e-9;const pOn=.5*f.v_in*f.i_out*tr*fsw,pOff=.5*f.v_in*f.i_out*tf*fsw;const pSw=pOn+pOff,pTotal=pCond+pSw,pin=pout+pTotal;const eta=pout/pin*100;return{output_power_W:r2(pout),estimated_efficiency_pct:r1(eta),total_loss_W:r3(pTotal),conduction_loss_W:r3(pCond),switching_loss_W:r3(pSw),breakdown:{MOSFET_conduction_W:r3(pFet),inductor_DCR_W:r3(pDCR),diode_or_SR_conduction_W:r3(pDiode),turn_on_loss_W:r3(pOn),turn_off_loss_W:r3(pOff)},notes:(f.sync?'Synchronous rectification':'Diode rectification')+'. First-order estimate; excludes gate-drive, quiescent, and core losses.'}}
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
 function r4(v){return Math.round(v*10000)/10000}
 
-// ═══════════════════════════════════════════════════════════════════════
-// UI logic
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════════════
+let activeTool='recommend';
 
-let activeTool = 'recommend';
-
-document.querySelectorAll('.tool-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
+document.querySelectorAll('.tool-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
     document.querySelector('.tool-btn.active')?.classList.remove('active');
     btn.classList.add('active');
-    activeTool = btn.dataset.tool;
+    activeTool=btn.dataset.tool;
     renderForm();
   });
 });
 
-function renderForm() {
-  const tool = TOOLS[activeTool];
-  document.getElementById('toolTitle').textContent = tool.title;
-  document.getElementById('toolSubtitle').textContent = tool.subtitle;
-  document.getElementById('resultArea').innerHTML = '';
-
-  const grid = document.getElementById('formArea');
-  grid.innerHTML = '';
-  tool.fields.forEach(f => {
-    const div = document.createElement('div');
-    div.className = 'form-group' + (f.type==='checkbox' ? ' full' : '');
-    if (f.type === 'checkbox') {
-      div.innerHTML = `<div class="checkbox-group"><input type="checkbox" id="${f.id}" ${f.val?'checked':''}><label for="${f.id}">${f.label}</label></div>`;
-    } else {
-      div.innerHTML = `<label for="${f.id}">${f.label}</label><input type="number" id="${f.id}" value="${f.val}" step="${f.step||1}" min="${f.min||0}">`;
+function renderForm(){
+  const tool=TOOLS[activeTool];
+  document.getElementById('toolTitle').textContent=tool.title;
+  document.getElementById('toolSubtitle').textContent=tool.subtitle;
+  document.getElementById('resultArea').innerHTML='';
+  const grid=document.getElementById('formArea');
+  grid.innerHTML='';
+  tool.fields.forEach(f=>{
+    const div=document.createElement('div');
+    div.className='form-group'+(f.type==='checkbox'?' full':'');
+    if(f.type==='checkbox'){
+      div.innerHTML=`<div class="checkbox-group"><input type="checkbox" id="${f.id}" ${f.val?'checked':''}><label for="${f.id}">${f.label}</label></div>`;
+    }else{
+      const unitHtml=f.unit?` <span style="color:var(--text2);font-size:.7rem">${f.unit}</span>`:'';
+      div.innerHTML=`<label for="${f.id}">${f.label}${unitHtml}</label><input type="number" id="${f.id}" value="${f.val}" step="${f.step||1}" min="${f.min||0}">`;
     }
     grid.appendChild(div);
   });
 }
 
-function getValues() {
-  const tool = TOOLS[activeTool];
-  const vals = {};
-  tool.fields.forEach(f => {
-    const el = document.getElementById(f.id);
-    vals[f.id] = f.type === 'checkbox' ? el.checked : parseFloat(el.value);
+function getValues(){
+  const tool=TOOLS[activeTool],vals={};
+  tool.fields.forEach(f=>{
+    const el=document.getElementById(f.id);
+    vals[f.id]=f.type==='checkbox'?el.checked:parseFloat(el.value);
   });
   return vals;
 }
 
-function calculate() {
-  const vals = getValues();
-  const tool = TOOLS[activeTool];
-  const result = tool.compute(vals);
+function calculate(){
+  const vals=getValues();
+  const result=TOOLS[activeTool].compute(vals);
   renderResult(result);
 }
 
-function renderResult(data) {
-  const area = document.getElementById('resultArea');
-  if (data.error) {
-    area.innerHTML = `<div class="error-msg">⚠ ${data.error}</div>`;
-    return;
+function renderResult(data){
+  const area=document.getElementById('resultArea');
+  if(data.error){area.innerHTML=`<div class="error-msg"><span style="font-size:1.1rem">⚠</span> ${data.error}</div>`;return}
+  const notes=data.notes||'';const breakdown=data.breakdown;delete data.notes;delete data.breakdown;
+  let effBadge='';
+  if(data.estimated_efficiency_pct!==undefined){
+    const e=data.estimated_efficiency_pct;
+    const cls=e>=90?'eff-good':e>=80?'eff-ok':'eff-low';
+    effBadge=`<span class="eff-badge ${cls}">${e}%</span>`;
   }
-
-  const notes = data.notes || '';
-  const breakdown = data.breakdown;
-  delete data.notes;
-  delete data.breakdown;
-
-  let effBadge = '';
-  if (data.estimated_efficiency_pct !== undefined) {
-    const e = data.estimated_efficiency_pct;
-    const cls = e >= 90 ? 'eff-good' : e >= 80 ? 'eff-ok' : 'eff-low';
-    effBadge = `<span class="eff-badge ${cls}">${e}%</span>`;
+  const title=data.topology||data.recommended||'Result';
+  let rows='';
+  for(const[k,v]of Object.entries(data)){
+    if(v===null||v===undefined)continue;
+    const label=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const val=Array.isArray(v)?v.join(', '):v;
+    rows+=`<div class="result-row"><span class="key">${label}</span><span class="val">${val}</span></div>`;
   }
-
-  const title = data.topology || data.recommended || 'Result';
-  let rows = '';
-  for (const [k,v] of Object.entries(data)) {
-    if (v === null || v === undefined) continue;
-    const label = k.replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
-    const val = Array.isArray(v) ? v.join(', ') : v;
-    rows += `<div class="result-row"><span class="key">${label}</span><span class="val">${val}</span></div>`;
-  }
-
-  let breakdownHtml = '';
-  if (breakdown) {
-    breakdownHtml = '<div class="result-sub"><h4>Loss Breakdown</h4>';
-    for (const [k,v] of Object.entries(breakdown)) {
-      const label = k.replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
-      breakdownHtml += `<div class="result-row"><span class="key">${label}</span><span class="val">${v}</span></div>`;
+  let breakdownHtml='';
+  if(breakdown){
+    breakdownHtml='<div class="result-sub"><h4>Loss Breakdown</h4>';
+    for(const[k,v]of Object.entries(breakdown)){
+      const label=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      breakdownHtml+=`<div class="result-row"><span class="key">${label}</span><span class="val">${v}</span></div>`;
     }
-    breakdownHtml += '</div>';
+    breakdownHtml+='</div>';
   }
-
-  const notesHtml = notes ? `<div class="result-notes">💡 ${notes}</div>` : '';
-
-  // Reconstruct full object for copy
-  const fullData = {...data};
-  if (notes) fullData.notes = notes;
-  if (breakdown) fullData.breakdown = breakdown;
-
-  area.innerHTML = `
+  const notesHtml=notes?`<div class="result-notes">◈ ${notes}</div>`:'';
+  const fullData={...data};if(notes)fullData.notes=notes;if(breakdown)fullData.breakdown=breakdown;
+  area.innerHTML=`
     <div class="result-card">
-      <div class="result-header">
-        <h3>${title} ${effBadge}</h3>
-        <button class="copy-btn" onclick="copyResult()">Copy JSON</button>
-      </div>
-      <div class="result-body">
-        ${rows}
-        ${breakdownHtml}
-        ${notesHtml}
-      </div>
-    </div>
-  `;
-  area.dataset.json = JSON.stringify(fullData, null, 2);
+      <div class="result-header"><h3>${title} ${effBadge}</h3><button class="copy-btn" onclick="copyResult()">COPY JSON</button></div>
+      <div class="result-body">${rows}${breakdownHtml}${notesHtml}</div>
+    </div>`;
+  area.dataset.json=JSON.stringify(fullData,null,2);
 }
 
-function copyResult() {
-  const json = document.getElementById('resultArea').dataset.json;
-  if (json) {
-    navigator.clipboard.writeText(json).then(() => {
-      const btn = document.querySelector('.copy-btn');
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy JSON', 1500);
-    });
-  }
+function copyResult(){
+  const json=document.getElementById('resultArea').dataset.json;
+  if(json){navigator.clipboard.writeText(json).then(()=>{
+    const btn=document.querySelector('.copy-btn');btn.textContent='COPIED ✓';
+    setTimeout(()=>btn.textContent='COPY JSON',1500);
+  })}
 }
 
-// Allow Enter key to calculate
-document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
-
-// Init
+document.addEventListener('keydown',e=>{if(e.key==='Enter')calculate()});
 renderForm();
 </script>
 </body>
