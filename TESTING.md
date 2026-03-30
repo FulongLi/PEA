@@ -1,33 +1,33 @@
-# PEA Agent 测试步骤
+# PEA — manual test checklist
 
-## 环境要求
+## Requirements
 
 - Python 3.9+
-- 已安装项目依赖：`pip install -r requirements.txt`
-- AI 聊天需 OpenAI API Key
+- Dependencies: `pip install -r requirements.txt` (or `pip install -e .`)
+- OpenAI API key for AI chat tests
 
 ---
 
-## 步骤 1：测试直接计算工具（无需 API Key）
+## Step 1 — Calculator tools (no API key)
 
-这些命令不调用 LLM，仅使用本地计算公式。
+These use local math only (no LLM).
 
-### 1.1 列出可用工具
+### 1.1 List tools
 
 ```powershell
-cd C:\Users\User\Documents\GitHub\PEA
+cd E:\path\to\PEA
 python -m pea.cli tools
 ```
 
-**预期输出**：列出 5 个设计工具及参数说明。
+**Expected:** List of design tools and parameter hints.
 
-### 1.2 拓扑推荐
+### 1.2 Topology recommendation
 
 ```powershell
 python -m pea.cli tool recommend --v-in 12 --v-out 5 --i-out 2
 ```
 
-**预期输出**：
+**Expected (example):**
 ```json
 {
   "recommended": "Buck",
@@ -36,13 +36,13 @@ python -m pea.cli tool recommend --v-in 12 --v-out 5 --i-out 2
 }
 ```
 
-### 1.3 Buck 设计计算
+### 1.3 Buck design
 
 ```powershell
 python -m pea.cli tool buck --v-in 12 --v-out 5 --i-out 2
 ```
 
-**预期输出**：
+**Expected (example):**
 ```json
 {
   "topology": "Buck",
@@ -56,120 +56,94 @@ python -m pea.cli tool buck --v-in 12 --v-out 5 --i-out 2
 }
 ```
 
-### 1.4 其他工具示例
+### 1.4 Other tools (examples)
 
 ```powershell
-# Boost
 python -m pea.cli tool boost --v-in 5 --v-out 12 --i-out 1
-
-# Flyback (需输入电压范围)
 python -m pea.cli tool flyback --v-in-min 9 --v-in-max 18 --v-out 24 --i-out 0.5
 ```
 
 ---
 
-## 步骤 2：测试 AI Agent（需 API Key）
+## Step 2 — AI agent (API key required)
 
-### 2.1 设置 API Key
+### 2.1 Set API key
 
-**PowerShell：**
+**PowerShell:**
 ```powershell
-$env:OPENAI_API_KEY = "sk-your-actual-openai-api-key"
+$env:OPENAI_API_KEY = "sk-your-key"
 ```
 
-**或创建 `.env` 文件：**
-```
-OPENAI_API_KEY=sk-your-actual-openai-api-key
-```
+**Or** copy `.env.example` to `.env` and set `OPENAI_API_KEY`.
 
-### 2.2 运行测试脚本
+### 2.2 Test script
 
 ```powershell
-cd C:\Users\User\Documents\GitHub\PEA
 python test_agent.py "Design a 12V to 5V 2A Buck converter"
 ```
 
-**预期行为**：Agent 调用 `recommend_topology` 和 `design_buck`，返回完整设计说明。
+**Expected:** Agent uses tools and returns a design narrative.
 
-### 2.3 使用默认提示词
+### 2.3 Default prompt
 
 ```powershell
 python test_agent.py
 ```
 
-默认提示词：`Design a 12V to 5V 2A Buck converter`
+Default: `Design a 12V to 5V 2A Buck converter`
 
-### 2.4 使用 CLI 聊天
+### 2.4 CLI chat
 
 ```powershell
 pea chat "Design a 12V to 5V 2A Buck converter"
 ```
 
-### 2.5 使用 Streamlit 网页
+### 2.5 Streamlit
 
 ```powershell
 streamlit run app.py
 ```
 
-浏览器打开 http://localhost:8501，输入 API Key 后即可对话。
+Open http://localhost:8501 and enter the API key in the UI if needed.
+
+### 2.6 Static / desktop UI
+
+- Open `index.html` in a browser, or run `python -m pea.desktop` / `run_pea_desktop.bat`.
+- **Topology Advisor** and **Efficiency estimate** are pinned at the top of the sidebar (always visible). Tabs below list DC-DC / DC-AC / AC-DC / AC-AC.
 
 ---
 
-## 步骤 3：常见问题排查
+## Step 3 — Troubleshooting
 
-### 问题 A：`ModuleNotFoundError: langchain_core`
+### A: `ModuleNotFoundError: langchain_core`
 
-**解决**：
 ```powershell
 pip install langchain-core langchain-openai
 ```
 
-### 问题 B：`Error: Set OPENAI_API_KEY environment variable`
+### B: `Error: Set OPENAI_API_KEY...`
 
-**解决**：按步骤 2.1 设置 API Key。
+Set the key as in §2.1.
 
-### 问题 C：`ImportError: DLL load failed while importing _uuid_utils`
+### C: `ImportError: DLL load failed` (uuid / Windows)
 
-**原因**：`uuid-utils`（langchain-core 依赖）在部分 Windows/Python 环境下存在兼容性问题。
+Try: install [VC++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe), use Python 3.10+, or a clean venv with `pip install -r requirements.txt`.
 
-**尝试方案**：
+### D: `pea` command not found
 
-1. **安装 Visual C++ Redistributable**
-   - 下载：https://aka.ms/vs/17/release/vc_redist.x64.exe
-   - 安装后重启终端再试
-
-2. **升级 Python 到 3.10+**
-   ```powershell
-   # 使用 pyenv 或从 python.org 安装 3.10+
-   ```
-
-3. **使用虚拟环境**
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
-   python test_agent.py
-   ```
-
-### 问题 D：`pea` 命令找不到
-
-**解决**：确保已安装项目：
 ```powershell
 pip install -e .
 ```
 
-或使用模块方式运行：
-```powershell
-python -m pea.cli chat "Design a 12V to 5V 2A Buck converter"
-```
+Or: `python -m pea.cli chat "..."`
 
 ---
 
-## 测试结果记录（复现用）
+## Result log (optional)
 
-| 步骤 | 命令 | 结果 |
-|------|------|------|
-| 1.1 | `python -m pea.cli tools` | ✅ 通过 |
-| 1.2 | `python -m pea.cli tool recommend --v-in 12 --v-out 5 --i-out 2` | ✅ 通过 |
-| 1.3 | `python -m pea.cli tool buck --v-in 12 --v-out 5 --i-out 2` | ✅ 通过 |
-| 2.2 | `python test_agent.py "Design a 12V to 5V 2A Buck converter"` | 需有效 API Key；若遇 uuid_utils 错误见问题 C |
+| Step | Command | Notes |
+|------|---------|--------|
+| 1.1 | `python -m pea.cli tools` | |
+| 1.2 | `python -m pea.cli tool recommend ...` | |
+| 1.3 | `python -m pea.cli tool buck ...` | |
+| 2.2 | `python test_agent.py "..."` | Needs valid key |

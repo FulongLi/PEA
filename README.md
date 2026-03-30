@@ -10,7 +10,7 @@ An AI assistant for power electronics design: topology selection, parameter calc
 - **RAG knowledge base**: Answers questions using curated power electronics knowledge (Erickson & Maksimovic)
 - **Multi-turn AI chat**: Conversational agent that remembers context across messages
 - **CLI & Web UI**: Terminal (`pea`) or Streamlit (`app.py`)
-- **Static UI (`index.html`)**: Full layout in the browser—converter taxonomy (**DC-DC / DC-AC / AC-DC / AC-AC**), design calculators where implemented, SPICE/components/magnetics panels, and a **Cursor-style PEA Agent** panel (model picker, optional OpenAI API in ⚙; rule-based fallback without key). Some entries are browse-only until calculators exist in Python.
+- **Static UI (`index.html`)**: English UI. **Topology Advisor** (auto recommendation) and **Efficiency estimate** are **pinned at the top** of the sidebar (always visible). Below that, tabs list **DC-DC / DC-AC / AC-DC / AC-AC**. Design calculators, SPICE/components/magnetics, and a **Cursor-style PEA Agent** (model picker, optional OpenAI in ⚙; rules fallback). Browse-only rows have no built-in calculator yet.
 - **Desktop app**: Native window (no separate browser tab) via **pywebview**—double-click `run_pea_desktop.bat` (Windows) or run `python -m pea.desktop` / `pea-desktop` after `pip install -e ".[desktop]"`.
 
 ## Quick Start

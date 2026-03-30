@@ -10,7 +10,7 @@ PEA assists with power electronics design: topology recommendation, DC-DC parame
 
 - **Core logic** lives in Python under `pea/`; the **single source of truth** for design equations is `pea/tools/calculator.py`.
 - **`app.py`** is the Streamlit UI; it calls the same calculator tools as the CLI.
-- **`index.html`** is a **standalone** UI (open in a browser or via **`pea/desktop.py`**): converter taxonomy (**DC-DC / DC-AC / AC-DC / AC-AC**), calculators where wired, SPICE/components/magnetics, and a **Cursor-style agent** strip (model selection, optional OpenAI API in ⚙, rule fallback). It does **not** call the Python backend for calculators. Some items are browse-only stubs; **DAB** and other extras may exist only here until ported to `calculator.py`—keep both sides aligned when you extend features.
+- **`index.html`** is a **standalone** UI (browser or **`pea/desktop.py`**). **User-visible copy is English.** The sidebar **pins** **Topology Advisor** (auto topology recommendation) and **Efficiency estimate** above the DC-DC / DC-AC / AC-DC / AC-AC tabs so they are always visible. Also: SPICE/components/magnetics and a **Cursor-style agent** (model picker, optional OpenAI in ⚙, rules fallback). It does **not** call Python for calculators. Some rows are browse-only stubs; **DAB** and others may exist only here until ported to `calculator.py`—keep both sides aligned when you extend features.
 - **`pea/desktop.py`** + **`run_pea_desktop.bat`**: native window over `index.html` using **pywebview** (`pip install -e ".[desktop]"` or the `.bat` auto-install). See `README.md` for run and PyInstaller notes.
 
 ## Development setup

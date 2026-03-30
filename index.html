@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,6 +92,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);font-size:14
 .tag-bidir{background:#fce7f3;color:#9d174d}
 .tag-soft{background:#ede9fe;color:#5b21b6}
 .stub-hint{padding:12px;color:var(--text2);font-size:.84rem;line-height:1.55;border:1px dashed var(--border2);border-radius:8px;background:var(--bg)}
+.sidebar-pinned{padding:8px 8px 10px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#f8fafc 0%,#fff 100%);flex-shrink:0}
+.pinned-label{font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin:0 4px 6px}
 
 /* Center workspace */
 .center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -275,7 +277,12 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
 
   <!-- Sidebar: converter taxonomy -->
   <aside class="sidebar" id="sidebar">
-    <div class="side-header">变换器分类</div>
+    <div class="side-header">Converters</div>
+    <div class="sidebar-pinned">
+      <div class="pinned-label">Auto topology & analysis</div>
+      <button type="button" class="quick-tool active" data-tool="recommend">◈ Topology Advisor — auto recommendation</button>
+      <button type="button" class="quick-tool" data-tool="efficiency">⏱ Efficiency estimate</button>
+    </div>
     <div class="conv-tabs" role="tablist">
       <button type="button" class="conv-tab active" data-conv="dcdc" role="tab">DC-DC</button>
       <button type="button" class="conv-tab" data-conv="dcac" role="tab">DC-AC</button>
@@ -285,102 +292,97 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
     <div class="side-body">
 
       <div class="conv-pane active" data-conv="dcdc" role="tabpanel">
-        <button type="button" class="quick-tool active" data-tool="recommend">◈ 拓扑顾问 · Topology Advisor</button>
         <div class="tax-card tax-card--blue">
-          <div class="tax-card-h">非隔离型</div>
-          <div class="tax-row" data-tool="buck"><span class="tax-icon">▽</span><div class="tax-meta"><div class="tax-name">Buck</div><div class="tax-desc">降压，CCM / DCM</div></div><div class="tax-tags"><span class="tax-tag tag-down">降压</span></div></div>
-          <div class="tax-row" data-tool="boost"><span class="tax-icon">△</span><div class="tax-meta"><div class="tax-name">Boost</div><div class="tax-desc">升压，宽输入</div></div><div class="tax-tags"><span class="tax-tag tag-up">升压</span></div></div>
-          <div class="tax-row" data-tool="buck_boost"><span class="tax-icon">⬡</span><div class="tax-meta"><div class="tax-name">Buck-Boost</div><div class="tax-desc">反相，升降压</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
-          <div class="tax-row" data-tool="cuk"><span class="tax-icon">⟳</span><div class="tax-meta"><div class="tax-name">Ćuk</div><div class="tax-desc">低纹波，反相输出</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
-          <div class="tax-row" data-tool="sepic"><span class="tax-icon">⟲</span><div class="tax-meta"><div class="tax-name">SEPIC</div><div class="tax-desc">同相输出，升降压</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="Zeta" data-stub-desc="SEPIC 对偶拓扑，同相升降压；电容耦合，适合隔离需求较少的场合。"><span class="tax-icon">◇</span><div class="tax-meta"><div class="tax-name">Zeta</div><div class="tax-desc">SEPIC 对偶，同相</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
+          <div class="tax-card-h">Non-isolated</div>
+          <div class="tax-row" data-tool="buck"><span class="tax-icon">▽</span><div class="tax-meta"><div class="tax-name">Buck</div><div class="tax-desc">Step-down, CCM / DCM</div></div><div class="tax-tags"><span class="tax-tag tag-down">Buck</span></div></div>
+          <div class="tax-row" data-tool="boost"><span class="tax-icon">△</span><div class="tax-meta"><div class="tax-name">Boost</div><div class="tax-desc">Step-up, wide input</div></div><div class="tax-tags"><span class="tax-tag tag-up">Boost</span></div></div>
+          <div class="tax-row" data-tool="buck_boost"><span class="tax-icon">⬡</span><div class="tax-meta"><div class="tax-name">Buck-Boost</div><div class="tax-desc">Inverting buck-boost</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Buck-boost</span></div></div>
+          <div class="tax-row" data-tool="cuk"><span class="tax-icon">⟳</span><div class="tax-meta"><div class="tax-name">Ćuk</div><div class="tax-desc">Low ripple, inverting</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Buck-boost</span></div></div>
+          <div class="tax-row" data-tool="sepic"><span class="tax-icon">⟲</span><div class="tax-meta"><div class="tax-name">SEPIC</div><div class="tax-desc">Non-inverting buck-boost</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Buck-boost</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Zeta" data-stub-desc="Dual of SEPIC; non-inverting buck-boost with capacitor coupling."><span class="tax-icon">◇</span><div class="tax-meta"><div class="tax-name">Zeta</div><div class="tax-desc">SEPIC dual, non-inverting</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Buck-boost</span></div></div>
         </div>
         <div class="tax-card tax-card--green">
-          <div class="tax-card-h">隔离型（单开关）</div>
-          <div class="tax-row" data-tool="flyback"><span class="tax-icon">⊠</span><div class="tax-meta"><div class="tax-name">Flyback</div><div class="tax-desc">变压器储能，多路输出</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
-          <div class="tax-row" data-tool="forward"><span class="tax-icon">⊞</span><div class="tax-meta"><div class="tax-name">Forward</div><div class="tax-desc">单管正激，需磁复位</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+          <div class="tax-card-h">Isolated (single switch)</div>
+          <div class="tax-row" data-tool="flyback"><span class="tax-icon">⊠</span><div class="tax-meta"><div class="tax-name">Flyback</div><div class="tax-desc">Transformer energy storage, multi-output</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
+          <div class="tax-row" data-tool="forward"><span class="tax-icon">⊞</span><div class="tax-meta"><div class="tax-name">Forward</div><div class="tax-desc">Single-switch forward, reset needed</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
         </div>
         <div class="tax-card tax-card--green">
-          <div class="tax-card-h">隔离型（双 / 四开关）</div>
-          <div class="tax-row" data-stub="1" data-stub-title="Push-Pull" data-stub-desc="推挽 + 中心抽头变压器，中功率隔离场合常用。"><span class="tax-icon">⇅</span><div class="tax-meta"><div class="tax-name">Push-Pull</div><div class="tax-desc">推挽，中心抽头</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="Half-Bridge" data-stub-desc="半桥：2 开关，中点箝位，适合中大功率 DC-DC。"><span class="tax-icon">⎍</span><div class="tax-meta"><div class="tax-name">Half-Bridge</div><div class="tax-desc">半桥，2 开关</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="Full-Bridge" data-stub-desc="全桥：4 开关，大功率隔离 DC-DC 首选之一。"><span class="tax-icon">⎎</span><div class="tax-meta"><div class="tax-name">Full-Bridge</div><div class="tax-desc">全桥，大功率</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
-          <div class="tax-row" data-tool="llc"><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">LLC 谐振</div><div class="tax-desc">ZVS，高效高频</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
-          <div class="tax-row" data-tool="dab"><span class="tax-icon">⇌</span><div class="tax-meta"><div class="tax-name">DAB</div><div class="tax-desc">双有源桥，双向功率</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+          <div class="tax-card-h">Isolated (two / four switches)</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Push-Pull" data-stub-desc="Push-pull with center-tapped transformer; common for medium-power isolated DC-DC."><span class="tax-icon">⇅</span><div class="tax-meta"><div class="tax-name">Push-Pull</div><div class="tax-desc">Center-tap transformer</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Half-Bridge" data-stub-desc="Two switches, midpoint clamp; medium/high-power isolated DC-DC."><span class="tax-icon">⎍</span><div class="tax-meta"><div class="tax-name">Half-Bridge</div><div class="tax-desc">2 switches</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Full-Bridge" data-stub-desc="Four switches; preferred for high-power isolated DC-DC."><span class="tax-icon">⎎</span><div class="tax-meta"><div class="tax-name">Full-Bridge</div><div class="tax-desc">High power</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
+          <div class="tax-row" data-tool="llc"><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">LLC resonant</div><div class="tax-desc">ZVS, high efficiency HF</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
+          <div class="tax-row" data-tool="dab"><span class="tax-icon">⇌</span><div class="tax-meta"><div class="tax-name">DAB</div><div class="tax-desc">Dual active bridge, bidirectional</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">Bidi</span></div></div>
         </div>
         <div class="tax-card tax-card--purple">
-          <div class="tax-card-h">软开关 / 谐振</div>
-          <div class="tax-row" data-stub="1" data-stub-title="ZVS Buck / Boost" data-stub-desc="利用谐振或准谐振实现开关管 ZVS，降低开关损耗。"><span class="tax-icon">◎</span><div class="tax-meta"><div class="tax-name">ZVS Buck / Boost</div><div class="tax-desc">零电压开关</div></div><div class="tax-tags"><span class="tax-tag tag-soft">软开关</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="CLLC" data-stub-desc="对称 LLC 结构，适合双向隔离场合（如 OBC）。"><span class="tax-icon">∞</span><div class="tax-meta"><div class="tax-name">CLLC</div><div class="tax-desc">双向谐振，车载充电</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="移相全桥 PSFB" data-stub-desc="隔离全桥 + 移相控制，宽负载 ZVS 范围需优化。"><span class="tax-icon">⇄</span><div class="tax-meta"><div class="tax-name">移相全桥 PSFB</div><div class="tax-desc">ZVS + 隔离</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span><span class="tax-tag tag-soft">软开关</span></div></div>
-        </div>
-        <div class="tax-card tax-card--amber">
-          <div class="tax-card-h">分析与损耗</div>
-          <div class="tax-row" data-tool="efficiency"><span class="tax-icon">⏱</span><div class="tax-meta"><div class="tax-name">效率估算</div><div class="tax-desc">导通 + 开关损耗分解</div></div><div class="tax-tags"><span class="tax-tag tag-up">Loss</span></div></div>
+          <div class="tax-card-h">Soft switching / resonant</div>
+          <div class="tax-row" data-stub="1" data-stub-title="ZVS Buck / Boost" data-stub-desc="Resonant or quasi-resonant ZVS to reduce switching loss."><span class="tax-icon">◎</span><div class="tax-meta"><div class="tax-name">ZVS Buck / Boost</div><div class="tax-desc">Zero-voltage switching</div></div><div class="tax-tags"><span class="tax-tag tag-soft">Soft</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="CLLC" data-stub-desc="Symmetric LLC for bidirectional isolation (e.g. OBC)."><span class="tax-icon">∞</span><div class="tax-meta"><div class="tax-name">CLLC</div><div class="tax-desc">Bidirectional resonant</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">Bidi</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Phase-shift full bridge (PSFB)" data-stub-desc="Isolated full bridge with phase shift; ZVS range needs design care."><span class="tax-icon">⇄</span><div class="tax-meta"><div class="tax-name">PSFB</div><div class="tax-desc">ZVS + isolation</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span><span class="tax-tag tag-soft">Soft</span></div></div>
         </div>
       </div>
 
       <div class="conv-pane" data-conv="dcac" role="tabpanel">
         <div class="tax-card tax-card--blue">
-          <div class="tax-card-h">电压型逆变 (VSI)</div>
-          <div class="tax-row" data-stub="1" data-stub-title="两电平三相 / 单相 VSI" data-stub-desc="SPWM、SVPWM 或方波；电机驱动、UPS、并网逆变器基础拓扑。"><span class="tax-icon">▤</span><div class="tax-meta"><div class="tax-name">两电平 VSI</div><div class="tax-desc">SPWM / SVPWM / 方波</div></div><div class="tax-tags"><span class="tax-tag tag-bb">DC→AC</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="多电平逆变" data-stub-desc="NPC、T-type、飞跨电容、级联 H 桥等，降低 dv/dt 与滤波压力。"><span class="tax-icon">▦</span><div class="tax-meta"><div class="tax-name">多电平 (NPC / T-type / CHB)</div><div class="tax-desc">中高压、低谐波</div></div><div class="tax-tags"><span class="tax-tag tag-bb">多电平</span></div></div>
+          <div class="tax-card-h">Voltage-source inverter (VSI)</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Two-level VSI (1φ / 3φ)" data-stub-desc="SPWM, SVPWM, or square wave; motors, UPS, grid-tied inverters."><span class="tax-icon">▤</span><div class="tax-meta"><div class="tax-name">Two-level VSI</div><div class="tax-desc">SPWM / SVPWM / square</div></div><div class="tax-tags"><span class="tax-tag tag-bb">DC→AC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Multilevel inverter" data-stub-desc="NPC, T-type, flying capacitor, cascaded H-bridge; lower dv/dt and filter burden."><span class="tax-icon">▦</span><div class="tax-meta"><div class="tax-name">Multilevel (NPC / T-type / CHB)</div><div class="tax-desc">MV, low harmonic</div></div><div class="tax-tags"><span class="tax-tag tag-bb">ML</span></div></div>
         </div>
         <div class="tax-card tax-card--green">
-          <div class="tax-card-h">电流型与特种逆变</div>
-          <div class="tax-row" data-stub="1" data-stub-title="CSI" data-stub-desc="电流源逆变，直流侧大电感；与 VSI 对偶。"><span class="tax-icon">≋</span><div class="tax-meta"><div class="tax-name">电流型 CSI</div><div class="tax-desc">电流源输出特性</div></div><div class="tax-tags"><span class="tax-tag tag-iso">特种</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="Z-Source / Quasi-Z" data-stub-desc="单级升降压逆变，光伏等宽输入场合。"><span class="tax-icon">⌁</span><div class="tax-meta"><div class="tax-name">Z 源 / Quasi-Z</div><div class="tax-desc">升压型逆变</div></div><div class="tax-tags"><span class="tax-tag tag-up">升压</span></div></div>
+          <div class="tax-card-h">Current-source & special</div>
+          <div class="tax-row" data-stub="1" data-stub-title="CSI" data-stub-desc="Current-source inverter; large DC-side inductor; dual of VSI."><span class="tax-icon">≋</span><div class="tax-meta"><div class="tax-name">CSI</div><div class="tax-desc">Current-source output</div></div><div class="tax-tags"><span class="tax-tag tag-iso">CSI</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Z-Source / Quasi-Z" data-stub-desc="Single-stage buck-boost inverter; wide input (e.g. PV)."><span class="tax-icon">⌁</span><div class="tax-meta"><div class="tax-name">Z-source / Quasi-Z</div><div class="tax-desc">Boost-type inverter</div></div><div class="tax-tags"><span class="tax-tag tag-up">Boost</span></div></div>
         </div>
         <div class="tax-card tax-card--purple">
-          <div class="tax-card-h">高频与模块化</div>
-          <div class="tax-row" data-stub="1" data-stub-title="SiC/GaN 高频逆变" data-stub-desc="提高开关频率以减小无源体积，需关注 EMI 与驱动。"><span class="tax-icon">⚡</span><div class="tax-meta"><div class="tax-name">宽禁带高频逆变</div><div class="tax-desc">SiC / GaN</div></div><div class="tax-tags"><span class="tax-tag tag-soft">高频</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="MMC 思想（直流侧）" data-stub-desc="模块化多电平扩展思路；大功率变流中常与 AC 侧结合。"><span class="tax-icon">▣</span><div class="tax-meta"><div class="tax-name">模块化多电平扩展</div><div class="tax-desc">子模块堆叠</div></div><div class="tax-tags"><span class="tax-tag tag-bb">MMC</span></div></div>
+          <div class="tax-card-h">High frequency & modular</div>
+          <div class="tax-row" data-stub="1" data-stub-title="SiC / GaN HF inverter" data-stub-desc="Higher f_sw for smaller passives; watch EMI and gate drive."><span class="tax-icon">⚡</span><div class="tax-meta"><div class="tax-name">WBG HF inverter</div><div class="tax-desc">SiC / GaN</div></div><div class="tax-tags"><span class="tax-tag tag-soft">HF</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="MMC-style extension" data-stub-desc="Modular multilevel building blocks; often paired with AC stages at high power."><span class="tax-icon">▣</span><div class="tax-meta"><div class="tax-name">Modular multilevel</div><div class="tax-desc">Submodule stack</div></div><div class="tax-tags"><span class="tax-tag tag-bb">MMC</span></div></div>
         </div>
       </div>
 
       <div class="conv-pane" data-conv="acdc" role="tabpanel">
         <div class="tax-card tax-card--blue">
-          <div class="tax-card-h">不可控与相控</div>
-          <div class="tax-row" data-stub="1" data-stub-title="二极管整流桥" data-stub-desc="最简单 AC→DC，功率因数低，需后级 PFC 满足并网标准。"><span class="tax-icon">⊓</span><div class="tax-meta"><div class="tax-name">二极管整流桥</div><div class="tax-desc">低成本，工频</div></div><div class="tax-tags"><span class="tax-tag tag-down">AC→DC</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="晶闸管相控整流" data-stub-desc="可控直流电压，传统电机励磁、电镀等；谐波与 PF 需评估。"><span class="tax-icon">⊔</span><div class="tax-meta"><div class="tax-name">相控整流 (SCR)</div><div class="tax-desc">移相触发</div></div><div class="tax-tags"><span class="tax-tag tag-bb">相控</span></div></div>
+          <div class="tax-card-h">Uncontrolled & phase-controlled</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Diode bridge rectifier" data-stub-desc="Simplest AC→DC; low PF — often needs PFC for grid codes."><span class="tax-icon">⊓</span><div class="tax-meta"><div class="tax-name">Diode bridge</div><div class="tax-desc">Low cost, line freq</div></div><div class="tax-tags"><span class="tax-tag tag-down">AC→DC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Thyristor phase-controlled rectifier" data-stub-desc="Variable DC; classical drives, plating; check harmonics and PF."><span class="tax-icon">⊔</span><div class="tax-meta"><div class="tax-name">Phase-controlled (SCR)</div><div class="tax-desc">Delayed firing</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Ph ctrl</span></div></div>
         </div>
         <div class="tax-card tax-card--green">
-          <div class="tax-card-h">PFC 与升压型整流</div>
-          <div class="tax-row" data-stub="1" data-stub-title="Boost PFC" data-stub-desc="单相/三相 Boost PFC，最常用有源功率因数校正。"><span class="tax-icon">⌃</span><div class="tax-meta"><div class="tax-name">Boost PFC</div><div class="tax-desc">单相 / 三相</div></div><div class="tax-tags"><span class="tax-tag tag-up">PFC</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="交错 Boost PFC" data-stub-desc="并联相移降低输入电流纹波与器件应力。"><span class="tax-icon">⇈</span><div class="tax-meta"><div class="tax-name">交错 PFC</div><div class="tax-desc">多相并联</div></div><div class="tax-tags"><span class="tax-tag tag-up">PFC</span></div></div>
+          <div class="tax-card-h">PFC & boost-type rectifier</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Boost PFC" data-stub-desc="1φ or 3φ boost PFC; most common active PFC."><span class="tax-icon">⌃</span><div class="tax-meta"><div class="tax-name">Boost PFC</div><div class="tax-desc">1φ / 3φ</div></div><div class="tax-tags"><span class="tax-tag tag-up">PFC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Interleaved boost PFC" data-stub-desc="Parallel phases with phase shift; lower input ripple and stress."><span class="tax-icon">⇈</span><div class="tax-meta"><div class="tax-name">Interleaved PFC</div><div class="tax-desc">Multiphase</div></div><div class="tax-tags"><span class="tax-tag tag-up">PFC</span></div></div>
         </div>
         <div class="tax-card tax-card--purple">
-          <div class="tax-card-h">高效拓扑</div>
-          <div class="tax-row" data-stub="1" data-stub-title="Totem Pole PFC" data-stub-desc="无桥图腾柱，高效率整流；常用 SiC 低频管 + 高频管组合。"><span class="tax-icon">⧉</span><div class="tax-meta"><div class="tax-name">Totem Pole PFC</div><div class="tax-desc">无桥高效率</div></div><div class="tax-tags"><span class="tax-tag tag-soft">高效</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="Vienna 整流器" data-stub-desc="三电平整流，三相对称系统中降低器件耐压。"><span class="tax-icon">Ⅴ</span><div class="tax-meta"><div class="tax-name">Vienna</div><div class="tax-desc">三电平整流</div></div><div class="tax-tags"><span class="tax-tag tag-bb">三电平</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="Bridgeless / 双 Boost" data-stub-desc="减少导通器件数量，提高轻载效率。"><span class="tax-icon">⎔</span><div class="tax-meta"><div class="tax-name">无桥 / 双 Boost</div><div class="tax-desc">减少二极管损耗</div></div><div class="tax-tags"><span class="tax-tag tag-soft">高效</span></div></div>
+          <div class="tax-card-h">High-efficiency topologies</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Totem-pole PFC" data-stub-desc="Bridgeless; often SiC low-freq + Si high-freq pair."><span class="tax-icon">⧉</span><div class="tax-meta"><div class="tax-name">Totem-pole PFC</div><div class="tax-desc">Bridgeless</div></div><div class="tax-tags"><span class="tax-tag tag-soft">Hi-eff</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Vienna rectifier" data-stub-desc="Three-level rectifier; lower device voltage in 3φ systems."><span class="tax-icon">Ⅴ</span><div class="tax-meta"><div class="tax-name">Vienna</div><div class="tax-desc">3-level</div></div><div class="tax-tags"><span class="tax-tag tag-bb">3-level</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Bridgeless / dual boost" data-stub-desc="Fewer conducting devices; better light-load efficiency."><span class="tax-icon">⎔</span><div class="tax-meta"><div class="tax-name">Bridgeless / dual boost</div><div class="tax-desc">Lower diode loss</div></div><div class="tax-tags"><span class="tax-tag tag-soft">Hi-eff</span></div></div>
         </div>
         <div class="tax-card tax-card--amber">
-          <div class="tax-card-h">有源前端与双向</div>
-          <div class="tax-row" data-stub="1" data-stub-title="PWM 整流 (AFE)" data-stub-desc="单位功率因数、能量可双向流动（整流/逆变）。"><span class="tax-icon">⇄</span><div class="tax-meta"><div class="tax-name">PWM 整流 / AFE</div><div class="tax-desc">单位 PF，双向</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="V2G / 车载 OBC" data-stub-desc="车载充电与回馈电网，常为多级 AC-DC + DC-DC。"><span class="tax-icon">⌕</span><div class="tax-meta"><div class="tax-name">车载充电 / V2G</div><div class="tax-desc">隔离 + PFC</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+          <div class="tax-card-h">Active front-end & bidirectional</div>
+          <div class="tax-row" data-stub="1" data-stub-title="PWM rectifier (AFE)" data-stub-desc="Unity PF; power can flow both ways (rectifier / inverter)."><span class="tax-icon">⇄</span><div class="tax-meta"><div class="tax-name">PWM rectifier / AFE</div><div class="tax-desc">Unity PF, bidi</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">Bidi</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="On-board charger / V2G" data-stub-desc="OBC and grid feedback; often multi-stage AC-DC + DC-DC."><span class="tax-icon">⌕</span><div class="tax-meta"><div class="tax-name">OBC / V2G</div><div class="tax-desc">Isolation + PFC</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">Bidi</span></div></div>
         </div>
       </div>
 
       <div class="conv-pane" data-conv="acac" role="tabpanel">
         <div class="tax-card tax-card--blue">
-          <div class="tax-card-h">交流斩波与周波</div>
-          <div class="tax-row" data-stub="1" data-stub-title="AC Chopper" data-stub-desc="直接对交流电压斩波调压，需处理双向开关与换流。"><span class="tax-icon">✂</span><div class="tax-meta"><div class="tax-name">交流斩波</div><div class="tax-desc">AC→AC 调压</div></div><div class="tax-tags"><span class="tax-tag tag-bb">AC↔AC</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="周波控制器" data-stub-desc="过零投切加热等负载，功率分级控制。"><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">周波控制</div><div class="tax-desc">过零通断</div></div><div class="tax-tags"><span class="tax-tag tag-bb">周波</span></div></div>
+          <div class="tax-card-h">AC chopper & cycle control</div>
+          <div class="tax-row" data-stub="1" data-stub-title="AC chopper" data-stub-desc="Direct AC voltage chopping; bidirectional switches and commutation."><span class="tax-icon">✂</span><div class="tax-meta"><div class="tax-name">AC chopper</div><div class="tax-desc">AC→AC regulation</div></div><div class="tax-tags"><span class="tax-tag tag-bb">AC↔AC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Cycle controller" data-stub-desc="Zero-crossing burst control for heaters; stepped power."><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">Cycle control</div><div class="tax-desc">Zero-cross on/off</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Cycle</span></div></div>
         </div>
         <div class="tax-card tax-card--green">
-          <div class="tax-card-h">直接频率变换</div>
-          <div class="tax-row" data-stub="1" data-stub-title="相控交交变频器" data-stub-desc="低频直接 AC-AC，输出频率低于输入；轧机等传统应用。"><span class="tax-icon">↺</span><div class="tax-meta"><div class="tax-name">相控交交 (Cyclo)</div><div class="tax-desc">低频输出</div></div><div class="tax-tags"><span class="tax-tag tag-bb">交交</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="矩阵变换器" data-stub-desc="全控双向开关阵列，理论无直流母线；换流策略复杂。"><span class="tax-icon">▧</span><div class="tax-meta"><div class="tax-name">矩阵变换器</div><div class="tax-desc">无中间直流环节</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+          <div class="tax-card-h">Direct frequency conversion</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Cycloconverter" data-stub-desc="Direct AC-AC at low output frequency; classical mills, drives."><span class="tax-icon">↺</span><div class="tax-meta"><div class="tax-name">Cycloconverter</div><div class="tax-desc">Low f_out</div></div><div class="tax-tags"><span class="tax-tag tag-bb">AC-AC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Matrix converter" data-stub-desc="Full bidirectional switch matrix; no DC link in principle; complex commutation."><span class="tax-icon">▧</span><div class="tax-meta"><div class="tax-name">Matrix converter</div><div class="tax-desc">No DC stage</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">Bidi</span></div></div>
         </div>
         <div class="tax-card tax-card--purple">
-          <div class="tax-card-h">间接与背靠背</div>
-          <div class="tax-row" data-stub="1" data-stub-title="背靠背 AC-DC-AC" data-stub-desc="整流级 + 直流母线 + 逆变级；变频传动、UPS、风电变流器主流结构。"><span class="tax-icon">⛓</span><div class="tax-meta"><div class="tax-name">背靠背 (AC-DC-AC)</div><div class="tax-desc">整流 + 逆变</div></div><div class="tax-tags"><span class="tax-tag tag-bb">间接</span></div></div>
-          <div class="tax-row" data-stub="1" data-stub-title="统一潮流控制器 UPFC" data-stub-desc="串联+并联变流器协调控制潮流（电力系统装置）。"><span class="tax-icon">⌬</span><div class="tax-meta"><div class="tax-name">UPFC / FACTS</div><div class="tax-desc">系统级 AC 柔性</div></div><div class="tax-tags"><span class="tax-tag tag-iso">系统</span></div></div>
+          <div class="tax-card-h">Indirect & back-to-back</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Back-to-back AC-DC-AC" data-stub-desc="Rectifier + DC link + inverter; drives, UPS, wind converters."><span class="tax-icon">⛓</span><div class="tax-meta"><div class="tax-name">Back-to-back</div><div class="tax-desc">Rect + inv</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Indirect</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="UPFC" data-stub-desc="Series + shunt converters for power flow (grid FACTS)."><span class="tax-icon">⌬</span><div class="tax-meta"><div class="tax-name">UPFC / FACTS</div><div class="tax-desc">System-level AC</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Grid</span></div></div>
         </div>
         <div class="tax-card tax-card--amber">
-          <div class="tax-card-h">固态变压器 (概念)</div>
-          <div class="tax-row" data-stub="1" data-stub-title="SST" data-stub-desc="高频隔离 + 多级功率变换，实现 AC-AC 或 AC-DC 的紧凑化与智能化。"><span class="tax-icon">⚙</span><div class="tax-meta"><div class="tax-name">固态变压器 SST</div><div class="tax-desc">高频隔离链</div></div><div class="tax-tags"><span class="tax-tag tag-soft">前沿</span></div></div>
+          <div class="tax-card-h">Solid-state transformer (concept)</div>
+          <div class="tax-row" data-stub="1" data-stub-title="SST" data-stub-desc="HF isolation + multi-stage conversion for compact AC-AC or AC-DC."><span class="tax-icon">⚙</span><div class="tax-meta"><div class="tax-name">Solid-state transformer</div><div class="tax-desc">HF isolation chain</div></div><div class="tax-tags"><span class="tax-tag tag-soft">R&D</span></div></div>
         </div>
       </div>
 
@@ -585,24 +587,24 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
       <h3>PEA Agent</h3>
       <span class="chat-header-spacer"></span>
       <select id="llmModelHeader" class="chat-model-select" title="Model"></select>
-      <button type="button" class="chat-gear" id="chatGearBtn" title="API 设置">⚙</button>
+      <button type="button" class="chat-gear" id="chatGearBtn" title="API settings">⚙</button>
     </div>
     <div class="chat-settings" id="chatSettings">
-      <label><input type="checkbox" id="llmUseOpenAI"> 使用 OpenAI API（需 Key；浏览器直连可能被 CORS 拦截，见说明）</label>
-      <label>API Base URL</label>
+      <label><input type="checkbox" id="llmUseOpenAI"> Use OpenAI API (needs key; browser CORS may block — see note)</label>
+      <label>API base URL</label>
       <input type="url" id="llmBaseUrl" placeholder="https://api.openai.com/v1" autocomplete="off">
-      <label>API Key（仅保存在本机浏览器 localStorage）</label>
+      <label>API key (stored in this browser’s localStorage only)</label>
       <input type="password" id="llmApiKey" placeholder="sk-..." autocomplete="off">
-      <label>自定义 model id（仅在下拉框选「自定义」时使用）</label>
-      <input type="text" id="llmModelCustom" placeholder="例如 gpt-4o 或兼容接口的模型名" autocomplete="off">
-      <div class="settings-hint">与 Cursor 类似：在此选择模型并保存 Key。若网页请求被 CORS 拒绝，请使用 <code>streamlit run app.py</code> 或本地反向代理到 OpenAI 兼容接口。</div>
+      <label>Custom model id (when “Custom” is selected below)</label>
+      <input type="text" id="llmModelCustom" placeholder="e.g. gpt-4o or compatible endpoint model name" autocomplete="off">
+      <div class="settings-hint">Like Cursor: pick a model and save your key. If the page is blocked by CORS, use <code>streamlit run app.py</code> or a local reverse proxy to an OpenAI-compatible API.</div>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-msg ai">
         <div class="msg-label">PEA Agent</div>
-        你好。左侧已按 <b>DC-DC / DC-AC / AC-DC / AC-AC</b> 分类；带内置计算器的拓扑会打开设计表单。<br><br>
-        在下方选择<strong>大语言模型</strong>，可选填 OpenAI API（⚙）。未开启 API 时使用本地规则回复。<br><br>
-        试试：<i>「12V 转 5V 2A buck」</i>
+        The sidebar lists <b>DC-DC / DC-AC / AC-DC / AC-AC</b>. Top pinned buttons: <b>Topology Advisor</b> (auto recommendation) and <b>Efficiency estimate</b>. Calculators open the design form.<br><br>
+        Choose an LLM below; optional OpenAI API in ⚙. Without API, replies use local rules.<br><br>
+        Try: <i>“12V to 5V 2A buck”</i>
       </div>
     </div>
     <div class="chat-composer">
@@ -613,7 +615,7 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
             <span class="chat-mode-pill" id="chatModePill">Agent</span>
             <select id="llmModelFooter" class="chat-model-select" title="Model"></select>
             <span class="chat-header-spacer"></span>
-            <button type="button" class="chat-send" id="chatSendBtn">发送</button>
+            <button type="button" class="chat-send" id="chatSendBtn">Send</button>
           </div>
         </div>
       </div>
@@ -789,7 +791,7 @@ function renderForm(){
     document.getElementById('toolSubtitle').textContent=stubInfo.desc;
     document.getElementById('resultArea').innerHTML='';
     document.getElementById('schematicArea').innerHTML='';
-    document.getElementById('formArea').innerHTML='<p class="stub-hint">该拓扑暂未提供内置参数计算器。请使用上方 <b>拓扑顾问</b> 做简要选型，或通过右侧 <b>PEA Agent</b>（可配置大模型）深入讨论。</p>';
+    document.getElementById('formArea').innerHTML='<p class="stub-hint">No built-in calculator for this entry yet. Use <b>Topology Advisor</b> (pinned above) for auto recommendation, or <b>PEA Agent</b> on the right (optional LLM in ⚙).</p>';
     return;
   }
   const t=TOOLS[activeTool];
@@ -810,7 +812,7 @@ function getV(){const t=TOOLS[activeTool],v={};t.fields.forEach(f=>{const e=docu
 let lastResult=null,lastVals=null;
 function calculate(){
   if(stubInfo){
-    document.getElementById('sbStatus').textContent='当前为分类浏览项，无内置计算器';
+    document.getElementById('sbStatus').textContent='Browse-only entry — no calculator';
     return;
   }
   const v=getV();lastVals=v;
@@ -1357,9 +1359,9 @@ const LLM_MODEL_OPTS=[
   {v:'gpt-4-turbo',t:'gpt-4-turbo'},
   {v:'o3-mini',t:'o3-mini'},
   {v:'o1-mini',t:'o1-mini'},
-  {v:'__custom__',t:'自定义 model id…'}
+  {v:'__custom__',t:'Custom model id…'}
 ];
-const PEA_API_SYSTEM='You are PEA (Power Electronics Agent). Answer concisely in Chinese when the user writes Chinese; otherwise English. Focus on DC-DC, inverters, rectifiers, magnetics, EMI, and practical design.';
+const PEA_API_SYSTEM='You are PEA (Power Electronics Agent). Answer concisely in English. Focus on DC-DC, inverters, rectifiers, magnetics, EMI, and practical design.';
 let llmThread=[];
 
 function fillModelSelects(){
@@ -1444,7 +1446,7 @@ async function sendChat(){
 
   if(useApi&&key){
     btn.disabled=true;
-    document.getElementById('sbStatus').textContent='请求模型中…';
+    document.getElementById('sbStatus').textContent='Calling model…';
     llmThread.push({role:'user',content:msg});
     const model=getResolvedModel();
     try{
@@ -1458,17 +1460,17 @@ async function sendChat(){
       });
       const data=await res.json().catch(()=>({}));
       if(!res.ok){
-        const err=data.error?.message||res.statusText||'请求失败';
+        const err=data.error?.message||res.statusText||'Request failed';
         llmThread.pop();
-        box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>${escHtml(err)}<br><br><span style="color:var(--text3);font-size:.78rem">若为 CORS 错误，请用本地代理或将页面托管在与 API 同源的后端上；也可使用 Streamlit 版。</span></div>`;
+        box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>${escHtml(err)}<br><br><span style="color:var(--text3);font-size:.78rem">If this is a CORS error, use a local proxy, same-origin hosting, or the Streamlit app.</span></div>`;
       }else{
-        const text=data.choices?.[0]?.message?.content||'(空响应)';
+        const text=data.choices?.[0]?.message?.content||'(empty response)';
         llmThread.push({role:'assistant',content:text});
         box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA · ${escHtml(model)}</div>${escHtml(text).replace(/\n/g,'<br>')}</div>`;
       }
     }catch(err){
       llmThread.pop();
-      box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>网络或 CORS 错误：${escHtml(String(err.message||err))}<br><br><span style="color:var(--text3);font-size:.78rem">浏览器无法直连 OpenAI 时，请使用 <code>streamlit run app.py</code> 或配置反向代理。</span></div>`;
+      box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>Network or CORS error: ${escHtml(String(err.message||err))}<br><br><span style="color:var(--text3);font-size:.78rem">If the browser cannot reach OpenAI directly, use <code>streamlit run app.py</code> or a reverse proxy.</span></div>`;
     }
     btn.disabled=false;
     document.getElementById('sbStatus').textContent='Ready';
@@ -1477,7 +1479,7 @@ async function sendChat(){
   }
 
   setTimeout(()=>{
-    box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent（规则）</div>${processChat(msg)}</div>`;
+    box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent (rules)</div>${processChat(msg)}</div>`;
     box.scrollTop=box.scrollHeight;
   },280+Math.random()*320);
   box.scrollTop=box.scrollHeight;
@@ -1512,7 +1514,7 @@ function processChat(msg){
   if(m.includes('spice')||m.includes('simulate'))return 'The <b>SPICE</b> tab auto-generates netlists (including DAB) after you run Execute Analysis. Download .cir for ngspice/LTspice.';
   if(m.includes('efficiency')||m.includes('loss'))return 'Select <b>Efficiency</b> in the sidebar for loss breakdown (MOSFET conduction, switching, DCR, diode).';
   if(m.includes('hello')||m.includes('hi'))return 'Hello! I\'m PEA. Ask me anything about power electronics design, or try: <i>"Design a 400V to 48V 1kW DAB converter"</i>';
-  return '我可协助：<br>• <b>DC-DC 设计</b>：如「12V 转 5V 2A buck」<br>• <b>隔离 / DAB</b>：如「400V 转 48V 1kW 双向」<br>• <b>磁件 / 器件 / SPICE</b>：直接问关键词<br>• 左侧已按 <b>DC-DC · DC-AC · AC-DC · AC-AC</b> 分类浏览<br><br>开启 ⚙ 中「使用 OpenAI API」可调用真实大模型（受浏览器 CORS 限制时请用 <code>streamlit run app.py</code>）。';
+  return 'I can help with:<br>• <b>DC-DC</b>: e.g. “12V to 5V 2A buck”<br>• <b>Isolated / DAB</b>: e.g. “400V to 48V 1kW bidirectional”<br>• <b>Magnetics / parts / SPICE</b>: ask with keywords<br>• Sidebar: <b>DC-DC · DC-AC · AC-DC · AC-AC</b>; use pinned <b>Topology Advisor</b> for auto recommendation<br><br>Enable <b>Use OpenAI API</b> in ⚙ for a real LLM (use <code>streamlit run app.py</code> if the browser blocks CORS).';
 }
 
 // ═══════════════════════════════════════════════════════════════════
