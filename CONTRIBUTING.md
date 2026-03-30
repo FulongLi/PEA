@@ -1,6 +1,6 @@
 # Contributing to PEA
 
-**Last updated:** 2026-03-30
+**Last updated:** 2026-03-31
 
 Thank you for helping improve PEA (Power Electronics AI Agent). This document is for anyone who will maintain or extend the project.
 
@@ -10,7 +10,8 @@ PEA assists with power electronics design: topology recommendation, DC-DC parame
 
 - **Core logic** lives in Python under `pea/`; the **single source of truth** for design equations is `pea/tools/calculator.py`.
 - **`app.py`** is the Streamlit UI; it calls the same calculator tools as the CLI.
-- **`index.html`** is a **standalone** in-browser demo (calculators, SPICE snippets, components, magnetics, rule-based chat). It does **not** call the Python backend. Some features there (e.g. DAB) may not exist in the Python package yet—keep implementations aligned deliberately if you add features on both sides.
+- **`index.html`** is a **standalone** UI (open in a browser or via **`pea/desktop.py`**): converter taxonomy (**DC-DC / DC-AC / AC-DC / AC-AC**), calculators where wired, SPICE/components/magnetics, and a **Cursor-style agent** strip (model selection, optional OpenAI API in ⚙, rule fallback). It does **not** call the Python backend for calculators. Some items are browse-only stubs; **DAB** and other extras may exist only here until ported to `calculator.py`—keep both sides aligned when you extend features.
+- **`pea/desktop.py`** + **`run_pea_desktop.bat`**: native window over `index.html` using **pywebview** (`pip install -e ".[desktop]"` or the `.bat` auto-install). See `README.md` for run and PyInstaller notes.
 
 ## Development setup
 
@@ -58,6 +59,7 @@ ruff format .
 | CLI (`pea` command) | `pea/cli.py` |
 | Streamlit UI | `app.py` |
 | Static web UI | `index.html` (CSS/JS inline) |
+| Desktop window (static UI) | `pea/desktop.py`, `run_pea_desktop.bat`; optional dep `[desktop]` → `pywebview` |
 | PDF extraction (not in default deps) | `scripts/extract_pdf.py` — requires `pypdf` |
 
 ## RAG and local data
@@ -65,12 +67,22 @@ ruff format .
 - With ChromaDB + Sentence Transformers available, embeddings persist under the user profile (default `~/.pea/chroma_db`). First run may download models.
 - If vector setup fails, the retriever falls back to simple keyword matching over `KNOWLEDGE_DOCUMENTS`.
 
+## Documentation maintenance (README + CONTRIBUTING)
+
+Whenever a change affects **how users install, run, or understand** the project, **update both** [`README.md`](README.md) and this file in the **same PR / commit** (or same release), for example:
+
+- New scripts, entry points (`pea-desktop`), optional dependencies (`[desktop]`, `[dev]`), or run commands.
+- New or renamed UI surfaces (`index.html`, Streamlit, desktop).
+- Behavior that contradicts what the docs claim.
+
+After you **materially edit** `CONTRIBUTING.md`, bump the **Last updated** date at the top. Keep `README.md` and `CONTRIBUTING.md` free of drift (one source of truth per topic; cross-link where useful).
+
 ## Guidelines for pull requests
 
 - Keep changes **focused** on the issue or feature; avoid unrelated refactors.
 - **Match existing style** in the files you touch (imports, naming, typing).
 - Add or extend **pytest** coverage when you change `calculator.py` or `execute_tool` behavior.
-- If you change user-visible behavior, update `README.md` when appropriate.
+- Follow **Documentation maintenance** above: sync **README.md** and **CONTRIBUTING.md** with user-facing changes.
 
 ## License
 

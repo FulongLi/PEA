@@ -38,9 +38,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "ruff>=0.1.0"]
+desktop = ["pywebview>=5.0"]
 
 [project.scripts]
 pea = "pea.cli:run_cli"
+pea-desktop = "pea.desktop:main"
 
 [tool.setuptools.packages.find]
 include = ["pea*"]

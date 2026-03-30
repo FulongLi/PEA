@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +15,8 @@
   --text:#1e293b;--text2:#64748b;--text3:#94a3b8;
   --head:'Inter',sans-serif;--body:'Inter','Segoe UI',sans-serif;
   --mono:'JetBrains Mono','Cascadia Code','Consolas',monospace;
-  --actW:52px;--sideW:260px;--chatW:380px;
+  --actW:52px;--sideW:308px;--chatW:420px;
+  --cursor-bar:#ececec;--cursor-input:#ffffff;--cursor-muted:#6e6e6e;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden}
@@ -57,6 +58,40 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);font-size:14
 .badge-dab{background:rgba(236,72,153,.08);color:var(--pink);border:1px solid rgba(236,72,153,.12)}
 .side-divider{height:1px;background:var(--border);margin:4px 8px}
 .side-section{font-family:var(--head);font-size:.65rem;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--text3);padding:8px 10px 4px;margin-top:2px}
+
+/* Converter taxonomy (sidebar) */
+.conv-tabs{display:flex;border-bottom:1px solid var(--border);background:#fafbfc;flex-shrink:0}
+.conv-tab{flex:1;padding:9px 4px;border:none;background:transparent;font-family:var(--head);font-size:.68rem;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:color .12s,border-color .12s}
+.conv-tab:hover{color:var(--text)}
+.conv-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:#fff}
+.conv-pane{display:none;padding:8px 6px 12px}
+.conv-pane.active{display:block}
+.quick-tool{width:100%;padding:8px 10px;margin-bottom:8px;border:1px dashed var(--border2);border-radius:8px;background:var(--bg);font-family:var(--head);font-size:.78rem;font-weight:600;color:var(--text);cursor:pointer;text-align:left;transition:all .15s}
+.quick-tool:hover{border-color:var(--cyan);background:rgba(59,130,246,.04)}
+.quick-tool.active{border-color:var(--cyan);background:rgba(59,130,246,.08);color:var(--cyan2)}
+.tax-card{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.tax-card-h{padding:7px 10px;font-size:.72rem;font-weight:700;letter-spacing:.02em}
+.tax-card--blue .tax-card-h{background:#dbeafe;color:#1e40af}
+.tax-card--green .tax-card-h{background:#d1fae5;color:#065f46}
+.tax-card--purple .tax-card-h{background:#ede9fe;color:#5b21b6}
+.tax-card--amber .tax-card-h{background:#fef3c7;color:#92400e}
+.tax-row{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-top:1px solid var(--border);cursor:pointer;transition:background .12s}
+.tax-row:first-of-type{border-top:none}
+.tax-row:hover{background:var(--bg)}
+.tax-row.active{background:rgba(59,130,246,.06);outline:1px solid rgba(59,130,246,.15);outline-offset:-1px}
+.tax-icon{width:22px;text-align:center;font-size:1rem;flex-shrink:0;line-height:1.3}
+.tax-meta{flex:1;min-width:0}
+.tax-name{font-size:.8rem;font-weight:600;color:var(--text);line-height:1.25}
+.tax-desc{font-size:.68rem;color:var(--text2);line-height:1.35;margin-top:2px}
+.tax-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;justify-content:flex-end;align-self:flex-start}
+.tax-tag{font-size:.58rem;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.tag-down{background:#dcfce7;color:#166534}
+.tag-up{background:#ffedd5;color:#9a3412}
+.tag-bb{background:#e0e7ff;color:#3730a3}
+.tag-iso{background:#dbeafe;color:#1e40af}
+.tag-bidir{background:#fce7f3;color:#9d174d}
+.tag-soft{background:#ede9fe;color:#5b21b6}
+.stub-hint{padding:12px;color:var(--text2);font-size:.84rem;line-height:1.55;border:1px dashed var(--border2);border-radius:8px;background:var(--bg)}
 
 /* Center workspace */
 .center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -171,24 +206,41 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
 .core-visual{text-align:center;padding:10px;margin-top:8px}
 .core-visual svg{max-width:180px}
 
-/* Chat Panel */
+/* Chat Panel (Cursor-inspired composer) */
 .chat-panel{width:var(--chatW);background:#fff;border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 .chat-panel.hidden{display:none}
-.chat-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.chat-header h3{font-family:var(--head);font-size:.8rem;font-weight:600;color:var(--text)}
+.chat-header{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;background:#fafafa}
+.chat-header h3{font-family:var(--head);font-size:.78rem;font-weight:600;color:var(--text)}
 .chat-header .ai-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:blink 2s ease infinite}
-.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.chat-header-spacer{flex:1}
+.chat-model-select{font-family:var(--mono);font-size:.72rem;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--text);max-width:160px;cursor:pointer}
+.chat-gear{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.chat-gear:hover{color:var(--cyan);border-color:var(--cyan)}
+.chat-settings{display:none;padding:10px 12px;border-bottom:1px solid var(--border);background:#f8fafc;font-size:.72rem}
+.chat-settings.open{display:block}
+.chat-settings label{display:block;font-weight:600;color:var(--text2);margin:6px 0 3px}
+.chat-settings input[type="password"],.chat-settings input[type="url"],.chat-settings input[type="text"]{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:.78rem;font-family:var(--mono)}
+.chat-settings .settings-hint{color:var(--text3);font-size:.65rem;line-height:1.4;margin-top:8px}
+.chat-settings-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg);min-height:0}
 .chat-msg{max-width:95%;padding:10px 14px;border-radius:12px;font-size:.86rem;line-height:1.6;animation:slideIn .2s ease}
 .chat-msg.user{align-self:flex-end;background:var(--cyan);color:#fff;border:none}
 .chat-msg.ai{align-self:flex-start;background:#fff;border:1px solid var(--border);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .chat-msg .msg-label{font-family:var(--head);font-size:.6rem;font-weight:600;text-transform:uppercase;color:inherit;opacity:.6;margin-bottom:3px}
 .chat-msg pre{background:#1e293b;border:none;border-radius:6px;padding:8px 10px;margin-top:6px;font-family:var(--mono);font-size:.78rem;color:#a5f3fc;overflow-x:auto;white-space:pre-wrap}
-.chat-input-wrap{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
-.chat-input{flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--body);font-size:.88rem;outline:none;transition:all .15s}
-.chat-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-.chat-input::placeholder{color:var(--text3)}
-.chat-send{background:var(--cyan);border:none;border-radius:8px;width:38px;color:#fff;font-size:1rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
-.chat-send:hover{background:var(--cyan2)}
+.chat-msg.ai .msg-md a{color:var(--cyan2)}
+.chat-composer{border-top:1px solid #d4d4d4;background:var(--cursor-bar);padding:8px 10px 10px;flex-shrink:0}
+.chat-input-wrap{display:flex;flex-direction:column;gap:6px}
+.chat-input-shell{background:var(--cursor-input);border:1px solid #c8c8c8;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.chat-input{flex:1;width:100%;min-height:72px;max-height:200px;background:transparent;border:none;padding:10px 12px;color:var(--text);font-family:var(--body);font-size:.86rem;line-height:1.45;outline:none;resize:vertical}
+.chat-input:focus{outline:none}
+.chat-input::placeholder{color:var(--cursor-muted)}
+.chat-composer-bar{display:flex;align-items:center;gap:8px;padding:6px 8px 0;border-top:1px solid #eee;background:#fafafa}
+.chat-composer-bar .chat-model-select{max-width:200px;flex:1;font-size:.7rem}
+.chat-mode-pill{font-size:.62rem;color:var(--text3);padding:2px 6px;border-radius:4px;background:#eee;white-space:nowrap}
+.chat-send{border:none;border-radius:8px;padding:6px 14px;background:#1e1e1e;color:#fff;font-size:.75rem;font-weight:600;cursor:pointer;font-family:var(--head)}
+.chat-send:hover{background:#333}
+.chat-send:disabled{opacity:.5;cursor:not-allowed}
 
 /* Statusbar */
 .statusbar{height:26px;background:#fff;border-top:1px solid var(--border);display:flex;align-items:center;padding:0 14px;font-size:.7rem;color:var(--text2);gap:14px;flex-shrink:0}
@@ -221,27 +273,117 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
     <button class="act-btn active" data-act="chat" title="Toggle AI Chat">⊡</button>
   </div>
 
-  <!-- Sidebar -->
+  <!-- Sidebar: converter taxonomy -->
   <aside class="sidebar" id="sidebar">
-    <div class="side-header">Design Modules</div>
+    <div class="side-header">变换器分类</div>
+    <div class="conv-tabs" role="tablist">
+      <button type="button" class="conv-tab active" data-conv="dcdc" role="tab">DC-DC</button>
+      <button type="button" class="conv-tab" data-conv="dcac" role="tab">DC-AC</button>
+      <button type="button" class="conv-tab" data-conv="acdc" role="tab">AC-DC</button>
+      <button type="button" class="conv-tab" data-conv="acac" role="tab">AC-AC</button>
+    </div>
     <div class="side-body">
-      <button class="tool-btn active" data-tool="recommend"><span class="tool-icon">◈</span>Topology Advisor</button>
 
-      <div class="side-section">Non-Isolated</div>
-      <button class="tool-btn" data-tool="buck"><span class="tool-icon">▽</span>Buck</button>
-      <button class="tool-btn" data-tool="boost"><span class="tool-icon">△</span>Boost</button>
-      <button class="tool-btn" data-tool="buck_boost"><span class="tool-icon">⬡</span>Buck-Boost</button>
-      <button class="tool-btn" data-tool="sepic"><span class="tool-icon">⟲</span>SEPIC</button>
-      <button class="tool-btn" data-tool="cuk"><span class="tool-icon">⟳</span>Ćuk</button>
+      <div class="conv-pane active" data-conv="dcdc" role="tabpanel">
+        <button type="button" class="quick-tool active" data-tool="recommend">◈ 拓扑顾问 · Topology Advisor</button>
+        <div class="tax-card tax-card--blue">
+          <div class="tax-card-h">非隔离型</div>
+          <div class="tax-row" data-tool="buck"><span class="tax-icon">▽</span><div class="tax-meta"><div class="tax-name">Buck</div><div class="tax-desc">降压，CCM / DCM</div></div><div class="tax-tags"><span class="tax-tag tag-down">降压</span></div></div>
+          <div class="tax-row" data-tool="boost"><span class="tax-icon">△</span><div class="tax-meta"><div class="tax-name">Boost</div><div class="tax-desc">升压，宽输入</div></div><div class="tax-tags"><span class="tax-tag tag-up">升压</span></div></div>
+          <div class="tax-row" data-tool="buck_boost"><span class="tax-icon">⬡</span><div class="tax-meta"><div class="tax-name">Buck-Boost</div><div class="tax-desc">反相，升降压</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
+          <div class="tax-row" data-tool="cuk"><span class="tax-icon">⟳</span><div class="tax-meta"><div class="tax-name">Ćuk</div><div class="tax-desc">低纹波，反相输出</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
+          <div class="tax-row" data-tool="sepic"><span class="tax-icon">⟲</span><div class="tax-meta"><div class="tax-name">SEPIC</div><div class="tax-desc">同相输出，升降压</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Zeta" data-stub-desc="SEPIC 对偶拓扑，同相升降压；电容耦合，适合隔离需求较少的场合。"><span class="tax-icon">◇</span><div class="tax-meta"><div class="tax-name">Zeta</div><div class="tax-desc">SEPIC 对偶，同相</div></div><div class="tax-tags"><span class="tax-tag tag-bb">升降压</span></div></div>
+        </div>
+        <div class="tax-card tax-card--green">
+          <div class="tax-card-h">隔离型（单开关）</div>
+          <div class="tax-row" data-tool="flyback"><span class="tax-icon">⊠</span><div class="tax-meta"><div class="tax-name">Flyback</div><div class="tax-desc">变压器储能，多路输出</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+          <div class="tax-row" data-tool="forward"><span class="tax-icon">⊞</span><div class="tax-meta"><div class="tax-name">Forward</div><div class="tax-desc">单管正激，需磁复位</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+        </div>
+        <div class="tax-card tax-card--green">
+          <div class="tax-card-h">隔离型（双 / 四开关）</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Push-Pull" data-stub-desc="推挽 + 中心抽头变压器，中功率隔离场合常用。"><span class="tax-icon">⇅</span><div class="tax-meta"><div class="tax-name">Push-Pull</div><div class="tax-desc">推挽，中心抽头</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Half-Bridge" data-stub-desc="半桥：2 开关，中点箝位，适合中大功率 DC-DC。"><span class="tax-icon">⎍</span><div class="tax-meta"><div class="tax-name">Half-Bridge</div><div class="tax-desc">半桥，2 开关</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Full-Bridge" data-stub-desc="全桥：4 开关，大功率隔离 DC-DC 首选之一。"><span class="tax-icon">⎎</span><div class="tax-meta"><div class="tax-name">Full-Bridge</div><div class="tax-desc">全桥，大功率</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+          <div class="tax-row" data-tool="llc"><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">LLC 谐振</div><div class="tax-desc">ZVS，高效高频</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span></div></div>
+          <div class="tax-row" data-tool="dab"><span class="tax-icon">⇌</span><div class="tax-meta"><div class="tax-name">DAB</div><div class="tax-desc">双有源桥，双向功率</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+        </div>
+        <div class="tax-card tax-card--purple">
+          <div class="tax-card-h">软开关 / 谐振</div>
+          <div class="tax-row" data-stub="1" data-stub-title="ZVS Buck / Boost" data-stub-desc="利用谐振或准谐振实现开关管 ZVS，降低开关损耗。"><span class="tax-icon">◎</span><div class="tax-meta"><div class="tax-name">ZVS Buck / Boost</div><div class="tax-desc">零电压开关</div></div><div class="tax-tags"><span class="tax-tag tag-soft">软开关</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="CLLC" data-stub-desc="对称 LLC 结构，适合双向隔离场合（如 OBC）。"><span class="tax-icon">∞</span><div class="tax-meta"><div class="tax-name">CLLC</div><div class="tax-desc">双向谐振，车载充电</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="移相全桥 PSFB" data-stub-desc="隔离全桥 + 移相控制，宽负载 ZVS 范围需优化。"><span class="tax-icon">⇄</span><div class="tax-meta"><div class="tax-name">移相全桥 PSFB</div><div class="tax-desc">ZVS + 隔离</div></div><div class="tax-tags"><span class="tax-tag tag-iso">隔离</span><span class="tax-tag tag-soft">软开关</span></div></div>
+        </div>
+        <div class="tax-card tax-card--amber">
+          <div class="tax-card-h">分析与损耗</div>
+          <div class="tax-row" data-tool="efficiency"><span class="tax-icon">⏱</span><div class="tax-meta"><div class="tax-name">效率估算</div><div class="tax-desc">导通 + 开关损耗分解</div></div><div class="tax-tags"><span class="tax-tag tag-up">Loss</span></div></div>
+        </div>
+      </div>
 
-      <div class="side-section">Isolated</div>
-      <button class="tool-btn" data-tool="forward"><span class="tool-icon">⊞</span>Forward<span class="badge badge-iso">ISO</span></button>
-      <button class="tool-btn" data-tool="flyback"><span class="tool-icon">⊠</span>Flyback<span class="badge badge-iso">ISO</span></button>
-      <button class="tool-btn" data-tool="llc"><span class="tool-icon">∿</span>LLC Resonant<span class="badge badge-iso">ISO</span></button>
-      <button class="tool-btn" data-tool="dab"><span class="tool-icon">⇌</span>DAB<span class="badge badge-dab">DAB</span></button>
+      <div class="conv-pane" data-conv="dcac" role="tabpanel">
+        <div class="tax-card tax-card--blue">
+          <div class="tax-card-h">电压型逆变 (VSI)</div>
+          <div class="tax-row" data-stub="1" data-stub-title="两电平三相 / 单相 VSI" data-stub-desc="SPWM、SVPWM 或方波；电机驱动、UPS、并网逆变器基础拓扑。"><span class="tax-icon">▤</span><div class="tax-meta"><div class="tax-name">两电平 VSI</div><div class="tax-desc">SPWM / SVPWM / 方波</div></div><div class="tax-tags"><span class="tax-tag tag-bb">DC→AC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="多电平逆变" data-stub-desc="NPC、T-type、飞跨电容、级联 H 桥等，降低 dv/dt 与滤波压力。"><span class="tax-icon">▦</span><div class="tax-meta"><div class="tax-name">多电平 (NPC / T-type / CHB)</div><div class="tax-desc">中高压、低谐波</div></div><div class="tax-tags"><span class="tax-tag tag-bb">多电平</span></div></div>
+        </div>
+        <div class="tax-card tax-card--green">
+          <div class="tax-card-h">电流型与特种逆变</div>
+          <div class="tax-row" data-stub="1" data-stub-title="CSI" data-stub-desc="电流源逆变，直流侧大电感；与 VSI 对偶。"><span class="tax-icon">≋</span><div class="tax-meta"><div class="tax-name">电流型 CSI</div><div class="tax-desc">电流源输出特性</div></div><div class="tax-tags"><span class="tax-tag tag-iso">特种</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Z-Source / Quasi-Z" data-stub-desc="单级升降压逆变，光伏等宽输入场合。"><span class="tax-icon">⌁</span><div class="tax-meta"><div class="tax-name">Z 源 / Quasi-Z</div><div class="tax-desc">升压型逆变</div></div><div class="tax-tags"><span class="tax-tag tag-up">升压</span></div></div>
+        </div>
+        <div class="tax-card tax-card--purple">
+          <div class="tax-card-h">高频与模块化</div>
+          <div class="tax-row" data-stub="1" data-stub-title="SiC/GaN 高频逆变" data-stub-desc="提高开关频率以减小无源体积，需关注 EMI 与驱动。"><span class="tax-icon">⚡</span><div class="tax-meta"><div class="tax-name">宽禁带高频逆变</div><div class="tax-desc">SiC / GaN</div></div><div class="tax-tags"><span class="tax-tag tag-soft">高频</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="MMC 思想（直流侧）" data-stub-desc="模块化多电平扩展思路；大功率变流中常与 AC 侧结合。"><span class="tax-icon">▣</span><div class="tax-meta"><div class="tax-name">模块化多电平扩展</div><div class="tax-desc">子模块堆叠</div></div><div class="tax-tags"><span class="tax-tag tag-bb">MMC</span></div></div>
+        </div>
+      </div>
 
-      <div class="side-section">Analysis</div>
-      <button class="tool-btn" data-tool="efficiency"><span class="tool-icon">⏱</span>Efficiency<span class="badge badge-eff">LOSS</span></button>
+      <div class="conv-pane" data-conv="acdc" role="tabpanel">
+        <div class="tax-card tax-card--blue">
+          <div class="tax-card-h">不可控与相控</div>
+          <div class="tax-row" data-stub="1" data-stub-title="二极管整流桥" data-stub-desc="最简单 AC→DC，功率因数低，需后级 PFC 满足并网标准。"><span class="tax-icon">⊓</span><div class="tax-meta"><div class="tax-name">二极管整流桥</div><div class="tax-desc">低成本，工频</div></div><div class="tax-tags"><span class="tax-tag tag-down">AC→DC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="晶闸管相控整流" data-stub-desc="可控直流电压，传统电机励磁、电镀等；谐波与 PF 需评估。"><span class="tax-icon">⊔</span><div class="tax-meta"><div class="tax-name">相控整流 (SCR)</div><div class="tax-desc">移相触发</div></div><div class="tax-tags"><span class="tax-tag tag-bb">相控</span></div></div>
+        </div>
+        <div class="tax-card tax-card--green">
+          <div class="tax-card-h">PFC 与升压型整流</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Boost PFC" data-stub-desc="单相/三相 Boost PFC，最常用有源功率因数校正。"><span class="tax-icon">⌃</span><div class="tax-meta"><div class="tax-name">Boost PFC</div><div class="tax-desc">单相 / 三相</div></div><div class="tax-tags"><span class="tax-tag tag-up">PFC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="交错 Boost PFC" data-stub-desc="并联相移降低输入电流纹波与器件应力。"><span class="tax-icon">⇈</span><div class="tax-meta"><div class="tax-name">交错 PFC</div><div class="tax-desc">多相并联</div></div><div class="tax-tags"><span class="tax-tag tag-up">PFC</span></div></div>
+        </div>
+        <div class="tax-card tax-card--purple">
+          <div class="tax-card-h">高效拓扑</div>
+          <div class="tax-row" data-stub="1" data-stub-title="Totem Pole PFC" data-stub-desc="无桥图腾柱，高效率整流；常用 SiC 低频管 + 高频管组合。"><span class="tax-icon">⧉</span><div class="tax-meta"><div class="tax-name">Totem Pole PFC</div><div class="tax-desc">无桥高效率</div></div><div class="tax-tags"><span class="tax-tag tag-soft">高效</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Vienna 整流器" data-stub-desc="三电平整流，三相对称系统中降低器件耐压。"><span class="tax-icon">Ⅴ</span><div class="tax-meta"><div class="tax-name">Vienna</div><div class="tax-desc">三电平整流</div></div><div class="tax-tags"><span class="tax-tag tag-bb">三电平</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="Bridgeless / 双 Boost" data-stub-desc="减少导通器件数量，提高轻载效率。"><span class="tax-icon">⎔</span><div class="tax-meta"><div class="tax-name">无桥 / 双 Boost</div><div class="tax-desc">减少二极管损耗</div></div><div class="tax-tags"><span class="tax-tag tag-soft">高效</span></div></div>
+        </div>
+        <div class="tax-card tax-card--amber">
+          <div class="tax-card-h">有源前端与双向</div>
+          <div class="tax-row" data-stub="1" data-stub-title="PWM 整流 (AFE)" data-stub-desc="单位功率因数、能量可双向流动（整流/逆变）。"><span class="tax-icon">⇄</span><div class="tax-meta"><div class="tax-name">PWM 整流 / AFE</div><div class="tax-desc">单位 PF，双向</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="V2G / 车载 OBC" data-stub-desc="车载充电与回馈电网，常为多级 AC-DC + DC-DC。"><span class="tax-icon">⌕</span><div class="tax-meta"><div class="tax-name">车载充电 / V2G</div><div class="tax-desc">隔离 + PFC</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+        </div>
+      </div>
+
+      <div class="conv-pane" data-conv="acac" role="tabpanel">
+        <div class="tax-card tax-card--blue">
+          <div class="tax-card-h">交流斩波与周波</div>
+          <div class="tax-row" data-stub="1" data-stub-title="AC Chopper" data-stub-desc="直接对交流电压斩波调压，需处理双向开关与换流。"><span class="tax-icon">✂</span><div class="tax-meta"><div class="tax-name">交流斩波</div><div class="tax-desc">AC→AC 调压</div></div><div class="tax-tags"><span class="tax-tag tag-bb">AC↔AC</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="周波控制器" data-stub-desc="过零投切加热等负载，功率分级控制。"><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">周波控制</div><div class="tax-desc">过零通断</div></div><div class="tax-tags"><span class="tax-tag tag-bb">周波</span></div></div>
+        </div>
+        <div class="tax-card tax-card--green">
+          <div class="tax-card-h">直接频率变换</div>
+          <div class="tax-row" data-stub="1" data-stub-title="相控交交变频器" data-stub-desc="低频直接 AC-AC，输出频率低于输入；轧机等传统应用。"><span class="tax-icon">↺</span><div class="tax-meta"><div class="tax-name">相控交交 (Cyclo)</div><div class="tax-desc">低频输出</div></div><div class="tax-tags"><span class="tax-tag tag-bb">交交</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="矩阵变换器" data-stub-desc="全控双向开关阵列，理论无直流母线；换流策略复杂。"><span class="tax-icon">▧</span><div class="tax-meta"><div class="tax-name">矩阵变换器</div><div class="tax-desc">无中间直流环节</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">双向</span></div></div>
+        </div>
+        <div class="tax-card tax-card--purple">
+          <div class="tax-card-h">间接与背靠背</div>
+          <div class="tax-row" data-stub="1" data-stub-title="背靠背 AC-DC-AC" data-stub-desc="整流级 + 直流母线 + 逆变级；变频传动、UPS、风电变流器主流结构。"><span class="tax-icon">⛓</span><div class="tax-meta"><div class="tax-name">背靠背 (AC-DC-AC)</div><div class="tax-desc">整流 + 逆变</div></div><div class="tax-tags"><span class="tax-tag tag-bb">间接</span></div></div>
+          <div class="tax-row" data-stub="1" data-stub-title="统一潮流控制器 UPFC" data-stub-desc="串联+并联变流器协调控制潮流（电力系统装置）。"><span class="tax-icon">⌬</span><div class="tax-meta"><div class="tax-name">UPFC / FACTS</div><div class="tax-desc">系统级 AC 柔性</div></div><div class="tax-tags"><span class="tax-tag tag-iso">系统</span></div></div>
+        </div>
+        <div class="tax-card tax-card--amber">
+          <div class="tax-card-h">固态变压器 (概念)</div>
+          <div class="tax-row" data-stub="1" data-stub-title="SST" data-stub-desc="高频隔离 + 多级功率变换，实现 AC-AC 或 AC-DC 的紧凑化与智能化。"><span class="tax-icon">⚙</span><div class="tax-meta"><div class="tax-name">固态变压器 SST</div><div class="tax-desc">高频隔离链</div></div><div class="tax-tags"><span class="tax-tag tag-soft">前沿</span></div></div>
+        </div>
+      </div>
+
     </div>
   </aside>
 
@@ -436,28 +578,45 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
     </div>
   </div>
 
-  <!-- Chat Panel -->
+  <!-- Chat Panel (Cursor-style composer + LLM config) -->
   <div class="chat-panel" id="chatPanel">
     <div class="chat-header">
       <span class="ai-dot"></span>
       <h3>PEA Agent</h3>
-      <span style="margin-left:auto;font-size:.65rem;color:var(--text3)">AI Assistant</span>
+      <span class="chat-header-spacer"></span>
+      <select id="llmModelHeader" class="chat-model-select" title="Model"></select>
+      <button type="button" class="chat-gear" id="chatGearBtn" title="API 设置">⚙</button>
+    </div>
+    <div class="chat-settings" id="chatSettings">
+      <label><input type="checkbox" id="llmUseOpenAI"> 使用 OpenAI API（需 Key；浏览器直连可能被 CORS 拦截，见说明）</label>
+      <label>API Base URL</label>
+      <input type="url" id="llmBaseUrl" placeholder="https://api.openai.com/v1" autocomplete="off">
+      <label>API Key（仅保存在本机浏览器 localStorage）</label>
+      <input type="password" id="llmApiKey" placeholder="sk-..." autocomplete="off">
+      <label>自定义 model id（仅在下拉框选「自定义」时使用）</label>
+      <input type="text" id="llmModelCustom" placeholder="例如 gpt-4o 或兼容接口的模型名" autocomplete="off">
+      <div class="settings-hint">与 Cursor 类似：在此选择模型并保存 Key。若网页请求被 CORS 拒绝，请使用 <code>streamlit run app.py</code> 或本地反向代理到 OpenAI 兼容接口。</div>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-msg ai">
         <div class="msg-label">PEA Agent</div>
-        Welcome! I'm your Power Electronics AI. I can:<br>
-        • Recommend topologies (Buck to DAB)<br>
-        • Calculate design parameters<br>
-        • Generate SPICE netlists<br>
-        • Select components<br>
-        • Design magnetics (inductors & transformers)<br><br>
-        Try: <i>"Design a 12V to 5V 2A buck converter"</i>
+        你好。左侧已按 <b>DC-DC / DC-AC / AC-DC / AC-AC</b> 分类；带内置计算器的拓扑会打开设计表单。<br><br>
+        在下方选择<strong>大语言模型</strong>，可选填 OpenAI API（⚙）。未开启 API 时使用本地规则回复。<br><br>
+        试试：<i>「12V 转 5V 2A buck」</i>
       </div>
     </div>
-    <div class="chat-input-wrap">
-      <input class="chat-input" id="chatInput" placeholder="Ask PEA anything..." autocomplete="off">
-      <button class="chat-send" onclick="sendChat()">➤</button>
+    <div class="chat-composer">
+      <div class="chat-input-wrap">
+        <div class="chat-input-shell">
+          <textarea class="chat-input" id="chatInput" placeholder="Plan, @ for context, / for commands" rows="3" autocomplete="off"></textarea>
+          <div class="chat-composer-bar">
+            <span class="chat-mode-pill" id="chatModePill">Agent</span>
+            <select id="llmModelFooter" class="chat-model-select" title="Model"></select>
+            <span class="chat-header-spacer"></span>
+            <button type="button" class="chat-send" id="chatSendBtn">发送</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -492,13 +651,48 @@ document.querySelectorAll('.act-btn').forEach(b=>{
 });
 
 let activeTool='recommend';
-document.querySelectorAll('.tool-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelector('.tool-btn.active')?.classList.remove('active');
-    btn.classList.add('active');activeTool=btn.dataset.tool;renderForm();
-    document.getElementById('sbTool').textContent='◈ '+TOOLS[activeTool].title;
-    switchTab('design');
+let stubInfo=null;
+
+function clearTaxSelection(){
+  document.querySelectorAll('.tax-row.active,.quick-tool.active').forEach(x=>x.classList.remove('active'));
+}
+function selectTool(tool,el){
+  if(!TOOLS[tool])return;
+  stubInfo=null;
+  activeTool=tool;
+  clearTaxSelection();
+  if(el)el.classList.add('active');
+  renderForm();
+  document.getElementById('sbTool').textContent='◈ '+TOOLS[activeTool].title;
+  switchTab('design');
+}
+function selectStub(el){
+  stubInfo={title:el.dataset.stubTitle||'',desc:el.dataset.stubDesc||''};
+  activeTool='recommend';
+  clearTaxSelection();
+  el.classList.add('active');
+  renderForm();
+  document.getElementById('sbTool').textContent='◈ '+stubInfo.title;
+  switchTab('design');
+}
+
+document.querySelectorAll('.conv-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.conv-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.conv-pane').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active');
+    const pane=document.querySelector(`.conv-pane[data-conv="${tab.dataset.conv}"]`);
+    if(pane)pane.classList.add('active');
   });
+});
+document.getElementById('sidebar').addEventListener('click',e=>{
+  const qt=e.target.closest('.quick-tool');
+  const row=e.target.closest('.tax-row');
+  if(qt&&qt.dataset.tool){selectTool(qt.dataset.tool,qt);return}
+  if(row){
+    if(row.dataset.tool)selectTool(row.dataset.tool,row);
+    else if(row.dataset.stub==='1')selectStub(row);
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -590,6 +784,14 @@ function effD(f){const p=f.v_out*f.i_out;if(p<=0)return{error:'P_out must be > 0
 // UI RENDERING
 // ═══════════════════════════════════════════════════════════════════
 function renderForm(){
+  if(stubInfo){
+    document.getElementById('toolTitle').textContent=stubInfo.title;
+    document.getElementById('toolSubtitle').textContent=stubInfo.desc;
+    document.getElementById('resultArea').innerHTML='';
+    document.getElementById('schematicArea').innerHTML='';
+    document.getElementById('formArea').innerHTML='<p class="stub-hint">该拓扑暂未提供内置参数计算器。请使用上方 <b>拓扑顾问</b> 做简要选型，或通过右侧 <b>PEA Agent</b>（可配置大模型）深入讨论。</p>';
+    return;
+  }
   const t=TOOLS[activeTool];
   document.getElementById('toolTitle').textContent=t.title;
   document.getElementById('toolSubtitle').textContent=t.subtitle;
@@ -607,6 +809,10 @@ function getV(){const t=TOOLS[activeTool],v={};t.fields.forEach(f=>{const e=docu
 
 let lastResult=null,lastVals=null;
 function calculate(){
+  if(stubInfo){
+    document.getElementById('sbStatus').textContent='当前为分类浏览项，无内置计算器';
+    return;
+  }
   const v=getV();lastVals=v;
   const r=TOOLS[activeTool].compute(v);lastResult=r;
   renderResult(r);
@@ -1143,18 +1349,137 @@ function drawWaveform(tool,v,r){
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// CHAT
+// CHAT + LLM (Cursor-style config)
 // ═══════════════════════════════════════════════════════════════════
-document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
-function sendChat(){
-  const inp=document.getElementById('chatInput'),msg=inp.value.trim();if(!msg)return;
+const LLM_MODEL_OPTS=[
+  {v:'gpt-4o-mini',t:'gpt-4o-mini'},
+  {v:'gpt-4o',t:'gpt-4o'},
+  {v:'gpt-4-turbo',t:'gpt-4-turbo'},
+  {v:'o3-mini',t:'o3-mini'},
+  {v:'o1-mini',t:'o1-mini'},
+  {v:'__custom__',t:'自定义 model id…'}
+];
+const PEA_API_SYSTEM='You are PEA (Power Electronics Agent). Answer concisely in Chinese when the user writes Chinese; otherwise English. Focus on DC-DC, inverters, rectifiers, magnetics, EMI, and practical design.';
+let llmThread=[];
+
+function fillModelSelects(){
+  const h=document.getElementById('llmModelHeader');
+  const f=document.getElementById('llmModelFooter');
+  [h,f].forEach(sel=>{
+    if(!sel)return;
+    sel.innerHTML='';
+    LLM_MODEL_OPTS.forEach(o=>{
+      const opt=document.createElement('option');
+      opt.value=o.v;opt.textContent=o.t;
+      sel.appendChild(opt);
+    });
+  });
+}
+function syncModelSelects(src){
+  const h=document.getElementById('llmModelHeader');
+  const f=document.getElementById('llmModelFooter');
+  const v=src===h?h.value:f.value;
+  h.value=v;f.value=v;
+  localStorage.setItem('pea_llm_model',v);
+}
+function loadLlmSettings(){
+  fillModelSelects();
+  const m=localStorage.getItem('pea_llm_model')||'gpt-4o-mini';
+  document.getElementById('llmModelHeader').value=LLM_MODEL_OPTS.some(x=>x.v===m)?m:'gpt-4o-mini';
+  document.getElementById('llmModelFooter').value=document.getElementById('llmModelHeader').value;
+  document.getElementById('llmBaseUrl').value=localStorage.getItem('pea_openai_base')||'https://api.openai.com/v1';
+  document.getElementById('llmApiKey').value=localStorage.getItem('pea_openai_key')||'';
+  document.getElementById('llmModelCustom').value=localStorage.getItem('pea_llm_custom')||'';
+  document.getElementById('llmUseOpenAI').checked=localStorage.getItem('pea_use_openai')==='1';
+}
+function saveLlmSettings(){
+  localStorage.setItem('pea_openai_base',document.getElementById('llmBaseUrl').value.trim()||'https://api.openai.com/v1');
+  localStorage.setItem('pea_openai_key',document.getElementById('llmApiKey').value);
+  localStorage.setItem('pea_llm_custom',document.getElementById('llmModelCustom').value.trim());
+  localStorage.setItem('pea_use_openai',document.getElementById('llmUseOpenAI').checked?'1':'0');
+  localStorage.setItem('pea_llm_model',document.getElementById('llmModelFooter').value);
+  syncModelSelects(document.getElementById('llmModelFooter'));
+}
+function getResolvedModel(){
+  const v=document.getElementById('llmModelFooter').value;
+  if(v==='__custom__'){
+    const c=document.getElementById('llmModelCustom').value.trim();
+    return c||'gpt-4o-mini';
+  }
+  return v;
+}
+
+function onModelChange(src){
+  syncModelSelects(src);
+  localStorage.setItem('pea_llm_model',document.getElementById('llmModelFooter').value);
+}
+document.getElementById('llmModelHeader').addEventListener('change',()=>onModelChange(document.getElementById('llmModelHeader')));
+document.getElementById('llmModelFooter').addEventListener('change',()=>onModelChange(document.getElementById('llmModelFooter')));
+document.getElementById('chatGearBtn').addEventListener('click',()=>{
+  document.getElementById('chatSettings').classList.toggle('open');
+});
+['llmBaseUrl','llmApiKey','llmModelCustom','llmUseOpenAI'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',saveLlmSettings);
+});
+
+document.getElementById('chatInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}
+});
+document.getElementById('chatSendBtn').addEventListener('click',()=>sendChat());
+
+async function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const msg=inp.value.trim();
+  if(!msg)return;
   const box=document.getElementById('chatMessages');
+  const useApi=document.getElementById('llmUseOpenAI').checked;
+  const key=document.getElementById('llmApiKey').value.trim();
+  const base=(document.getElementById('llmBaseUrl').value.trim()||'https://api.openai.com/v1').replace(/\/$/,'');
+  const btn=document.getElementById('chatSendBtn');
+
   box.innerHTML+=`<div class="chat-msg user"><div class="msg-label">You</div>${escHtml(msg)}</div>`;
   inp.value='';
-  setTimeout(()=>{
-    box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>${processChat(msg)}</div>`;
+  box.scrollTop=box.scrollHeight;
+
+  if(useApi&&key){
+    btn.disabled=true;
+    document.getElementById('sbStatus').textContent='请求模型中…';
+    llmThread.push({role:'user',content:msg});
+    const model=getResolvedModel();
+    try{
+      const res=await fetch(base+'/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({
+          model,
+          messages:[{role:'system',content:PEA_API_SYSTEM},...llmThread.slice(-24)]
+        })
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok){
+        const err=data.error?.message||res.statusText||'请求失败';
+        llmThread.pop();
+        box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>${escHtml(err)}<br><br><span style="color:var(--text3);font-size:.78rem">若为 CORS 错误，请用本地代理或将页面托管在与 API 同源的后端上；也可使用 Streamlit 版。</span></div>`;
+      }else{
+        const text=data.choices?.[0]?.message?.content||'(空响应)';
+        llmThread.push({role:'assistant',content:text});
+        box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA · ${escHtml(model)}</div>${escHtml(text).replace(/\n/g,'<br>')}</div>`;
+      }
+    }catch(err){
+      llmThread.pop();
+      box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent</div>网络或 CORS 错误：${escHtml(String(err.message||err))}<br><br><span style="color:var(--text3);font-size:.78rem">浏览器无法直连 OpenAI 时，请使用 <code>streamlit run app.py</code> 或配置反向代理。</span></div>`;
+    }
+    btn.disabled=false;
+    document.getElementById('sbStatus').textContent='Ready';
     box.scrollTop=box.scrollHeight;
-  },300+Math.random()*400);
+    return;
+  }
+
+  setTimeout(()=>{
+    box.innerHTML+=`<div class="chat-msg ai"><div class="msg-label">PEA Agent（规则）</div>${processChat(msg)}</div>`;
+    box.scrollTop=box.scrollHeight;
+  },280+Math.random()*320);
   box.scrollTop=box.scrollHeight;
 }
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
@@ -1187,12 +1512,13 @@ function processChat(msg){
   if(m.includes('spice')||m.includes('simulate'))return 'The <b>SPICE</b> tab auto-generates netlists (including DAB) after you run Execute Analysis. Download .cir for ngspice/LTspice.';
   if(m.includes('efficiency')||m.includes('loss'))return 'Select <b>Efficiency</b> in the sidebar for loss breakdown (MOSFET conduction, switching, DCR, diode).';
   if(m.includes('hello')||m.includes('hi'))return 'Hello! I\'m PEA. Ask me anything about power electronics design, or try: <i>"Design a 400V to 48V 1kW DAB converter"</i>';
-  return 'I can help with:<br>• <b>Design</b>: "Design a 12V to 5V 2A converter"<br>• <b>DAB</b>: "Design a 400V to 48V 1kW isolated converter"<br>• <b>Magnetics</b>: "How to design the inductor?"<br>• <b>Components</b>: "Which MOSFET to use?"<br>• <b>SPICE</b>: "How to simulate?"<br><br>For full AI, run: <code>streamlit run app.py</code>';
+  return '我可协助：<br>• <b>DC-DC 设计</b>：如「12V 转 5V 2A buck」<br>• <b>隔离 / DAB</b>：如「400V 转 48V 1kW 双向」<br>• <b>磁件 / 器件 / SPICE</b>：直接问关键词<br>• 左侧已按 <b>DC-DC · DC-AC · AC-DC · AC-AC</b> 分类浏览<br><br>开启 ⚙ 中「使用 OpenAI API」可调用真实大模型（受浏览器 CORS 限制时请用 <code>streamlit run app.py</code>）。';
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════
+loadLlmSettings();
 renderForm();
 </script>
 </body>

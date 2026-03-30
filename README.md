@@ -9,7 +9,9 @@ An AI assistant for power electronics design: topology selection, parameter calc
 - **Efficiency estimation**: First-order loss breakdown (conduction + switching) with component parameters
 - **RAG knowledge base**: Answers questions using curated power electronics knowledge (Erickson & Maksimovic)
 - **Multi-turn AI chat**: Conversational agent that remembers context across messages
-- **CLI & Web UI**: Use from terminal or Streamlit web interface
+- **CLI & Web UI**: Terminal (`pea`) or Streamlit (`app.py`)
+- **Static UI (`index.html`)**: Full layout in the browser—converter taxonomy (**DC-DC / DC-AC / AC-DC / AC-AC**), design calculators where implemented, SPICE/components/magnetics panels, and a **Cursor-style PEA Agent** panel (model picker, optional OpenAI API in ⚙; rule-based fallback without key). Some entries are browse-only until calculators exist in Python.
+- **Desktop app**: Native window (no separate browser tab) via **pywebview**—double-click `run_pea_desktop.bat` (Windows) or run `python -m pea.desktop` / `pea-desktop` after `pip install -e ".[desktop]"`.
 
 ## Quick Start
 
@@ -61,7 +63,7 @@ export OPENAI_API_KEY=sk-your-key-here
 pea chat "Design a 12V to 5V 2A Buck converter"
 ```
 
-### 4. Web interface
+### 4. Web interface (Streamlit — full Python stack)
 
 ```bash
 streamlit run app.py
@@ -69,7 +71,25 @@ streamlit run app.py
 
 Open http://localhost:8501. Use the sidebar for direct calculations, or enter your API key for AI chat.
 
-### 5. Run tests
+### 5. Static page or desktop window (`index.html`)
+
+Open `index.html` in a browser, or run the desktop shell (loads the same UI):
+
+```bash
+# Optional: install webview extra
+pip install -e ".[desktop]"
+
+# From repo root
+python -m pea.desktop
+# or, after editable install:
+pea-desktop
+```
+
+**Windows:** double-click `run_pea_desktop.bat` (installs `pywebview` if missing, sets `PYTHONPATH` to the repo root).
+
+Requires **Edge WebView2** on Windows (usually preinstalled). To build a single-file `.exe`, see the PyInstaller notes in `pea/desktop.py`.
+
+### 6. Run tests
 
 ```bash
 pip install -e ".[dev]"
@@ -86,13 +106,17 @@ PEA/
 │   ├── tools/
 │   │   ├── calculator.py       # Core design equations (8 topologies + efficiency)
 │   │   └── langchain_tools.py  # @tool wrappers for LLM function calling
-│   └── cli.py            # Command-line interface
+│   ├── cli.py            # Command-line interface
+│   └── desktop.py        # Native window for index.html (pywebview)
 ├── tests/                # Pytest test suite
 ├── data/                 # Extracted textbook data for knowledge base
 ├── scripts/              # Utility scripts (PDF extraction)
 ├── app.py                # Streamlit web app
+├── index.html            # Standalone static UI + taxonomy + agent panel
+├── run_pea_desktop.bat   # Windows launcher for desktop UI
 ├── requirements.txt
 ├── pyproject.toml
+├── CONTRIBUTING.md
 └── README.md
 ```
 
@@ -115,7 +139,7 @@ PEA/
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, code layout, and PR expectations.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, code layout, PR expectations, and **keeping README + CONTRIBUTING updated** when user-facing behavior changes.
 
 ## License
 
