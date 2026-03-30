@@ -113,6 +113,10 @@ PEA/
 
 - `OPENAI_API_KEY`: Required for AI chat (get from [OpenAI](https://platform.openai.com))
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, code layout, and PR expectations.
+
 ## License
 
 MIT
