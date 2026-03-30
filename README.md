@@ -87,7 +87,9 @@ pea-desktop
 
 **Windows:** double-click `run_pea_desktop.bat` (installs `pywebview` if missing, sets `PYTHONPATH` to the repo root).
 
-Requires **Edge WebView2** on Windows (usually preinstalled). To build a single-file `.exe`, see the PyInstaller notes in `pea/desktop.py`.
+The desktop app serves the repo over **http://127.0.0.1** so the **SPICE** tab can load `data/spice_models_json/ui_catalog.json` and open **LTspice** with your netlist + selected vendor model (set `LTSPICE_EXE` if auto-detect fails).
+
+Requires **Edge WebView2** on Windows (usually preinstalled). To build a single-file `.exe`, see the PyInstaller notes in `pea/desktop.py` (bundle the `data/` folder for the model library).
 
 ### 6. Run tests
 
@@ -125,6 +127,7 @@ PEA/
 │   └── desktop.py            # Native window → index.html
 ├── tests/                    # pytest (calculators + execute_tool)
 ├── data/
+│   ├── spice_models_json/    # Vendor SPICE as JSON + ui_catalog.json (PEA UI + LTspice workflow)
 │   └── raw/                  # Optional PDF extract (not read at runtime; see data/README.md)
 ├── scripts/
 │   ├── extract_pdf.py        # PDF → text for curating knowledge (needs pypdf)

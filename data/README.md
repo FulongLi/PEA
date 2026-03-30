@@ -2,6 +2,10 @@
 
 **Runtime:** The app loads RAG text from `pea/knowledge/documents.py` only. Nothing in this folder is imported automatically.
 
+## SPICE model libraries
+
+- **`spice_models_json/`** — vendor models as JSON (`raw_spice` / `raw_text`, parsed `.subckt` / `.model` index, `ui_catalog.json` for the PEA UI). The original vendor tree is not stored in git; re-import with `python scripts/spice_to_json.py export --source <folder>` when you have files locally (see `spice_models_json/README.md`).
+
 ## Erickson Textbook Extraction
 
 The knowledge base includes content from:

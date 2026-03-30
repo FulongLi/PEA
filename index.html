@@ -161,6 +161,17 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
 .spice-info-card h4{font-family:var(--head);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
 .spice-info-card p{font-size:.8rem;color:var(--text2);line-height:1.5}
 .spice-info-card code{color:var(--cyan2);background:rgba(59,130,246,.06);padding:2px 5px;border-radius:4px;font-size:.8rem}
+.spice-lib-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:14px}
+.spice-lib-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.spice-lib-toolbar input[type=search]{flex:1;min-width:160px;max-width:280px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:.82rem}
+.spice-lib-toolbar select{min-width:220px;max-width:420px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);font-size:.78rem}
+.spice-lib-hint{font-size:.78rem;color:var(--text3);margin:0 0 8px;line-height:1.45}
+.spice-model-detail{margin-top:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:.8rem;display:none}
+.spice-model-detail.visible{display:block}
+.spice-model-detail pre{margin:8px 0 0;max-height:140px;overflow:auto;background:#1e293b;color:#a5f3fc;padding:10px;border-radius:6px;font-size:.72rem;white-space:pre-wrap}
+.spice-log-wrap{margin-top:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.spice-log-wrap h4{margin:0;padding:8px 12px;background:var(--bg);font-family:var(--head);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
+#spiceSimLog{margin:0;max-height:160px;overflow:auto;padding:10px 12px;background:#0f172a;color:#cbd5e1;font-family:var(--mono);font-size:.72rem;line-height:1.5;white-space:pre-wrap}
 
 /* Waveform / Results */
 .wave-canvas{width:100%;height:280px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
@@ -413,26 +424,49 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
       <!-- ═══ SPICE Panel ═══ -->
       <div class="panel" id="panelSpice" data-tab="spice">
         <h2 class="panel-title">SPICE Simulation</h2>
-        <p class="panel-sub">Auto-generated SPICE netlist. Edit and export for ngspice / LTspice.</p>
+        <p class="panel-sub">Netlist from Design, vendor models from <code>data/spice_models_json</code>, and LTspice launch (PEA desktop).</p>
+
+        <div class="spice-lib-section">
+          <div class="spice-lib-toolbar">
+            <input type="search" id="spiceLibFilter" placeholder="Filter by part name…" autocomplete="off">
+            <select id="spiceModelSelect"><option value="">— Select vendor model —</option></select>
+            <button type="button" class="calc-btn" onclick="loadSelectedSpiceModel()">Load</button>
+            <button type="button" class="calc-btn" onclick="insertSpiceInclude()">Insert .include</button>
+            <button type="button" class="calc-btn" id="btnOpenLtspice" onclick="openInLtspice()" disabled>Open in LTspice</button>
+            <button type="button" class="calc-btn" onclick="document.getElementById('spiceSimLog').textContent=''">Clear log</button>
+          </div>
+          <p class="spice-lib-hint" id="spiceLibHint">Open this tab to load the JSON device index. Use <b>PEA desktop</b> (<code>python -m pea.desktop</code>) so the library loads over HTTP and LTspice can start.</p>
+          <p class="spice-lib-hint" id="spiceLtspiceHint" style="margin-top:4px"></p>
+          <div class="spice-model-detail" id="spiceModelDetail">
+            <div id="spiceModelMeta"></div>
+            <div style="font-family:var(--head);font-size:.55rem;color:var(--text3);margin-top:8px;text-transform:uppercase">Indexed .model lines</div>
+            <pre id="spiceDotModels"></pre>
+          </div>
+        </div>
+
         <div class="spice-wrap">
           <div class="spice-editor">
             <textarea id="spiceNetlist" spellcheck="false" placeholder="Run a design calculation first to auto-generate a SPICE netlist..."></textarea>
             <div class="spice-actions">
               <button class="calc-btn" onclick="copySpice()">⎘ Copy</button>
               <button class="calc-btn" onclick="downloadSpice()">↓ Download .cir</button>
-              <button class="calc-btn" onclick="runSpiceSim()">▶ Simulate</button>
+              <button class="calc-btn" onclick="runSpiceSim()">▶ Simulate (preview)</button>
             </div>
           </div>
           <div class="spice-info">
             <div class="spice-info-card">
-              <h4>Quick Start</h4>
-              <p>1. Run <b>Execute Analysis</b> in Design tab<br>2. Netlist auto-generated here<br>3. Copy/download for <code>ngspice</code> or <code>LTspice</code></p>
+              <h4>Workflow</h4>
+              <p>1. <b>Design</b> → Execute Analysis<br>2. Pick a <b>vendor model</b> → Load → <b>Insert .include</b><br>3. Edit netlist (e.g. <code>X...</code> subckt instance)<br>4. <b>Open in LTspice</b> (desktop) or copy/download</p>
             </div>
             <div class="spice-info-card" id="spiceStatus">
               <h4>Status</h4>
               <p style="color:var(--text3)">No simulation running</p>
             </div>
           </div>
+        </div>
+        <div class="spice-log-wrap">
+          <h4>Process log</h4>
+          <pre id="spiceSimLog"></pre>
         </div>
       </div>
 
@@ -637,11 +671,170 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
 // ═══════════════════════════════════════════════════════════════════
 // TAB / NAV
 // ═══════════════════════════════════════════════════════════════════
+function spiceLog(msg){
+  const el=document.getElementById('spiceSimLog');
+  if(!el)return;
+  const t=new Date().toISOString().slice(11,19);
+  el.textContent+=`[${t}] ${msg}\n`;
+  el.scrollTop=el.scrollHeight;
+}
+let spiceUiCatalog=null,spiceLoadedModel=null,spiceLibLoadAttempted=false;
+function spiceLibFileName(){
+  if(!spiceLoadedModel)return 'pea_model.lib';
+  const base=(spiceLoadedModel.source_relative||'model.lib').split('/').pop();
+  return base.replace(/[^A-Za-z0-9._-]+/g,'_');
+}
+function spiceHtmlEsc(s){
+  const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;
+}
+function populateSpiceModelSelect(){
+  const sel=document.getElementById('spiceModelSelect');
+  if(!spiceUiCatalog||!spiceUiCatalog.items)return;
+  sel.innerHTML='<option value="">— Select vendor model —</option>';
+  const byCat={};
+  for(const it of spiceUiCatalog.items){
+    const c=it.category||'Other';
+    (byCat[c]=byCat[c]||[]).push(it);
+  }
+  const cats=Object.keys(byCat).sort((a,b)=>a.localeCompare(b));
+  for(const c of cats){
+    const og=document.createElement('optgroup');
+    og.label=c;
+    byCat[c].sort((a,b)=>a.basename.localeCompare(b.basename)).forEach(it=>{
+      const o=document.createElement('option');
+      o.value=it.json_relative;
+      o.textContent=it.basename+(it.subckt_count?` (${it.subckt_count} subckts)`:'');
+      o.dataset.filter=(it.basename+' '+it.source_relative+' '+(it.subckts||[]).join(' ')).toLowerCase();
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  }
+}
+function bindSpiceFilter(){
+  const inp=document.getElementById('spiceLibFilter');
+  if(!inp||inp.dataset.bound)return;
+  inp.dataset.bound='1';
+  inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toLowerCase();
+    document.querySelectorAll('#spiceModelSelect optgroup').forEach(og=>{
+      let n=0;
+      og.querySelectorAll('option').forEach(o=>{
+        if(!o.value){o.hidden=false;return;}
+        const m=!q||(o.dataset.filter||'').includes(q);
+        o.hidden=!m;
+        if(m)n++;
+      });
+      og.hidden=q.length>0&&n===0;
+    });
+  });
+}
+async function initSpiceLibraryPanel(){
+  if(spiceLibLoadAttempted)return;
+  spiceLibLoadAttempted=true;
+  bindSpiceFilter();
+  try{
+    const r=await fetch('data/spice_models_json/ui_catalog.json');
+    if(!r.ok)throw new Error(r.status+' '+r.statusText);
+    spiceUiCatalog=await r.json();
+    populateSpiceModelSelect();
+    document.getElementById('spiceLibHint').textContent=spiceUiCatalog.count+' vendor models (JSON). Load one to inspect subcircuits and .model lines.';
+    spiceLog('Device index loaded ('+spiceUiCatalog.count+' files).');
+  }catch(e){
+    document.getElementById('spiceLibHint').textContent='Cannot load library index (need HTTP). Run: python -m pea.desktop  OR  python -m http.server from repo root, then open /index.html';
+    spiceLog('ui_catalog.json failed: '+e.message);
+  }
+  window.addEventListener('pywebviewready',()=>{
+    spiceLog('PEA desktop bridge ready.');
+    if(window.pywebview&&pywebview.api&&pywebview.api.ltspice_status){
+      pywebview.api.ltspice_status().then(st=>{
+        if(st&&st.available)spiceLog('LTspice: '+st.path);
+        else spiceLog('LTspice not found — set LTSPICE_EXE to LTspice.exe');
+      }).catch(()=>{});
+    }
+    document.getElementById('spiceLtspiceHint').textContent='Open in LTspice writes the vendor model + netlist to a temp folder and launches the simulator.';
+  });
+}
+function renderSpiceModelDetail(){
+  const box=document.getElementById('spiceModelDetail');
+  const meta=document.getElementById('spiceModelMeta');
+  const dm=document.getElementById('spiceDotModels');
+  if(!spiceLoadedModel){box.classList.remove('visible');return;}
+  box.classList.add('visible');
+  const p=spiceLoadedModel.parsed||{};
+  const sub=p.subcircuits||[];
+  const dot=p.dot_models||[];
+  meta.innerHTML='<div><b>Source</b> '+spiceHtmlEsc(spiceLoadedModel.source_relative)+'</div>'
+    +'<div><b>Type</b> '+spiceHtmlEsc(spiceLoadedModel.file_type)+'</div>'
+    +'<div><b>Subcircuits</b> '+sub.map(s=>spiceHtmlEsc(s.name)).join(', ')+'</div>';
+  dm.textContent=dot.length?dot.join('\n'):'(no single-line .model lines in index)';
+  updateLtspiceButtonState();
+}
+function updateLtspiceButtonState(){
+  const b=document.getElementById('btnOpenLtspice');
+  if(!b)return;
+  b.disabled=!(spiceLoadedModel&&spiceLoadedModel.raw_spice);
+}
+async function loadSelectedSpiceModel(){
+  const sel=document.getElementById('spiceModelSelect');
+  const rel=sel.value;
+  if(!rel){spiceLog('Select a vendor model first.');return;}
+  const url='data/spice_models_json/'+rel.split('/').map(encodeURIComponent).join('/');
+  spiceLog('Fetching '+rel+' …');
+  try{
+    const r=await fetch(url);
+    if(!r.ok)throw new Error(r.status+' '+r.statusText);
+    spiceLoadedModel=await r.json();
+    spiceLog('Loaded '+spiceLoadedModel.source_relative);
+    renderSpiceModelDetail();
+  }catch(e){
+    spiceLog('Load error: '+e.message);
+    spiceLoadedModel=null;
+    document.getElementById('spiceModelDetail').classList.remove('visible');
+    updateLtspiceButtonState();
+  }
+}
+function insertSpiceInclude(){
+  if(!spiceLoadedModel){spiceLog('Load a vendor model first.');return;}
+  if(!spiceLoadedModel.raw_spice){spiceLog('.asy symbols have no SPICE deck — use .lib/.cir for .include.');return;}
+  const fn=spiceLibFileName();
+  const ta=document.getElementById('spiceNetlist');
+  const inc='.include "'+fn+'"\n';
+  if(ta.value.includes('.include "'+fn+'"')){spiceLog('.include already present for '+fn);return;}
+  ta.value=inc+ta.value;
+  spiceLog('Prepended .include "'+fn+'" (must match temp file when using Open in LTspice).');
+}
+async function openInLtspice(){
+  if(!spiceLoadedModel||!spiceLoadedModel.raw_spice){
+    spiceLog('Load a model with raw_spice (.lib / .cir).');
+    return;
+  }
+  if(!window.pywebview||!pywebview.api||!pywebview.api.ltspice_launch){
+    spiceLog('Requires PEA desktop: python -m pea.desktop');
+    return;
+  }
+  const net=document.getElementById('spiceNetlist').value;
+  const base=spiceLibFileName();
+  spiceLog('Launching LTspice with '+base+' …');
+  try{
+    const res=await pywebview.api.ltspice_launch(net,base,spiceLoadedModel.raw_spice);
+    const st=document.getElementById('spiceStatus');
+    if(res.ok){
+      spiceLog('OK — '+res.cir);
+      st.innerHTML='<h4>Status</h4><p style="color:var(--green)">LTspice started. Files in temp folder (see log).</p>';
+    }else{
+      spiceLog('Error: '+(res.error||'unknown'));
+      st.innerHTML='<h4>Status</h4><p style="color:var(--red)">'+(res.error||'LTspice error')+'</p>';
+    }
+  }catch(e){
+    spiceLog('Bridge error: '+e.message);
+  }
+}
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
   document.querySelector(`.tab[data-tab="${name}"]`).classList.add('active');
   document.querySelector(`.panel[data-tab="${name}"]`).classList.add('active');
+  if(name==='spice')initSpiceLibraryPanel();
 }
 document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>switchTab(t.dataset.tab))});
 document.querySelectorAll('.act-btn').forEach(b=>{
@@ -911,17 +1104,20 @@ R_load sec_out 0 {V2*V2/${v.p_rated}}
       nl+=`\n.end`;
   }
   ta.value=nl;
+  spiceLog('Netlist updated ('+activeTool+').');
 }
 function copySpice(){navigator.clipboard.writeText(document.getElementById('spiceNetlist').value);document.getElementById('sbStatus').textContent='✓ Copied'}
 function downloadSpice(){const b=new Blob([document.getElementById('spiceNetlist').value],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`PEA_${activeTool}.cir`;a.click();document.getElementById('sbStatus').textContent='✓ Downloaded'}
 function runSpiceSim(){
+  spiceLog('Simulate (preview): in-browser placeholder only.');
   const st=document.getElementById('spiceStatus');
-  st.innerHTML='<h4>Status</h4><p style="color:var(--amber)">⟳ Simulating...</p>';
+  st.innerHTML='<h4>Status</h4><p style="color:var(--amber)">Preparing preview…</p>';
   setTimeout(()=>{
-    st.innerHTML='<h4>Status</h4><p style="color:var(--green)">✓ Preview ready. Run in ngspice/LTspice for accuracy.</p>';
+    spiceLog('For real waveforms use Open in LTspice (desktop) or external ngspice.');
+    st.innerHTML='<h4>Status</h4><p style="color:var(--green)">Preview updated. Use LTspice for numerical simulation.</p>';
     switchTab('results');
     if(lastResult&&lastVals)drawWaveform(activeTool,lastVals,lastResult);
-  },800);
+  },650);
 }
 
 // ═══════════════════════════════════════════════════════════════════
