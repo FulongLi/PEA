@@ -79,7 +79,7 @@ $env:OPENAI_API_KEY = "sk-your-key"
 ### 2.2 Test script
 
 ```powershell
-python test_agent.py "Design a 12V to 5V 2A Buck converter"
+python scripts/agent_smoke_test.py "Design a 12V to 5V 2A Buck converter"
 ```
 
 **Expected:** Agent uses tools and returns a design narrative.
@@ -87,7 +87,7 @@ python test_agent.py "Design a 12V to 5V 2A Buck converter"
 ### 2.3 Default prompt
 
 ```powershell
-python test_agent.py
+python scripts/agent_smoke_test.py
 ```
 
 Default: `Design a 12V to 5V 2A Buck converter`
@@ -146,4 +146,4 @@ Or: `python -m pea.cli chat "..."`
 | 1.1 | `python -m pea.cli tools` | |
 | 1.2 | `python -m pea.cli tool recommend ...` | |
 | 1.3 | `python -m pea.cli tool buck ...` | |
-| 2.2 | `python test_agent.py "..."` | Needs valid key |
+| 2.2 | `python scripts/agent_smoke_test.py "..."` | Needs valid key |

@@ -201,8 +201,9 @@ class TestEfficiency:
         bd = r["breakdown"]
         cond_sum = bd["MOSFET_conduction_W"] + bd["inductor_DCR_W"] + bd["diode_or_SR_conduction_W"]
         sw_sum = bd["turn_on_loss_W"] + bd["turn_off_loss_W"]
-        assert pytest.approx(r["conduction_loss_W"], abs=0.001) == cond_sum
-        assert pytest.approx(r["switching_loss_W"], abs=0.001) == sw_sum
+        # Totals are rounded once; breakdown terms are rounded individually.
+        assert pytest.approx(r["conduction_loss_W"], abs=0.01) == cond_sum
+        assert pytest.approx(r["switching_loss_W"], abs=0.01) == sw_sum
 
     def test_sync_rect_more_efficient(self):
         diode = efficiency_estimate(v_in=12, v_out=5, i_out=2, sync_rect=False)

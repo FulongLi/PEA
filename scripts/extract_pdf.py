@@ -1,6 +1,9 @@
 """
-Extract text from Erickson's Fundamentals of Power Electronics PDF.
-Outputs structured text for knowledge base processing.
+Extract text from a power-electronics PDF (e.g. Erickson & Maksimović).
+
+Writes ``erickson_extracted.txt`` under ``data/raw/`` when invoked as a script.
+Requires: ``pip install pypdf``. Runtime RAG uses ``pea/knowledge/documents.py``,
+not this file — use the extract for manual curation only.
 """
 
 import sys
@@ -51,11 +54,18 @@ def extract_pdf(
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv if a != "--append"]
-    pdf = args[1] if len(args) > 1 else r"d:\books\Robert_Erikson_fundamentals-of-power-electronics-3n_2020.pdf"
-    start = int(args[2]) if len(args) > 2 else 0
-    end = int(args[3]) if len(args) > 3 else None
+    argv = [a for a in sys.argv[1:] if a != "--append"]
     append = "--append" in sys.argv
-    out = Path(__file__).parent.parent / "data" / "raw"
+    if not argv:
+        print(
+            "Usage: python scripts/extract_pdf.py <pdf_path> [start_page] [end_page] [--append]\n"
+            "  start_page / end_page: 0-based; end_page is exclusive (same as slice).\n"
+            "  Output: data/raw/erickson_extracted.txt (created under repo root)."
+        )
+        sys.exit(1)
+    pdf = argv[0]
+    start = int(argv[1]) if len(argv) > 1 else 0
+    end = int(argv[2]) if len(argv) > 2 else None
+    out = Path(__file__).resolve().parent.parent / "data" / "raw"
     out.mkdir(parents=True, exist_ok=True)
     extract_pdf(pdf, str(out), start, end, append)

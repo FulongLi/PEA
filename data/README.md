@@ -1,5 +1,7 @@
 # PEA Knowledge Base Data
 
+**Runtime:** The app loads RAG text from `pea/knowledge/documents.py` only. Nothing in this folder is imported automatically.
+
 ## Erickson Textbook Extraction
 
 The knowledge base includes content from:

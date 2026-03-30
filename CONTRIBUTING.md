@@ -1,6 +1,6 @@
 # Contributing to PEA
 
-**Last updated:** 2026-03-31
+**Last updated:** 2026-03-30
 
 Thank you for helping improve PEA (Power Electronics AI Agent). This document is for anyone who will maintain or extend the project.
 
@@ -26,7 +26,7 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-Copy `.env.example` to `.env` and set `OPENAI_API_KEY` when working on the agent, Streamlit chat, or `test_agent.py`.
+Copy `.env.example` to `.env` and set `OPENAI_API_KEY` when working on the agent, Streamlit chat, or `scripts/agent_smoke_test.py`.
 
 ## Running tests
 
@@ -34,7 +34,7 @@ Copy `.env.example` to `.env` and set `OPENAI_API_KEY` when working on the agent
 pytest tests/ -v
 ```
 
-`tests/test_calculator.py` covers calculators and `execute_tool`. There are currently **no** automated tests for `PEAAgent`, RAG, or Streamlit; use `python test_agent.py "your prompt"` for manual agent checks (requires API key).
+`tests/test_calculator.py` covers calculators and `execute_tool`. There are currently **no** automated tests for `PEAAgent`, RAG, or Streamlit; use `python scripts/agent_smoke_test.py "your prompt"` for manual agent checks (requires API key).
 
 For broader manual checks, see `TESTING.md` and `README.md`.
 
@@ -60,7 +60,8 @@ ruff format .
 | Streamlit UI | `app.py` |
 | Static web UI | `index.html` (CSS/JS inline) |
 | Desktop window (static UI) | `pea/desktop.py`, `run_pea_desktop.bat`; optional dep `[desktop]` → `pywebview` |
-| PDF extraction (not in default deps) | `scripts/extract_pdf.py` — requires `pypdf` |
+| PDF extraction (not in default deps) | `scripts/extract_pdf.py` — requires `pypdf`; outputs under `data/raw/` |
+| Manual agent smoke test (OpenAI) | `scripts/agent_smoke_test.py` |
 
 ## RAG and local data
 

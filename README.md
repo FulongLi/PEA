@@ -96,27 +96,48 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-## Project Structure
+For a **manual** check of the LangChain agent (requires `OPENAI_API_KEY`):
+
+```bash
+python scripts/agent_smoke_test.py "Your design question here"
+```
+
+## Project structure
+
+Two **separate** user-facing surfaces share the **same Python math** where wired:
+
+| Surface | Role |
+|--------|------|
+| **`app.py`** + **`pea` CLI** | Streamlit or terminal; call `execute_tool` / `PEAAgent`. |
+| **`index.html`** + **`pea.desktop`** | Static UI in the browser or pywebview; calculators in-page (rules/JS); optional OpenAI in the agent strip only. |
+
+When you change equations, update **`pea/tools/calculator.py`** first, then align Streamlit, CLI, LangChain tools, and any mirrored logic in `index.html` if applicable.
 
 ```
 PEA/
-├── pea/
-│   ├── agent/            # AI agent with LangChain tool calling + conversation memory
-│   ├── knowledge/        # RAG documents and ChromaDB retriever
+├── pea/                      # Installable Python package (pip install -e .)
+│   ├── agent/                # PEAAgent: LLM + tools + optional RAG
+│   ├── knowledge/            # Curated RAG chunks + KnowledgeRetriever (Chroma / fallback)
 │   ├── tools/
-│   │   ├── calculator.py       # Core design equations (8 topologies + efficiency)
-│   │   └── langchain_tools.py  # @tool wrappers for LLM function calling
-│   ├── cli.py            # Command-line interface
-│   └── desktop.py        # Native window for index.html (pywebview)
-├── tests/                # Pytest test suite
-├── data/                 # Extracted textbook data for knowledge base
-├── scripts/              # Utility scripts (PDF extraction)
-├── app.py                # Streamlit web app
-├── index.html            # Standalone static UI + taxonomy + agent panel
-├── run_pea_desktop.bat   # Windows launcher for desktop UI
-├── requirements.txt
+│   │   ├── calculator.py     # Source of truth for design equations + execute_tool
+│   │   └── langchain_tools.py
+│   ├── cli.py                # pea console entry point
+│   └── desktop.py            # Native window → index.html
+├── tests/                    # pytest (calculators + execute_tool)
+├── data/
+│   └── raw/                  # Optional PDF extract (not read at runtime; see data/README.md)
+├── scripts/
+│   ├── extract_pdf.py        # PDF → text for curating knowledge (needs pypdf)
+│   └── agent_smoke_test.py   # Manual OpenAI smoke test (not pytest)
+├── .streamlit/
+│   └── config.toml           # e.g. disable first-run email prompt (tracked)
+├── app.py                    # Streamlit
+├── index.html                # Static UI
+├── run_pea_desktop.bat
 ├── pyproject.toml
+├── requirements.txt
 ├── CONTRIBUTING.md
+├── TESTING.md
 └── README.md
 ```
 

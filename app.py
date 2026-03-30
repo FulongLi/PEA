@@ -1,5 +1,12 @@
 """
 Streamlit web interface for PEA (Power Electronics AI Agent).
+
+Uses the same stack as ``pea chat`` and ``pea tool``: ``execute_tool`` from
+``pea.tools.calculator`` for sidebar calculators, and ``PEAAgent`` for the
+main chat when ``OPENAI_API_KEY`` is set.
+
+Contrast: ``index.html`` + ``pea.desktop`` is a separate static UI; keep
+user-facing behavior in sync when you change calculators or taxonomy.
 """
 
 import json

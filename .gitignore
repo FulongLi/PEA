@@ -39,5 +39,6 @@ env/
 # PEA data
 .pea/
 
-# Streamlit
-.streamlit/
+# Streamlit — ignore local secrets; project defaults may live in repo
+.streamlit/*
+!.streamlit/config.toml

@@ -349,8 +349,9 @@ def llc_design(
     return {
         "topology": "LLC Resonant",
         "turns_ratio_Ns_Np": round(n_ratio, 3),
-        "resonant_inductance_Lr_uH": round(l_r_uH, 2),
-        "magnetizing_inductance_Lm_uH": round(l_m_uH, 2),
+        # High-power / low-gain designs can yield sub-0.01 µH Lr; keep extra digits.
+        "resonant_inductance_Lr_uH": round(l_r_uH, 4),
+        "magnetizing_inductance_Lm_uH": round(l_m_uH, 4),
         "resonant_capacitance_Cr_nF": round(c_r_nF, 2),
         "Lm_Lr_ratio": lm_ratio,
         "resonant_frequency_kHz": f_sw_khz,
