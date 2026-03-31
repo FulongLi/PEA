@@ -1,6 +1,6 @@
 # Contributing to PEA
 
-**Last updated:** 2026-03-31
+**Last updated:** 2026-03-30
 
 Thank you for helping improve PEA (Power Electronics AI Agent). This document is for anyone who will maintain or extend the project.
 
@@ -125,6 +125,41 @@ After you **materially edit** `CONTRIBUTING.md`, bump the **Last updated** date 
 - Add or extend **pytest** coverage when you change `calculator.py` or `execute_tool` behavior.
 - Follow **Documentation maintenance** above: sync **README.md** and **CONTRIBUTING.md** with user-facing changes.
 - If you add or redistribute **vendor SPICE models**, respect the vendor’s license and keep disclaimers in `raw_spice`; prefer documenting re-import steps over committing huge proprietary drops unless the project explicitly allows it.
+
+## Handoff: prompts for the next maintainer
+
+Use the following as a **starting checklist** when you pick up the project. Turn each item into issues or small PRs as appropriate.
+
+### 1. Project hygiene
+
+- **Review the codebase and docs** until you can trace a user action from UI/CLI → tools → calculator/knowledge.
+- **Remove or consolidate duplication**: align `pea/tools/calculator.py` with any parallel logic in `index.html` (see **Project overview** above).
+- **Delete or archive unused code and stale documentation**; update **README.md** and this file so they stay the single source of truth (see **Documentation maintenance**).
+
+### 2. Topologies: cascades and solid-state transformer (SST)
+
+- Extend **common converter and cascade / multi-stage patterns** in the knowledge base and calculators where it fits (e.g. front-end PFC + isolated stage, dual-active bridge chains).
+- Add **solid-state transformer (SST)** style architectures as first-class descriptions: typical building blocks (AC–DC, high-frequency link, isolation, DC or AC output), control and design notes suitable for the agent and Quick Tools.
+- Keep **English** user-facing strings consistent across Streamlit, static UI, and RAG snippets.
+
+### 3. Magnetic materials data (external references)
+
+Review these resources and decide what PEA should **vendor locally** under a clear layout (e.g. under `data/` with README provenance) versus **optional runtime dependency**:
+
+- **[upb-lea/materialdatabase](https://github.com/upb-lea/materialdatabase)** — ferrite core materials, datasheet-derived and measured data; Python API via `pip install materialdatabase`. Useful for permeability, loss, and FEM-oriented curves.
+- **[MagNet (Princeton)](https://mag-net.princeton.edu/)** — magnetic materials / ML-oriented portal (may include datasets or tooling; confirm what is redistributable).
+
+**Goal:** populate or link a **magnetic design library** inside PEA so later features (magnetics design, optimization, RAG) have structured, attributable data.
+
+**Compliance:** both upstream projects may use **GPL-3.0** or other terms. Before copying datasets or code into this **MIT** repository, verify **license compatibility**, **attribution**, and whether **dynamic linking / optional extra** is safer than embedding raw data. Document sources and licenses next to any imported files.
+
+### 4. Component library management (pattern from TransistorDatabase)
+
+- Study **[upb-lea/transistordatabase](https://github.com/upb-lea/transistordatabase)** — unified transistor records, export to simulators, JSON exchange, optional online index.
+- **Borrow the design ideas** (schema, versioning, export paths, “workspace” operating-point workflow) that fit PEA’s scope; **do not** assume you can paste their code without a license review (GPL-3.0).
+- **Define PEA’s component story** on top of existing **SPICE JSON** (`data/spice_models_json/`, `scripts/spice_to_json.py`): e.g. normalized metadata, search, and future links from chat/tools to parts — without duplicating three incompatible catalogs.
+
+When this work lands, update **README.md**, **TESTING.md** (if behavior changes), and the **Where to change what** table in this file.
 
 ## License
 
