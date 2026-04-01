@@ -10,8 +10,11 @@ from pea.tools.calculator import get_available_tools
 _TOOL_CHOICES = [
     "buck", "boost", "buck_boost",
     "sepic", "cuk",
-    "forward", "flyback", "llc",
+    "forward", "flyback", "llc", "dab",
+    "cascade",
+    "inductor", "transformer",
     "recommend", "efficiency",
+    "components",
 ]
 
 _CLI_TO_CALC = {
@@ -23,6 +26,10 @@ _CLI_TO_CALC = {
     "forward": "forward_design",
     "flyback": "flyback_design",
     "llc": "llc_design",
+    "dab": "dab_design",
+    "cascade": "cascade_design",
+    "inductor": "inductor_design",
+    "transformer": "transformer_design",
     "recommend": "topology_recommendation",
     "efficiency": "efficiency_estimate",
 }
@@ -59,6 +66,24 @@ def run_cli():
     tool_parser.add_argument("--rds-on", type=float, default=50, help="MOSFET Rds(on) mΩ (efficiency)")
     tool_parser.add_argument("--dcr", type=float, default=30, help="Inductor DCR mΩ (efficiency)")
     tool_parser.add_argument("--vf-diode", type=float, default=0.5, help="Diode Vf V (efficiency)")
+    tool_parser.add_argument("--bidirectional", action="store_true", help="Bidirectional (recommend)")
+    # DAB parameters
+    tool_parser.add_argument("--v1", type=float, help="Port 1 voltage V (DAB)")
+    tool_parser.add_argument("--v2", type=float, help="Port 2 voltage V (DAB)")
+    tool_parser.add_argument("--p-rated", type=float, help="Rated power W (DAB)")
+    tool_parser.add_argument("--phi-deg", type=float, default=30, help="Phase shift degrees (DAB)")
+    # Magnetics parameters
+    tool_parser.add_argument("--inductance", type=float, help="Inductance µH (inductor)")
+    tool_parser.add_argument("--i-peak", type=float, help="Peak current A (inductor)")
+    tool_parser.add_argument("--i-rms", type=float, help="RMS current A (inductor)")
+    tool_parser.add_argument("--core-shape", default="EE", help="Core shape (inductor/transformer)")
+    tool_parser.add_argument("--material", default="N87", help="Ferrite material")
+    tool_parser.add_argument("--b-max", type=float, default=300, help="Max flux density mT")
+    # Transformer parameters
+    tool_parser.add_argument("--v-pri", type=float, help="Primary voltage V (transformer)")
+    tool_parser.add_argument("--v-sec", type=float, help="Secondary voltage V (transformer)")
+    tool_parser.add_argument("--power", type=float, help="Power W (transformer)")
+    tool_parser.add_argument("--duty", type=float, default=0.45, help="Duty cycle (transformer)")
 
     # List tools
     subparsers.add_parser("tools", help="List available design tools")
@@ -79,6 +104,15 @@ def run_cli():
 
         calc_name = _CLI_TO_CALC[args.tool_name]
 
+        if args.tool_name == "components":
+            import json as _json
+            from pea.components.schema import recommend_components
+            if not all([args.v_in, args.v_out, args.i_out]):
+                print("Error: components requires --v-in, --v-out, --i-out", file=sys.stderr)
+                return 1
+            print(_json.dumps(recommend_components(args.v_in, args.v_out, args.i_out), indent=2))
+            return 0
+
         if args.tool_name in _ISOLATED_TOOLS:
             if not all([args.v_in_min, args.v_in_max, args.v_out, args.i_out]):
                 print(f"Error: {args.tool_name} requires --v-in-min, --v-in-max, --v-out, --i-out", file=sys.stderr)
@@ -90,13 +124,42 @@ def run_cli():
                 print("Error: recommend requires --v-in, --v-out, --i-out", file=sys.stderr)
                 return 1
             result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out,
-                                  i_out=args.i_out, isolated=args.isolated)
+                                  i_out=args.i_out, isolated=args.isolated,
+                                  bidirectional=args.bidirectional)
         elif args.tool_name == "llc":
             if not all([args.v_in, args.v_out, args.i_out]):
                 print("Error: llc requires --v-in, --v-out, --i-out", file=sys.stderr)
                 return 1
             result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out,
                                   i_out=args.i_out, f_sw_khz=args.f_sw, q_factor=args.q_factor)
+        elif args.tool_name == "dab":
+            if not all([args.v1, args.v2, args.p_rated]):
+                print("Error: dab requires --v1, --v2, --p-rated", file=sys.stderr)
+                return 1
+            result = execute_tool(calc_name, v1=args.v1, v2=args.v2, p_rated=args.p_rated,
+                                  f_sw_khz=args.f_sw, phi_deg=args.phi_deg)
+        elif args.tool_name == "cascade":
+            if not all([args.v_in, args.v_out, args.i_out]):
+                print("Error: cascade requires --v-in, --v-out, --i-out", file=sys.stderr)
+                return 1
+            result = execute_tool(calc_name, v_in=args.v_in, v_out=args.v_out,
+                                  i_out=args.i_out, f_sw_khz=args.f_sw)
+        elif args.tool_name == "inductor":
+            if not all([args.inductance, args.i_peak, args.i_rms]):
+                print("Error: inductor requires --inductance, --i-peak, --i-rms", file=sys.stderr)
+                return 1
+            result = execute_tool(calc_name, inductance_uH=args.inductance, i_peak=args.i_peak,
+                                  i_rms=args.i_rms, f_sw_khz=args.f_sw,
+                                  core_shape=args.core_shape, material=args.material,
+                                  b_max_mT=args.b_max)
+        elif args.tool_name == "transformer":
+            if not all([args.v_pri, args.v_sec, args.power]):
+                print("Error: transformer requires --v-pri, --v-sec, --power", file=sys.stderr)
+                return 1
+            result = execute_tool(calc_name, v_pri=args.v_pri, v_sec=args.v_sec,
+                                  power_W=args.power, f_sw_khz=args.f_sw,
+                                  duty_cycle=args.duty, core_shape=args.core_shape,
+                                  material=args.material, b_max_mT=args.b_max)
         elif args.tool_name == "efficiency":
             if not all([args.v_in, args.v_out, args.i_out]):
                 print("Error: efficiency requires --v-in, --v-out, --i-out", file=sys.stderr)

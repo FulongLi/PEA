@@ -63,6 +63,46 @@ python -m pea.cli tool boost --v-in 5 --v-out 12 --i-out 1
 python -m pea.cli tool flyback --v-in-min 9 --v-in-max 18 --v-out 24 --i-out 0.5
 ```
 
+### 1.5 DAB converter
+
+```powershell
+python -m pea.cli tool dab --v1 400 --v2 48 --p-rated 1000
+```
+
+**Expected:** DAB design with leakage inductance, currents, ZVS status.
+
+### 1.6 Cascade (multi-stage)
+
+```powershell
+python -m pea.cli tool cascade --v-in 230 --v-out 12 --i-out 20
+```
+
+**Expected:** Auto-selected cascade pattern (e.g. PFC Boost + LLC).
+
+### 1.7 Inductor design
+
+```powershell
+python -m pea.cli tool inductor --inductance 100 --i-peak 5 --i-rms 3 --core-shape EE --material N87
+```
+
+**Expected:** Core selection, turns, wire gauge, air gap, loss breakdown.
+
+### 1.8 Transformer design
+
+```powershell
+python -m pea.cli tool transformer --v-pri 400 --v-sec 12 --power 500 --core-shape ETD --material N87
+```
+
+**Expected:** Core selection, primary/secondary turns, wire sizes, losses.
+
+### 1.9 Component recommendation
+
+```powershell
+python -m pea.cli tool components --v-in 12 --v-out 5 --i-out 2
+```
+
+**Expected:** Recommended MOSFETs, diodes, and capacitors.
+
 ---
 
 ## Step 2 — AI agent (API key required)
@@ -146,4 +186,9 @@ Or: `python -m pea.cli chat "..."`
 | 1.1 | `python -m pea.cli tools` | |
 | 1.2 | `python -m pea.cli tool recommend ...` | |
 | 1.3 | `python -m pea.cli tool buck ...` | |
+| 1.5 | `python -m pea.cli tool dab ...` | DAB converter |
+| 1.6 | `python -m pea.cli tool cascade ...` | Multi-stage |
+| 1.7 | `python -m pea.cli tool inductor ...` | Magnetics |
+| 1.8 | `python -m pea.cli tool transformer ...` | Magnetics |
+| 1.9 | `python -m pea.cli tool components ...` | Component rec |
 | 2.2 | `python scripts/agent_smoke_test.py "..."` | Needs valid key |

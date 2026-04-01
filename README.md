@@ -4,10 +4,12 @@ An AI assistant for power electronics design: topology selection, parameter calc
 
 ## Features
 
-- **Topology recommendation**: Suggests the best converter topology based on your specs
-- **8 converter calculators**: Buck, Boost, Buck-Boost, SEPIC, Cuk, Forward, Flyback, LLC Resonant
+- **Topology recommendation**: Suggests the best converter topology based on your specs (including DAB, cascade patterns)
+- **11 converter calculators**: Buck, Boost, Buck-Boost, SEPIC, Cuk, Forward, Flyback, LLC Resonant, **DAB** (bidirectional), plus **Cascade** (multi-stage) auto-design
+- **Magnetics design**: Inductor and transformer sizing with core selection (EE, PQ, RM, ETD, EFD, EP, toroid, EI), ferrite material library (N87, N97, 3C90, 3C95, 3F3, PC40, PC95), Steinmetz core loss
+- **Component library**: Reference MOSFETs (Si, GaN, SiC), diodes (Schottky, SiC, Ultrafast), and capacitors with auto-recommendation from operating point
 - **Efficiency estimation**: First-order loss breakdown (conduction + switching) with component parameters
-- **RAG knowledge base**: Answers questions using curated power electronics knowledge (Erickson & Maksimovic)
+- **RAG knowledge base**: Answers questions using curated power electronics knowledge — topologies, SST (solid-state transformers), cascade architectures, magnetics, and component selection (Erickson & Maksimovic)
 - **Multi-turn AI chat**: Conversational agent that remembers context across messages
 - **CLI & Web UI**: Terminal (`pea`) or Streamlit (`app.py`)
 - **Static UI (`index.html`)**: English UI. **Topology Advisor** (auto recommendation) and **Efficiency estimate** are **pinned at the top** of the sidebar (always visible). Below that, tabs list **DC-DC / DC-AC / AC-DC / AC-AC**. Design calculators, SPICE/components/magnetics, and a **Cursor-style PEA Agent** (model picker, optional OpenAI in ⚙; rules fallback). Browse-only rows have no built-in calculator yet.
@@ -49,8 +51,23 @@ pea tool sepic --v-in 12 --v-out 5 --i-out 2
 # LLC resonant converter
 pea tool llc --v-in 400 --v-out 12 --i-out 20
 
+# DAB (Dual Active Bridge) bidirectional
+pea tool dab --v1 400 --v2 48 --p-rated 1000
+
+# Cascade (multi-stage) design
+pea tool cascade --v-in 230 --v-out 12 --i-out 20
+
+# Inductor magnetics design
+pea tool inductor --inductance 100 --i-peak 5 --i-rms 3 --core-shape EE --material N87
+
+# Transformer magnetics design
+pea tool transformer --v-pri 400 --v-sec 12 --power 500 --core-shape ETD --material N87
+
 # Efficiency estimate
 pea tool efficiency --v-in 12 --v-out 5 --i-out 2 --rds-on 50 --dcr 30
+
+# Component recommendation
+pea tool components --v-in 12 --v-out 5 --i-out 2
 ```
 
 ### 3. AI chat (requires OpenAI API key)
@@ -122,10 +139,14 @@ PEA/
 │   ├── knowledge/            # Curated RAG chunks + KnowledgeRetriever (Chroma / fallback)
 │   ├── tools/
 │   │   ├── calculator.py     # Source of truth for design equations + execute_tool
-│   │   └── langchain_tools.py
+│   │   ├── langchain_tools.py
+│   │   └── magnetics_data.py # Core shapes & ferrite material library (Steinmetz params)
+│   ├── components/
+│   │   ├── __init__.py
+│   │   └── schema.py         # Component schema (MOSFET, Diode, Capacitor) + search + auto-recommend
 │   ├── cli.py                # pea console entry point
 │   └── desktop.py            # Native window → index.html
-├── tests/                    # pytest (calculators + execute_tool)
+├── tests/                    # pytest (calculators, magnetics, components, execute_tool)
 ├── data/
 │   ├── spice_models_json/    # Vendor SPICE as JSON + ui_catalog.json (PEA UI + LTspice workflow)
 │   └── raw/                  # Optional PDF extract (not read at runtime; see data/README.md)
@@ -156,6 +177,8 @@ PEA/
 | Forward | Isolated | 50-300 W, single-ended |
 | Flyback | Isolated | Low-medium power, galvanic isolation |
 | LLC Resonant | Isolated | High efficiency, >200 W, ZVS operation |
+| **DAB** | Isolated, bidirectional | EV charging, energy storage, V2G, SST |
+| **Cascade** | Multi-stage | Extreme ratios, PFC+LLC, Buck+Buck |
 
 ## Environment Variables
 

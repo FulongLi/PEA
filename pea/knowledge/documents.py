@@ -345,6 +345,171 @@ KNOWLEDGE_DOCUMENTS = [
         """,
         "metadata": {"source": "erickson", "chapter": 23, "topic": "resonant", "type": "theory"},
     },
+    # === DAB Converter ===
+    {
+        "id": "dab_converter",
+        "content": """
+        Dual Active Bridge (DAB) Converter:
+        Bidirectional isolated DC-DC topology using two full-bridge (H-bridge) legs
+        connected through a high-frequency transformer.
+        - Power transfer controlled by phase shift φ between primary and secondary bridges.
+        - P = V1·V2·φ·(π−φ) / (2·π²·f_sw·L_leak)  (single phase-shift, SPS).
+        - ZVS achievable at moderate to full load; light-load ZVS extended via EPS/TPS
+          (extended/triple phase-shift) modulation.
+        - Turns ratio n = V2/V1 for matched voltage operation.
+        - Leakage inductance L_leak is the key design parameter (sometimes augmented
+          by an external inductor in series with the transformer).
+        - Applications: EV charging (V2G), battery energy storage systems (BESS),
+          solid-state transformers, DC microgrids.
+        - Typical power range: 1 kW to 100+ kW.
+        """,
+        "metadata": {"topic": "dab", "type": "topology"},
+    },
+    # === Cascade / Multi-Stage Converters ===
+    {
+        "id": "cascade_converters",
+        "content": """
+        Cascade (Multi-Stage) Converter Architectures:
+        When a single-stage converter cannot efficiently meet the conversion ratio,
+        power level, or regulation requirements, multiple stages are cascaded.
+        Common patterns:
+        - PFC Boost + LLC: AC-DC power supply; Boost PFC front-end rectifies AC to
+          ~400 V DC bus, then LLC resonant stage provides isolated regulated output.
+        - Buck + Buck cascade: extreme step-down ratios (>10:1); intermediate bus
+          voltage at geometric mean sqrt(V_in·V_out) balances duty cycle stress.
+        - Boost + Boost cascade: extreme step-up ratios; avoids high duty cycles
+          and RHP zero severity on each stage.
+        - PFC + DAB: bidirectional AC-DC with energy storage (V2G, BESS).
+        Overall efficiency η_total = η_stage1 · η_stage2 · ... · η_stageN.
+        Trade-off: more stages = more components, cost, and volume, but each stage
+        operates at a more benign conversion ratio.
+        """,
+        "metadata": {"topic": "cascade", "type": "topology"},
+    },
+    # === Solid-State Transformer (SST) ===
+    {
+        "id": "sst_architecture",
+        "content": """
+        Solid-State Transformer (SST):
+        A power-electronic-based transformer that replaces the traditional 50/60 Hz
+        iron-core transformer with a multi-stage conversion chain using
+        high-frequency (HF) isolation.
+        Typical building blocks:
+        1. AC-DC rectifier (active front-end, often PFC): converts grid AC to a DC bus.
+        2. Isolated DC-DC stage (DAB, LLC, or series-resonant): provides galvanic
+           isolation through a compact HF transformer (tens of kHz to hundreds of kHz).
+        3. DC-AC inverter (optional): reconstructs AC output at desired voltage/frequency.
+        Advantages over conventional transformer:
+        - Much smaller and lighter (HF transformer is compact).
+        - Voltage regulation and power flow control integrated.
+        - Bidirectional power flow (when using DAB or similar).
+        - Power quality features: reactive power compensation, harmonic filtering.
+        - DC port for integrating renewables, batteries, or EV charging.
+        Challenges:
+        - Higher cost and complexity than passive transformer.
+        - Reliability of semiconductor devices at MV levels.
+        - Thermal management at high power density.
+        Applications: distribution grid, traction (rail), data centers, shipboard power.
+        Research status: MV-level SSTs (>10 kV) are R&D / early deployment; LV SSTs
+        (<1 kV) are commercially available in some niche applications.
+        """,
+        "metadata": {"topic": "sst", "type": "topology"},
+    },
+    {
+        "id": "sst_dab_based",
+        "content": """
+        DAB-Based Solid-State Transformer Design Notes:
+        The DAB is the most common isolated stage in SST architectures due to its
+        inherent bidirectionality and soft-switching capability.
+        Design considerations for SST applications:
+        - Input stage: single-phase or three-phase active rectifier with PFC.
+        - DC link: sized for twice-line-frequency power pulsation (single-phase)
+          or minimal ripple (three-phase).
+        - DAB stage: n:1 HF transformer, leakage inductance tuned for rated power
+          and phase-shift range. ZVS verification across load range.
+        - Output stage: inverter (AC output) or direct DC bus (DC output).
+        - Modular designs: stack multiple DAB cells in input-series output-parallel
+          (ISOP) for medium-voltage applications.
+        - Control: cascaded loops — outer voltage/power, inner current, modulation
+          (SPS, EPS, or TPS for DAB cells).
+        """,
+        "metadata": {"topic": "sst", "type": "design"},
+    },
+    # === Magnetic Materials ===
+    {
+        "id": "magnetic_materials_overview",
+        "content": """
+        Magnetic Materials for Power Electronics (extended):
+        Ferrite (MnZn): Most common for SMPS. B_sat 300-500 mT at 25°C (drops
+        with temperature). Low core loss at 25-500 kHz. Brittle, non-conductive.
+        Common grades:
+        - TDK N87: general-purpose, 25-500 kHz.  B_sat ~390 mT.
+        - TDK N97: lower loss than N87 at same frequency.  B_sat ~410 mT.
+        - Ferroxcube 3C90: 25-200 kHz general-purpose.
+        - Ferroxcube 3C95: wider range, lower loss.
+        - Ferroxcube 3F3: optimized for 100 kHz – 1 MHz.
+        - TDK PC40: similar to N87.
+        - TDK PC95: high-frequency low-loss.
+        Core loss estimation: Steinmetz equation Pv = k·f^α·ΔB^β (per unit volume).
+        Powdered iron: higher B_sat (1 T+), distributed gap, self-gapping.
+        Higher loss than ferrite at HF. Used in DC inductors and low-frequency
+        applications.
+        Amorphous / Nanocrystalline: very high B_sat (1.2-1.5 T), low loss at
+        medium frequencies (10-100 kHz). Used in EMI chokes, medium-frequency
+        transformers, and SST transformers.
+        External data sources for detailed curves:
+        - upb-lea/materialdatabase (Python, pip install materialdatabase): ferrite
+          data, permeability curves, datasheet-derived and measured loss data.
+        - MagNet (Princeton): ML-oriented magnetic materials portal.
+        """,
+        "metadata": {"source": "pea", "topic": "magnetics", "type": "materials"},
+    },
+    {
+        "id": "inductor_transformer_design_procedure",
+        "content": """
+        Inductor and Transformer Design Procedure (PEA built-in):
+        PEA includes a magnetics design calculator that automates the first-pass
+        core selection and winding design:
+        Inductor design:
+        1. Compute area product Ap = L·I_pk·I_rms / (B_max·J·Ku).
+        2. Select smallest core with Ae·Aw ≥ Ap from the library.
+        3. Compute turns N = L·I_pk / (B_max·Ae).
+        4. Compute wire size from current density J (typ. 3-5 A/mm²).
+        5. Air gap lg = μ0·N²·Ae/L − le/μr.
+        6. Core loss via Steinmetz: Pv = k·f^α·ΔB^β. Copper loss = I_rms²·R_dc.
+        Transformer design:
+        1. Compute Ap from power handling and Faraday's law.
+        2. Select core, compute N_pri from volt-second balance.
+        3. N_sec from turns ratio.  Wire sizes from current density.
+        4. Core loss and copper loss breakdown.
+        Available core shapes: EE, PQ, RM, ETD, EFD, EP, toroid, EI.
+        Available materials: N87, N97, 3C90, 3C95, 3F3, PC40, PC95.
+        """,
+        "metadata": {"source": "pea", "topic": "magnetics", "type": "design"},
+    },
+    # === Component Selection (enhanced) ===
+    {
+        "id": "component_library_overview",
+        "content": """
+        PEA Component Library:
+        PEA includes a reference component library with curated parts for power
+        converter design, plus integration with the SPICE JSON catalog.
+        MOSFET selection: filter by V_DS, I_D, Rds(on), technology (Si, GaN, SiC).
+        Reference parts include Infineon BSC/IPB series (Si), EPC GaN, Wolfspeed
+        and ROHM SiC MOSFETs.
+        Diode selection: filter by V_R, I_F, type (Schottky, SiC, Ultrafast).
+        Reference parts include Vishay Schottky, Wolfspeed SiC diodes.
+        Capacitor selection: filter by capacitance, voltage, type (MLCC, electrolytic,
+        polymer, film).
+        The recommend_components() function auto-filters based on converter operating
+        point (V_in, V_out, I_out) with standard derating.
+        SPICE catalog: vendor models in data/spice_models_json/ with searchable
+        ui_catalog.json. Models can be exported to LTspice .lib format.
+        Design pattern inspired by upb-lea/transistordatabase (schema ideas;
+        PEA's implementation is independent, MIT-licensed).
+        """,
+        "metadata": {"source": "pea", "topic": "components", "type": "selection"},
+    },
     # === Original PEA documents (retained) ===
     {
         "id": "buck_basics",

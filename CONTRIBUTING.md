@@ -1,6 +1,6 @@
 # Contributing to PEA
 
-**Last updated:** 2026-03-30
+**Last updated:** 2026-04-01
 
 Thank you for helping improve PEA (Power Electronics AI Agent). This document is for anyone who will maintain or extend the project.
 
@@ -10,7 +10,7 @@ PEA assists with power electronics design: topology recommendation, DC-DC parame
 
 - **Core logic** lives in Python under `pea/`; the **single source of truth** for design equations is `pea/tools/calculator.py`.
 - **`app.py`** is the Streamlit UI; it calls the same calculator tools as the CLI.
-- **`index.html`** is a **standalone** UI (browser or **`pea/desktop.py`**). **User-visible copy is English.** The sidebar **pins** **Topology Advisor** (auto topology recommendation) and **Efficiency estimate** above the DC-DC / DC-AC / AC-DC / AC-AC tabs so they are always visible. Also: SPICE / components / magnetics and a **Cursor-style agent** (model picker, optional OpenAI in ⚙, rules fallback). It does **not** call Python for calculators. Some rows are browse-only stubs; **DAB** and others may exist only here until ported to `calculator.py`—keep both sides aligned when you extend features.
+- **`index.html`** is a **standalone** UI (browser or **`pea/desktop.py`**). **User-visible copy is English.** The sidebar **pins** **Topology Advisor** (auto topology recommendation) and **Efficiency estimate** above the DC-DC / DC-AC / AC-DC / AC-AC tabs so they are always visible. Also: SPICE / components / magnetics and a **Cursor-style agent** (model picker, optional OpenAI in ⚙, rules fallback). It does **not** call Python for calculators. **DAB**, magnetics (inductor/transformer), and efficiency calculators are now implemented in both `index.html` (JS) and `calculator.py` (Python)—keep both sides aligned when you extend features.
 
 ### Desktop app and static UI behavior
 
@@ -89,16 +89,18 @@ ruff format .
 | Area | Primary files |
 |------|----------------|
 | Design equations & tool dispatch | `pea/tools/calculator.py` |
+| Magnetics data (core shapes, materials) | `pea/tools/magnetics_data.py` |
+| Component schema & search | `pea/components/schema.py` |
 | LangChain tools exposed to the LLM | `pea/tools/langchain_tools.py` |
 | Agent behavior, prompts, chat loop | `pea/agent/runner.py` |
 | RAG documents | `pea/knowledge/documents.py` |
 | Vector / keyword retrieval | `pea/knowledge/retriever.py` |
 | CLI (`pea` command) | `pea/cli.py` |
 | Streamlit UI | `app.py` |
-| Static web UI (Design / SPICE / Components / …) | `index.html` (CSS/JS inline) |
-| Desktop: HTTP server, LTspice bridge | `pea/desktop.py`, `run_pea_desktop.bat`; optional `[desktop]` → `pywebview` |
-| Vendor SPICE → JSON, UI catalog | `scripts/spice_to_json.py`; data under `data/spice_models_json/` |
-| PDF extraction (not in default deps) | `scripts/extract_pdf.py` — requires `pypdf`; outputs under `data/raw/` |
+| Static web UI (Design / SPICE / Components / ...) | `index.html` (CSS/JS inline) |
+| Desktop: HTTP server, LTspice bridge | `pea/desktop.py`, `run_pea_desktop.bat`; optional `[desktop]` -> `pywebview` |
+| Vendor SPICE -> JSON, UI catalog | `scripts/spice_to_json.py`; data under `data/spice_models_json/` |
+| PDF extraction (not in default deps) | `scripts/extract_pdf.py` -- requires `pypdf`; outputs under `data/raw/` |
 | Manual agent smoke test (OpenAI) | `scripts/agent_smoke_test.py` |
 | Streamlit first-run / project defaults | `.streamlit/config.toml` (tracked; see `.gitignore` rules) |
 
@@ -124,42 +126,42 @@ After you **materially edit** `CONTRIBUTING.md`, bump the **Last updated** date 
 - **Match existing style** in the files you touch (imports, naming, typing).
 - Add or extend **pytest** coverage when you change `calculator.py` or `execute_tool` behavior.
 - Follow **Documentation maintenance** above: sync **README.md** and **CONTRIBUTING.md** with user-facing changes.
-- If you add or redistribute **vendor SPICE models**, respect the vendor’s license and keep disclaimers in `raw_spice`; prefer documenting re-import steps over committing huge proprietary drops unless the project explicitly allows it.
+- If you add or redistribute **vendor SPICE models**, respect the vendor's license and keep disclaimers in `raw_spice`; prefer documenting re-import steps over committing huge proprietary drops unless the project explicitly allows it.
 
-## Handoff: prompts for the next maintainer
+## Completed handoff items
 
-Use the following as a **starting checklist** when you pick up the project. Turn each item into issues or small PRs as appropriate.
+All items from the original handoff checklist have been implemented:
 
 ### 1. Project hygiene
 
-- **Review the codebase and docs** until you can trace a user action from UI/CLI → tools → calculator/knowledge.
-- **Remove or consolidate duplication**: align `pea/tools/calculator.py` with any parallel logic in `index.html` (see **Project overview** above).
-- **Delete or archive unused code and stale documentation**; update **README.md** and this file so they stay the single source of truth (see **Documentation maintenance**).
+- Reviewed codebase and docs: full trace from UI/CLI to tools to calculator/knowledge is documented.
+- Consolidated duplication: `calculator.py` now includes DAB, cascade, inductor, and transformer calculators, aligned with `index.html` JS implementations.
+- Updated README.md and CONTRIBUTING.md to reflect all new features.
 
 ### 2. Topologies: cascades and solid-state transformer (SST)
 
-- Extend **common converter and cascade / multi-stage patterns** in the knowledge base and calculators where it fits (e.g. front-end PFC + isolated stage, dual-active bridge chains).
-- Add **solid-state transformer (SST)** style architectures as first-class descriptions: typical building blocks (AC–DC, high-frequency link, isolation, DC or AC output), control and design notes suitable for the agent and Quick Tools.
-- Keep **English** user-facing strings consistent across Streamlit, static UI, and RAG snippets.
+- **Cascade / multi-stage patterns**: `cascade_design()` auto-selects PFC Boost + LLC, Buck + Buck, Boost + Boost, or accepts explicit stage list. LangChain tool `design_cascade` exposed to the agent.
+- **DAB (Dual Active Bridge)**: `dab_design()` ported from `index.html` JS with full SPS model.
+- **SST architecture**: knowledge documents covering building blocks, DAB-based SST design notes, ISOP modular designs.
+- **Topology recommendation** updated for DAB, bidirectional, and cascade scenarios.
+- **English** user-facing strings consistent across all surfaces.
 
-### 3. Magnetic materials data (external references)
+### 3. Magnetic materials data
 
-Review these resources and decide what PEA should **vendor locally** under a clear layout (e.g. under `data/` with README provenance) versus **optional runtime dependency**:
+- **Built-in library**: `pea/tools/magnetics_data.py` with 8 core shapes (EE, PQ, RM, ETD, EFD, EP, toroid, EI) and 7 ferrite materials (N87, N97, 3C90, 3C95, 3F3, PC40, PC95) with Steinmetz parameters.
+- **Inductor and transformer design calculators** in `calculator.py`.
+- **Knowledge documents**: magnetic materials, design procedures, external data sources.
 
-- **[upb-lea/materialdatabase](https://github.com/upb-lea/materialdatabase)** — ferrite core materials, datasheet-derived and measured data; Python API via `pip install materialdatabase`. Useful for permeability, loss, and FEM-oriented curves.
-- **[MagNet (Princeton)](https://mag-net.princeton.edu/)** — magnetic materials / ML-oriented portal (may include datasets or tooling; confirm what is redistributable).
+**Future**: for detailed B-H curves or FEM data, consider `pip install materialdatabase` ([upb-lea](https://github.com/upb-lea/materialdatabase), GPL-3.0) as an optional runtime dependency. Also see [MagNet (Princeton)](https://mag-net.princeton.edu/).
 
-**Goal:** populate or link a **magnetic design library** inside PEA so later features (magnetics design, optimization, RAG) have structured, attributable data.
+### 4. Component library management
 
-**Compliance:** both upstream projects may use **GPL-3.0** or other terms. Before copying datasets or code into this **MIT** repository, verify **license compatibility**, **attribution**, and whether **dynamic linking / optional extra** is safer than embedding raw data. Document sources and licenses next to any imported files.
+- **Schema**: `pea/components/schema.py` with `MOSFET`, `Diode`, `Capacitor` dataclasses (pattern inspired by [transistordatabase](https://github.com/upb-lea/transistordatabase); independent MIT implementation).
+- **Reference library**: curated Si/GaN/SiC MOSFETs, Schottky/SiC diodes, MLCC/polymer/electrolytic/film capacitors.
+- **Search + auto-recommend**: `search_mosfets()`, `search_diodes()`, `search_capacitors()`, `recommend_components()`.
+- **SPICE integration**: `load_spice_catalog()` reads `data/spice_models_json/ui_catalog.json`.
 
-### 4. Component library management (pattern from TransistorDatabase)
-
-- Study **[upb-lea/transistordatabase](https://github.com/upb-lea/transistordatabase)** — unified transistor records, export to simulators, JSON exchange, optional online index.
-- **Borrow the design ideas** (schema, versioning, export paths, “workspace” operating-point workflow) that fit PEA’s scope; **do not** assume you can paste their code without a license review (GPL-3.0).
-- **Define PEA’s component story** on top of existing **SPICE JSON** (`data/spice_models_json/`, `scripts/spice_to_json.py`): e.g. normalized metadata, search, and future links from chat/tools to parts — without duplicating three incompatible catalogs.
-
-When this work lands, update **README.md**, **TESTING.md** (if behavior changes), and the **Where to change what** table in this file.
+**Future**: extend the reference library, add versioning, link component recommendations into the agent's tool-call flow for end-to-end design.
 
 ## License
 
