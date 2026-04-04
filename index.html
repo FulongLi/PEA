@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PEA — power electronics design: DC-DC (Buck, Boost, SEPIC, DAB, LLC…), cascade stages, efficiency, magnetics (Steinmetz), component tables, SPICE netlists and JSON vendor models (LTspice via desktop). Aligns with pea/tools/calculator.py and pea CLI.">
 <title>PEA - Power Electronics AI Agent</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -288,7 +289,7 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
 
   <!-- Sidebar: converter taxonomy -->
   <aside class="sidebar" id="sidebar">
-    <div class="side-header">Converters</div>
+    <div class="side-header">Design library</div>
     <div class="sidebar-pinned">
       <div class="pinned-label">Auto topology & analysis</div>
       <button type="button" class="quick-tool active" data-tool="recommend">◈ Topology Advisor — auto recommendation</button>
@@ -324,6 +325,10 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
           <div class="tax-row" data-stub="1" data-stub-title="Full-Bridge" data-stub-desc="Four switches; preferred for high-power isolated DC-DC."><span class="tax-icon">⎎</span><div class="tax-meta"><div class="tax-name">Full-Bridge</div><div class="tax-desc">High power</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
           <div class="tax-row" data-tool="llc"><span class="tax-icon">∿</span><div class="tax-meta"><div class="tax-name">LLC resonant</div><div class="tax-desc">ZVS, high efficiency HF</div></div><div class="tax-tags"><span class="tax-tag tag-iso">Iso</span></div></div>
           <div class="tax-row" data-tool="dab"><span class="tax-icon">⇌</span><div class="tax-meta"><div class="tax-name">DAB</div><div class="tax-desc">Dual active bridge, bidirectional</div></div><div class="tax-tags"><span class="tax-tag tag-bidir">Bidi</span></div></div>
+        </div>
+        <div class="tax-card tax-card--amber">
+          <div class="tax-card-h">Multi-stage</div>
+          <div class="tax-row" data-tool="cascade"><span class="tax-icon">⛓</span><div class="tax-meta"><div class="tax-name">Cascade</div><div class="tax-desc">Auto two-stage chain (e.g. PFC+LLC, Buck+Buck)</div></div><div class="tax-tags"><span class="tax-tag tag-bb">Chain</span></div></div>
         </div>
         <div class="tax-card tax-card--purple">
           <div class="tax-card-h">Soft switching / resonant</div>
@@ -473,7 +478,7 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
       <!-- ═══ Components Panel ═══ -->
       <div class="panel" id="panelComponents" data-tab="components">
         <h2 class="panel-title">Component Selection</h2>
-        <p class="panel-sub">Auto-recommended components based on your converter design parameters.</p>
+        <p class="panel-sub">Reference parts (Si / SiC / GaN MOSFETs, Schottky &amp; SiC diodes, MLCC &amp; electrolytics) filtered from the last <b>Design</b> run. For full tool parity use <code>pea tool components</code> or Streamlit <code>app.py</code>.</p>
 
         <div class="comp-req" id="compReqs">
           <div class="comp-req-card"><div class="req-label">V_in</div><div class="req-val" id="crVin">--<span class="req-unit">V</span></div></div>
@@ -514,7 +519,7 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
       <!-- ═══ Magnetics Panel ═══ -->
       <div class="panel" id="panelMagnetics" data-tab="magnetics">
         <h2 class="panel-title">Magnetics Design</h2>
-        <p class="panel-sub">Inductor & transformer design — core selection, winding calculation, flux density analysis.</p>
+        <p class="panel-sub">Inductor and transformer sizing with the same core/material families as <code>pea/tools/magnetics_data.py</code> (EE, PQ, RM, ETD, EFD, EP, toroid, EI): turns, gap, Steinmetz core loss, copper loss, fill factor.</p>
 
         <div class="mag-layout">
           <div class="mag-col">
@@ -533,6 +538,8 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
                       <option value="EI">EI Core</option>
                       <option value="PQ">PQ Core</option>
                       <option value="RM">RM Core</option>
+                      <option value="ETD">ETD Core</option>
+                      <option value="EFD">EFD Core</option>
                       <option value="toroid">Toroid</option>
                       <option value="EP">EP Core</option>
                     </select>
@@ -583,6 +590,8 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
                       <option value="3C90">3C90 (Ferroxcube)</option>
                       <option value="3C95">3C95 (Ferroxcube)</option>
                       <option value="3F3">3F3 (Ferroxcube)</option>
+                      <option value="PC40">PC40 (TDK)</option>
+                      <option value="PC95">PC95 (TDK)</option>
                     </select>
                   </div>
                   <div class="form-group"><label>B_max <span style="color:var(--text3);font-size:.5rem">mT</span></label><input type="number" id="magTxBmax" value="200" step="10" min="50"></div>
@@ -599,7 +608,7 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
       <!-- ═══ Results Panel ═══ -->
       <div class="panel" id="panelResults" data-tab="results">
         <h2 class="panel-title">Results Viewer</h2>
-        <p class="panel-sub">Design parameters, waveforms, and performance metrics.</p>
+        <p class="panel-sub">Waveforms and metrics from the active Design tool. Run <b>Execute Analysis</b> on Buck, Boost, DAB, Cascade, Efficiency, etc.</p>
         <canvas class="wave-canvas" id="waveCanvas"></canvas>
         <div class="results-grid" id="metricsGrid">
           <div class="metric-card"><div class="metric-label">Output Power</div><div class="metric-val" id="mPower">--<span class="metric-unit">W</span></div></div>
@@ -631,14 +640,14 @@ input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;di
       <input type="password" id="llmApiKey" placeholder="sk-..." autocomplete="off">
       <label>Custom model id (when “Custom” is selected below)</label>
       <input type="text" id="llmModelCustom" placeholder="e.g. gpt-4o or compatible endpoint model name" autocomplete="off">
-      <div class="settings-hint">Like Cursor: pick a model and save your key. If the page is blocked by CORS, use <code>streamlit run app.py</code> or a local reverse proxy to an OpenAI-compatible API.</div>
+      <div class="settings-hint">Like Cursor: pick a model and save your key. If the page is blocked by CORS, use <code>streamlit run app.py</code> or a local reverse proxy. For the SPICE JSON library + LTspice button, run <code>python -m pea.desktop</code> (serves the repo over HTTP).</div>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-msg ai">
         <div class="msg-label">PEA Agent</div>
-        The sidebar lists <b>DC-DC / DC-AC / AC-DC / AC-AC</b>. Top pinned buttons: <b>Topology Advisor</b> (auto recommendation) and <b>Efficiency estimate</b>. Calculators open the design form.<br><br>
-        Choose an LLM below; optional OpenAI API in ⚙. Without API, replies use local rules.<br><br>
-        Try: <i>“12V to 5V 2A buck”</i>
+        Sidebar: <b>DC-DC … AC-AC</b> taxonomy; pinned <b>Topology Advisor</b> (isolation + bidirectional) and <b>Efficiency</b>. <b>Cascade</b> under DC-DC runs a two-stage auto pattern aligned with Python.<br><br>
+        Tabs: <b>Design · SPICE</b> (JSON vendor models + LTspice via desktop) · <b>Components · Magnetics · Results</b>. Optional OpenAI in ⚙; otherwise rules.<br><br>
+        Try: <i>“12V to 5V 2A buck”</i> or <i>“400V to 48V 1kW isolated bidirectional”</i>
       </div>
     </div>
     <div class="chat-composer">
@@ -898,8 +907,8 @@ function isoF(){return[{id:'v_in_min',label:'V_in min',unit:'V',val:9,step:.1,mi
 function r1(v){return Math.round(v*10)/10}function r2(v){return Math.round(v*100)/100}function r3(v){return Math.round(v*1000)/1000}function r4(v){return Math.round(v*10000)/10000}
 
 const TOOLS={
-  recommend:{title:'Topology Advisor',subtitle:'Analyze specifications and recommend the optimal converter topology.',
-    fields:[{id:'v_in',label:'V_in',unit:'V',val:12,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:5,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'isolated',label:'Require galvanic isolation',type:'checkbox',val:false}],compute:topologyRec},
+  recommend:{title:'Topology Advisor',subtitle:'Matches pea/tools/calculator.py topology_recommendation — isolation, bidirectional, and cascade hints.',
+    fields:[{id:'v_in',label:'V_in',unit:'V',val:12,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:5,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'isolated',label:'Require galvanic isolation',type:'checkbox',val:false},{id:'bidirectional',label:'Bidirectional power flow',type:'checkbox',val:false}],compute:topologyRec},
   buck:{title:'Buck Converter',subtitle:'Step-down — V_out < V_in',fields:stdF(),compute:buckD},
   boost:{title:'Boost Converter',subtitle:'Step-up — V_out > V_in',fields:stdF(5,12),compute:boostD},
   buck_boost:{title:'Buck-Boost',subtitle:'Inverting topology',fields:stdF(),compute:bbD},
@@ -911,6 +920,8 @@ const TOOLS={
     fields:[{id:'v_in',label:'V_in',unit:'V',val:400,step:1,min:1},{id:'v_out',label:'V_out',unit:'V',val:12,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:20,step:.5,min:.01},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10},{id:'q',label:'Q factor',unit:'',val:.5,step:.1,min:.1}],compute:llcD},
   dab:{title:'Dual Active Bridge',subtitle:'Bidirectional isolated — ZVS, high power',
     fields:[{id:'v1',label:'V₁ (Port 1)',unit:'V',val:400,step:1,min:1},{id:'v2',label:'V₂ (Port 2)',unit:'V',val:48,step:.5,min:.1},{id:'p_rated',label:'P_rated',unit:'W',val:1000,step:50,min:10},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10},{id:'phi',label:'Phase shift φ',unit:'°',val:30,step:1,min:1}],compute:dabD},
+  cascade:{title:'Cascade (multi-stage)',subtitle:'Auto two-stage pattern — same logic family as cascade_design() in Python',
+    fields:stdF(),compute:cascadeD},
   efficiency:{title:'Efficiency',subtitle:'Loss breakdown analysis',
     fields:[{id:'v_in',label:'V_in',unit:'V',val:12,step:.1,min:.1},{id:'v_out',label:'V_out',unit:'V',val:5,step:.1,min:.1},{id:'i_out',label:'I_out',unit:'A',val:2,step:.1,min:.01},{id:'f_sw',label:'f_sw',unit:'kHz',val:100,step:10,min:10},{id:'rds',label:'Rds(on)',unit:'mΩ',val:50,step:5,min:1},{id:'dcr',label:'DCR',unit:'mΩ',val:30,step:5,min:1},{id:'vf',label:'Vf',unit:'V',val:.5,step:.1,min:0},{id:'trise',label:'t_rise',unit:'ns',val:20,step:5,min:1},{id:'tfall',label:'t_fall',unit:'ns',val:20,step:5,min:1},{id:'sync',label:'Sync rectification',type:'checkbox',val:false}],compute:effD},
 };
@@ -918,15 +929,83 @@ const TOOLS={
 // ── Topology functions ──────────────────────────────────────────────
 function topologyRec(f){
   const r=f.v_out/f.v_in,p=f.v_out*f.i_out;
-  if(f.isolated){
-    if(p>500)return{recommended:'DAB',alternatives:['LLC Resonant','Phase-shifted FB'],rationale:'DAB optimal for high-power bidirectional isolated. ZVS achievable.',output_power_W:r2(p)};
-    if(p<50)return{recommended:'Flyback',alternatives:['Forward'],rationale:'Flyback cost-effective for low-power isolated.',output_power_W:r2(p)};
-    if(p<200)return{recommended:'Flyback',alternatives:['Forward','Push-Pull'],rationale:'Flyback/Forward for medium power.',output_power_W:r2(p)};
-    return{recommended:'LLC Resonant',alternatives:['DAB','Forward'],rationale:'LLC highest efficiency at high power. DAB if bidirectional needed.',output_power_W:r2(p)};
+  if(f.bidirectional&&f.isolated){
+    return{recommended:'DAB',alternatives:['LLC (unidirectional)','Phase-shifted Full Bridge'],rationale:'Bidirectional + isolation → DAB family (EV, ESS, V2G, SST).',output_power_W:r2(p)};
   }
-  if(r<.9)return{recommended:'Buck',alternatives:['Buck-Boost'],rationale:'Buck optimal for step-down.',output_power_W:r2(p)};
-  if(r>1.1)return{recommended:'Boost',alternatives:['SEPIC'],rationale:'Boost optimal for step-up.',output_power_W:r2(p)};
-  return{recommended:'SEPIC',alternatives:['Ćuk','Buck-Boost'],rationale:'V_in ≈ V_out. SEPIC non-inverting.',output_power_W:r2(p)};
+  if(f.isolated){
+    if(p>500)return{recommended:f.bidirectional?'DAB':'LLC Resonant',alternatives:['DAB','Phase-shifted Full Bridge','PFC Boost + LLC cascade'],rationale:'High-power isolated: LLC for unidirectional ZVS; DAB if bidirectional; cascade for AC front-end.',output_power_W:r2(p)};
+    if(p<50)return{recommended:'Flyback',alternatives:['Forward'],rationale:'Flyback cost-effective for low-power isolated.',output_power_W:r2(p)};
+    if(p<200)return{recommended:'Flyback',alternatives:['Forward','Push-Pull'],rationale:'Flyback or Forward for medium isolated power.',output_power_W:r2(p)};
+    return{recommended:'LLC Resonant',alternatives:['Forward','Phase-shifted Full Bridge','DAB (if bidirectional)'],rationale:'LLC for high efficiency at higher isolated power.',output_power_W:r2(p)};
+  }
+  if(r<0.1)return{recommended:'Buck + Buck cascade',alternatives:['Buck','Forward'],rationale:'Very large step-down (>10:1). Use Cascade tool for a two-stage sketch.',output_power_W:r2(p)};
+  if(r>10)return{recommended:'Boost + Boost cascade',alternatives:['Boost','Flyback'],rationale:'Very large step-up (>10:1). Cascaded boosts ease duty cycle stress.',output_power_W:r2(p)};
+  if(r<0.9)return{recommended:'Buck',alternatives:['Buck-Boost'],rationale:'Buck optimal for step-down.',output_power_W:r2(p)};
+  if(r>1.1)return{recommended:'Boost',alternatives:['SEPIC','Buck-Boost'],rationale:'Boost optimal for step-up.',output_power_W:r2(p)};
+  return{recommended:'SEPIC',alternatives:['Ćuk','Buck-Boost','Buck + Boost cascade'],rationale:'V_in ≈ V_out. SEPIC non-inverting buck-boost.',output_power_W:r2(p)};
+}
+function summarizeCascadeStage(s){
+  if(!s)return'—';
+  if(s.error)return'Error: '+s.error;
+  if(s.topology==='pass-through'||s.notes&&s.topology===undefined)return s.notes||'Pass-through';
+  const bits=[s.topology||'?'];
+  if(s.duty_cycle!=null)bits.push('D='+s.duty_cycle);
+  if(s.inductance_uH!=null)bits.push('L='+s.inductance_uH+'µH');
+  if(s.Lr_uH!=null)bits.push('Lr='+s.Lr_uH+'µH');
+  if(s.Lp_uH!=null)bits.push('Lp='+s.Lp_uH+'µH');
+  return bits.join(' · ');
+}
+function cascadeD(f){
+  const v_in=f.v_in,v_out=f.v_out,i_out=f.i_out,f_sw=f.f_sw;
+  const p=v_out*i_out;
+  if(p<=0)return{error:'Output power must be positive'};
+  const ratio=v_out/v_in;
+  const isolated=(p>200||Math.abs(v_out-v_in)>200);
+  let pattern,s1,s2,eta;
+  if(isolated&&p>=200){
+    const v_bus=400;
+    s1=boostD({v_in,v_out:v_bus,i_out:p/v_bus,f_sw});
+    s2=llcD({v_in:v_bus,v_out,i_out,f_sw,q:f.q!=null?f.q:0.5});
+    pattern='PFC Boost + LLC';
+    eta=92;
+  }else if(ratio<0.1){
+    const v_mid=Math.sqrt(v_in*v_out),i_mid=p/v_mid;
+    s1=buckD({v_in,v_out:v_mid,i_out:i_mid,f_sw});
+    s2=buckD({v_in:v_mid,v_out,i_out,f_sw});
+    pattern='Buck + Buck (cascaded step-down)';
+    eta=95;
+  }else if(ratio>10){
+    const v_mid=Math.sqrt(v_in*v_out),i_mid=p/v_mid;
+    s1=boostD({v_in,v_out:v_mid,i_out:i_mid,f_sw});
+    s2=boostD({v_in:v_mid,v_out,i_out,f_sw});
+    pattern='Boost + Boost (cascaded step-up)';
+    eta=95;
+  }else{
+    const v_mid=Math.min(v_in,v_out),i_mid=p/v_mid;
+    if(v_in>v_out){
+      s1=buckD({v_in,v_out:v_mid,i_out:i_mid,f_sw});
+      if(s1.error)return s1;
+      s2={topology:'pass-through',notes:'Second stage not required — single buck covers V_out.'};
+      pattern='Single-stage Buck (cascade not needed)';
+    }else{
+      s1={topology:'pass-through',notes:'First stage not required — single boost covers V_out.'};
+      s2=boostD({v_in:v_mid,v_out,i_out,f_sw});
+      if(s2.error)return s2;
+      pattern='Single-stage Boost (cascade not needed)';
+    }
+    eta=95;
+  }
+  if(s1&&s1.error)return s1;
+  if(s2&&s2.error)return s2;
+  return{
+    topology:'Cascade',
+    pattern,
+    stage_1:summarizeCascadeStage(s1),
+    stage_2:summarizeCascadeStage(s2),
+    overall_efficiency_est_pct:eta,
+    output_power_W:r2(p),
+    notes:'Auto-selected pattern (same cases as Python cascade_design). Overall η is a rough estimate — multiply stage efficiencies for a tighter bound.'
+  };
 }
 function buckD(f){if(f.v_out>=f.v_in)return{error:'Buck: V_out must < V_in'};const D=f.v_out/f.v_in,fs=f.f_sw*1e3,di=f.i_out*.3,L=(f.v_out*(1-D)/(fs*di))*1e6,dv=f.v_out*.01,C=(di/(8*fs*dv))*1e6;return{topology:'Buck',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),peak_current_A:r2(f.i_out+di/2),notes:'Step-down. Use sync rect for high efficiency.'}}
 function boostD(f){if(f.v_out<=f.v_in)return{error:'Boost: V_out must > V_in'};const D=1-f.v_in/f.v_out,fs=f.f_sw*1e3,ii=f.i_out*f.v_out/f.v_in,di=ii*.3,L=(f.v_in*D/(fs*di))*1e6,dv=f.v_out*.01,C=(f.i_out*D/(fs*dv))*1e6;return{topology:'Boost',duty_cycle:r3(D),inductance_uH:r2(L),capacitance_uF:r2(C),switching_frequency_kHz:f.f_sw,ripple_current_A:r3(di),ripple_voltage_V:r4(dv),peak_current_A:r2(ii+di/2),notes:'Step-up. Watch RHP zero at high D.'}}
@@ -984,7 +1063,7 @@ function renderForm(){
     document.getElementById('toolSubtitle').textContent=stubInfo.desc;
     document.getElementById('resultArea').innerHTML='';
     document.getElementById('schematicArea').innerHTML='';
-    document.getElementById('formArea').innerHTML='<p class="stub-hint">No built-in calculator for this entry yet. Use <b>Topology Advisor</b> (pinned above) for auto recommendation, or <b>PEA Agent</b> on the right (optional LLM in ⚙).</p>';
+    document.getElementById('formArea').innerHTML='<p class="stub-hint">Browse-only taxonomy entry — no in-page calculator yet. Use pinned <b>Topology Advisor</b>, <b>Cascade</b> (multi-stage), or <b>PEA Agent</b> (⚙ OpenAI optional). Full parity: <code>pea</code> CLI or <code>streamlit run app.py</code>.</p>';
     return;
   }
   const t=TOOLS[activeTool];
@@ -1690,7 +1769,8 @@ function processChat(msg){
   if(vMatch){
     const vin=parseFloat(vMatch[1]),vout=parseFloat(vMatch[2]),iout=iMatch?parseFloat(iMatch[1]):1;
     const iso=m.includes('isolat')||m.includes('dab');
-    const rec=topologyRec({v_in:vin,v_out:vout,i_out:iout,isolated:iso});
+    const bidi=m.includes('bidirectional')||m.includes('bidi')||m.includes('v2g')||m.includes('two-way')||m.includes('bidirect');
+    const rec=topologyRec({v_in:vin,v_out:vout,i_out:iout,isolated:iso,bidirectional:bidi});
     let design=null,topo=rec.recommended.toLowerCase();
     if(topo==='dab')design=dabD({v1:vin,v2:vout,p_rated:vin*iout,f_sw:100,phi:30});
     else if(topo.includes('buck')&&!topo.includes('boost'))design=buckD({v_in:vin,v_out:vout,i_out:iout,f_sw:100});
@@ -1707,10 +1787,10 @@ function processChat(msg){
   if(m.includes('dab')||m.includes('dual active'))return 'The <b>DAB (Dual Active Bridge)</b> is a bidirectional isolated converter ideal for high-power applications (EV charging, ESS, V2G).<br><br>Key features:<br>• ZVS achievable with phase-shift control<br>• Bidirectional power flow<br>• SPS (single phase-shift) is simplest; EPS/TPS for extended ZVS range<br><br>Select <b>DAB</b> in the sidebar to design one.';
   if(m.includes('magneti')||m.includes('inductor')||m.includes('transformer')||m.includes('core'))return 'Switch to the <b>Magnetics</b> tab for inductor and transformer design.<br><br>Features:<br>• Core shape selection (EE, PQ, RM, ETD, toroid...)<br>• Ferrite material library (N87, 3C90, 3F3...)<br>• Turns, wire gauge, air gap, flux density calculation<br>• Core loss via Steinmetz equation<br>• Window fill and saturation checks';
   if(m.includes('component')||m.includes('mosfet')||m.includes('diode')||m.includes('select'))return 'Switch to the <b>Components</b> tab after running a design calculation. Auto-recommended:<br>• MOSFETs filtered by V_DS, I_D, Rds(on)<br>• Diodes (Schottky, SiC, ultra-fast)<br>• Output capacitors (MLCC, electrolytic, polymer, film)';
-  if(m.includes('spice')||m.includes('simulate'))return 'The <b>SPICE</b> tab auto-generates netlists (including DAB) after you run Execute Analysis. Download .cir for ngspice/LTspice.';
+  if(m.includes('spice')||m.includes('simulate'))return 'The <b>SPICE</b> tab builds netlists (Buck, Boost, DAB, …) after <b>Execute Analysis</b>. Load vendor decks from <code>data/spice_models_json</code>; use <b>Open in LTspice</b> from <code>python -m pea.desktop</code>.';
   if(m.includes('efficiency')||m.includes('loss'))return 'Select <b>Efficiency</b> in the sidebar for loss breakdown (MOSFET conduction, switching, DCR, diode).';
   if(m.includes('hello')||m.includes('hi'))return 'Hello! I\'m PEA. Ask me anything about power electronics design, or try: <i>"Design a 400V to 48V 1kW DAB converter"</i>';
-  return 'I can help with:<br>• <b>DC-DC</b>: e.g. “12V to 5V 2A buck”<br>• <b>Isolated / DAB</b>: e.g. “400V to 48V 1kW bidirectional”<br>• <b>Magnetics / parts / SPICE</b>: ask with keywords<br>• Sidebar: <b>DC-DC · DC-AC · AC-DC · AC-AC</b>; use pinned <b>Topology Advisor</b> for auto recommendation<br><br>Enable <b>Use OpenAI API</b> in ⚙ for a real LLM (use <code>streamlit run app.py</code> if the browser blocks CORS).';
+  return 'I can help with:<br>• <b>DC-DC</b>: e.g. “12V to 5V 2A buck”<br>• <b>Cascade</b>: multi-stage auto pattern<br>• <b>Isolated / DAB</b>: tick isolation + bidirectional in <b>Topology Advisor</b><br>• <b>Magnetics / components / SPICE</b>: use the center tabs<br>• <b>Python parity</b>: <code>pea tool …</code> and <code>streamlit run app.py</code><br><br>Enable <b>Use OpenAI API</b> in ⚙ for a full LLM (or use Streamlit if the browser blocks CORS).';
 }
 
 // ═══════════════════════════════════════════════════════════════════
